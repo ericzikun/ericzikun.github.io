@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+
+    
+
+    
+    <title>朴素贝叶斯理论 | Eric’s blog</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="统计学习方法,朴素贝叶斯" />
+    
+    <meta name="description" content="（三）朴素贝叶斯定义 ：朴素贝叶斯是基于贝叶斯定理和特征条件独立假设的分类方法。首先学习输入&#x2F;输出的联合概率分布,然后基于此模型,对给定的输入$x$,利用贝叶斯定理求出后验概率最大的输出$y$。 模型:首先学习先验概率分布：$P(Y&#x3D;c_k),k&#x3D;1,2,…,K$ ,  $c_k$代表某一类，也就是计算该类别的概率（在样本中我们已知）然后学习条件概率分布：$P(X&#x3D;x|Y&#x3D;c_k)&#x3D;P(X^{1}">
+<meta property="og:type" content="article">
+<meta property="og:title" content="朴素贝叶斯理论">
+<meta property="og:url" content="https://ericzikun.github.io/2020/04/08/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF%E7%90%86%E8%AE%BA/index.html">
+<meta property="og:site_name" content="Eric’s blog">
+<meta property="og:description" content="（三）朴素贝叶斯定义 ：朴素贝叶斯是基于贝叶斯定理和特征条件独立假设的分类方法。首先学习输入&#x2F;输出的联合概率分布,然后基于此模型,对给定的输入$x$,利用贝叶斯定理求出后验概率最大的输出$y$。 模型:首先学习先验概率分布：$P(Y&#x3D;c_k),k&#x3D;1,2,…,K$ ,  $c_k$代表某一类，也就是计算该类别的概率（在样本中我们已知）然后学习条件概率分布：$P(X&#x3D;x|Y&#x3D;c_k)&#x3D;P(X^{1}">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1474209398,3737326875&fm=26&gp=0.jpg">
+<meta property="article:published_time" content="2020-04-08T02:16:54.000Z">
+<meta property="article:modified_time" content="2020-04-08T02:59:05.061Z">
+<meta property="article:author" content="Eric kun">
+<meta property="article:tag" content="统计学习方法">
+<meta property="article:tag" content="朴素贝叶斯">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1474209398,3737326875&fm=26&gp=0.jpg">
+    
+
+    
+        <link rel="alternate" href="/" title="Eric’s blog" type="application/atom+xml" />
+    
+
+    
+
+    
+<link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+
+    
+<link rel="stylesheet" href="/libs/titillium-web/styles.css">
+
+    
+<link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    
+<script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+        
+<link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+
+    
+    
+        
+<link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+
+    
+    
+    
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8A%A5%E9%94%99/">报错</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8F%90%E5%8D%87%E6%95%88%E7%8E%87/">提升效率</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86/">文本处理</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/">技术栈</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/Java/">Java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/Python/">Python</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/React/">React</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E5%86%B3%E7%AD%96%E6%A0%91/">决策树</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%84%9F%E7%9F%A5%E6%9C%BA-KNN/">感知机&KNN</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/">朴素贝叶斯</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92/">逻辑回归</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB/">文本分类</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%A8%A1%E5%9E%8B%E5%8F%AF%E8%A7%86%E5%8C%96/">模型可视化</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/">自然语言处理</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/%E6%96%87%E6%9C%AC%E6%8A%BD%E5%8F%96/">文本抽取</a></li></ul></li></ul>
+                                    
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/">朴素贝叶斯</a>
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-朴素贝叶斯理论" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        朴素贝叶斯理论
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                <span id="busuanzi_container_page_pv" style='display:none' class="article-date">
+  <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+</span>
+
+
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2020/04/08/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF%E7%90%86%E8%AE%BA/" class="article-date">
+         <time datetime="2020-04-08T02:16:54.000Z" itemprop="datePublished">2020-04-08</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/" rel="tag">朴素贝叶斯</a>, <a class="tag-link" href="/tags/%E7%BB%9F%E8%AE%A1%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/" rel="tag">统计学习方法</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <h1 id="（三）朴素贝叶斯"><a href="#（三）朴素贝叶斯" class="headerlink" title="（三）朴素贝叶斯"></a>（三）朴素贝叶斯</h1><h2 id="定义-："><a href="#定义-：" class="headerlink" title="定义 ："></a>定义 ：</h2><p>朴素贝叶斯是基于贝叶斯定理和特征条件独立假设的分类方法。<br>首先学习输入/输出的联合概率分布,然后基于此模型,对给定的输入$x$,利用贝叶斯定理求出后验概率最大的输出$y$。<br></p>
+<p>模型:<br>首先学习<strong>先验概率</strong>分布：$P(Y=c_k),k=1,2,…,K$ ,  $c_k$代表某一类，也就是计算该类别的概率（在样本中我们已知）<br>然后学习条件概率分布：$P(X=x|Y=c_k)=P(X^{1}=x^{1},…,X^{n}=x^{n}|Y=c_k)$，给定一个类别$c_k$，计算该样本各个特征的概率,比如该样本第一个特征为<br>朴素贝叶斯法对条件概率分布作了<strong>条件独立性</strong>的假设：$$P(X^{(1)}=x^{(1)}|Y=c_k)P(X^{(2)}=x^{(2)}|Y=c_k)…P(X^{(j)}=x^{(j)}|Y=c_k)$$<br>上式变成:$$\prod_{j=1}^{n}P(X^{(j)}=x^{(j)}|Y=c_k)$$<br>在分类时,通过学习到的模型计算后验概率分布,由贝叶斯定理得到:<br>$$P(Y=c_k|X=x)=\frac{P(X=x|Y=c_k)P(Y=c_k)}{\sum_{k}P(X=x|Y=c_k)P(Y=c_k)}$$<br>将条件独立性假设得到的等式代入,并且注意到分母都是相同的,所以得到朴素贝叶斯分类器:<br>$$y=argmax_{c_k}P(Y=c_k)\prod_{j=1}P(X^{(j)}=x^{(j)}|Y=c_k)$$</p>
+<p>算法:使用<strong>极大似然估计法</strong>估计相应的先验概率率:$$P(Y=c_k)=\frac{\sum_{i=1}^{N}I(y_i=c_k)}{N},k=1,2,…,K$$<br>以及条件概率：<br>$$P(X^{(j)}=a_{jl}|Y=c_k)=\frac{\sum_{i=1}^{N}I(x_{i}^{(j)}=a_{jl},y_i=c_k)}{\sum_{i=1}^{N}I(y_{i}=c_k)}$$<br>计算条件独立性假设下的实例各个取值的可能性,选取其中的最大值作为输出。</p>
+<p>使用贝叶斯估计虽然保证了所有连乘项的概率都大于0，不会再出现某一项为0结果为0的情况。但若一个样本数据时高维的，比如说100维（100其实并不高），连乘项都是0-1之间的，那100个0-1之间的数相乘，最后的数一定是非常非常小了，可能无限接近于0。对于程序而言过于接近0的数可能会造成下<strong>溢出</strong>，也就是精度不够表达了。所以我们会给整个连乘项<strong>取对数</strong>，这样哪怕所有连乘最后结果无限接近0，那取完log以后数也会变得很大（虽然是负的很大），计算机就可以表示了。同样，多项连乘取对数，对数的连乘可以表示成对数的相加，在计算上也简便了。所以在实际运用中，不光需要使用贝叶斯估计（保证概率不为0），同时也要取对数（保证连乘结果不下溢出）。</p>
+<h2 id="代码："><a href="#代码：" class="headerlink" title="代码："></a>代码：</h2><p><a href="https://www.pkudodo.com" target="_blank" rel="noopener">参考代码:</a></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># coding=utf-8</span></span><br><span class="line"><span class="comment"># Author:Dodo</span></span><br><span class="line"><span class="comment"># Date:2018-11-17</span></span><br><span class="line"><span class="comment"># Email:lvtengchao@pku.edu.cn</span></span><br><span class="line"></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">数据集：Mnist</span></span><br><span class="line"><span class="string">训练集数量：60000</span></span><br><span class="line"><span class="string">测试集数量：10000</span></span><br><span class="line"><span class="string">------------------------------</span></span><br><span class="line"><span class="string">运行结果：</span></span><br><span class="line"><span class="string">    正确率：84.3%</span></span><br><span class="line"><span class="string">    运行时长：103s</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">loadData</span><span class="params">(fileName)</span>:</span></span><br><span class="line">    <span class="string">'''</span></span><br><span class="line"><span class="string">    加载文件</span></span><br><span class="line"><span class="string">    :param fileName:要加载的文件路径</span></span><br><span class="line"><span class="string">    :return: 数据集和标签集</span></span><br><span class="line"><span class="string">    '''</span></span><br><span class="line">    <span class="comment">#存放数据及标记</span></span><br><span class="line">    dataArr = []; labelArr = []</span><br><span class="line">    <span class="comment">#读取文件</span></span><br><span class="line">    fr = open(fileName)</span><br><span class="line">    <span class="comment">#遍历文件中的每一行</span></span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> fr.readlines():</span><br><span class="line">        <span class="comment">#获取当前行，并按“，”切割成字段放入列表中</span></span><br><span class="line">        <span class="comment">#strip：去掉每行字符串首尾指定的字符（默认空格或换行符）</span></span><br><span class="line">        <span class="comment">#split：按照指定的字符将字符串切割成每个字段，返回列表形式</span></span><br><span class="line">        curLine = line.strip().split(<span class="string">','</span>)</span><br><span class="line">        <span class="comment">#将每行中除标记外的数据放入数据集中（curLine[0]为标记信息）</span></span><br><span class="line">        <span class="comment">#在放入的同时将原先字符串形式的数据转换为整型</span></span><br><span class="line">        <span class="comment">#此外将数据进行了二值化处理，大于128的转换成1，小于的转换成0，方便后续计算</span></span><br><span class="line">        dataArr.append([int(int(num) &gt; <span class="number">128</span>) <span class="keyword">for</span> num <span class="keyword">in</span> curLine[<span class="number">1</span>:]])</span><br><span class="line">        <span class="comment">#将标记信息放入标记集中</span></span><br><span class="line">        <span class="comment">#放入的同时将标记转换为整型</span></span><br><span class="line">        labelArr.append(int(curLine[<span class="number">0</span>]))</span><br><span class="line">    <span class="comment">#返回数据集和标记</span></span><br><span class="line">    <span class="keyword">return</span> dataArr, labelArr</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">NaiveBayes</span><span class="params">(Py, Px_y, x)</span>:</span></span><br><span class="line">    <span class="string">'''</span></span><br><span class="line"><span class="string">    通过朴素贝叶斯进行概率估计</span></span><br><span class="line"><span class="string">    :param Py: 先验概率分布</span></span><br><span class="line"><span class="string">    :param Px_y: 条件概率分布</span></span><br><span class="line"><span class="string">    :param x: 要估计的样本x</span></span><br><span class="line"><span class="string">    :return: 返回所有label的估计概率</span></span><br><span class="line"><span class="string">    '''</span></span><br><span class="line">    <span class="comment">#设置特征数目</span></span><br><span class="line">    featrueNum = <span class="number">784</span></span><br><span class="line">    <span class="comment">#设置类别数目</span></span><br><span class="line">    classNum = <span class="number">10</span></span><br><span class="line">    <span class="comment">#建立存放所有标记的估计概率数组</span></span><br><span class="line">    P = [<span class="number">0</span>] * classNum</span><br><span class="line">    <span class="comment">#对于每一个类别，单独估计其概率</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(classNum):</span><br><span class="line">        <span class="comment">#初始化sum为0，sum为求和项。</span></span><br><span class="line">        <span class="comment">#在训练过程中对概率进行了log处理，所以这里原先应当是连乘所有概率，最后比较哪个概率最大</span></span><br><span class="line">        <span class="comment">#但是当使用log处理时，连乘变成了累加，所以使用sum</span></span><br><span class="line">        sum = <span class="number">0</span></span><br><span class="line">        <span class="comment">#获取每一个条件概率值，进行累加</span></span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> range(featrueNum):</span><br><span class="line">            sum += Px_y[i][j][x[j]]</span><br><span class="line">        <span class="comment">#最后再和先验概率相加（也就是式4.7中的先验概率乘以后头那些东西，乘法因为log全变成了加法）</span></span><br><span class="line">        P[i] = sum + Py[i]</span><br><span class="line"></span><br><span class="line">    <span class="comment">#max(P)：找到概率最大值</span></span><br><span class="line">    <span class="comment">#P.index(max(P))：找到该概率最大值对应的所有（索引值和标签值相等）</span></span><br><span class="line">    <span class="keyword">return</span> P.index(max(P))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">test</span><span class="params">(Py, Px_y, testDataArr, testLabelArr)</span>:</span></span><br><span class="line">    <span class="string">'''</span></span><br><span class="line"><span class="string">    对测试集进行测试</span></span><br><span class="line"><span class="string">    :param Py: 先验概率分布</span></span><br><span class="line"><span class="string">    :param Px_y: 条件概率分布</span></span><br><span class="line"><span class="string">    :param testDataArr: 测试集数据</span></span><br><span class="line"><span class="string">    :param testLabelArr: 测试集标记</span></span><br><span class="line"><span class="string">    :return: 准确率</span></span><br><span class="line"><span class="string">    '''</span></span><br><span class="line">    <span class="comment">#错误值计数</span></span><br><span class="line">    errorCnt = <span class="number">0</span></span><br><span class="line">    <span class="comment">#循环遍历测试集中的每一个样本</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(len(testDataArr)):</span><br><span class="line">        <span class="comment">#获取预测值</span></span><br><span class="line">        presict = NaiveBayes(Py, Px_y, testDataArr[i])</span><br><span class="line">        <span class="comment">#与答案进行比较</span></span><br><span class="line">        <span class="keyword">if</span> presict != testLabelArr[i]:</span><br><span class="line">            <span class="comment">#若错误  错误值计数加1</span></span><br><span class="line">            errorCnt += <span class="number">1</span></span><br><span class="line">    <span class="comment">#返回准确率</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span> - (errorCnt / len(testDataArr))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getAllProbability</span><span class="params">(trainDataArr, trainLabelArr)</span>:</span></span><br><span class="line">    <span class="string">'''</span></span><br><span class="line"><span class="string">    通过训练集计算先验概率分布和条件概率分布</span></span><br><span class="line"><span class="string">    :param trainDataArr: 训练数据集</span></span><br><span class="line"><span class="string">    :param trainLabelArr: 训练标记集</span></span><br><span class="line"><span class="string">    :return: 先验概率分布和条件概率分布</span></span><br><span class="line"><span class="string">    '''</span></span><br><span class="line">    <span class="comment">#设置样本特诊数目，数据集中手写图片为28*28，转换为向量是784维。</span></span><br><span class="line">    <span class="comment"># （我们的数据集已经从图像转换成784维的形式了，CSV格式内就是）</span></span><br><span class="line">    featureNum = <span class="number">784</span></span><br><span class="line">    <span class="comment">#设置类别数目，0-9共十个类别</span></span><br><span class="line">    classNum = <span class="number">10</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#初始化先验概率分布存放数组，后续计算得到的P(Y = 0)放在Py[0]中，以此类推</span></span><br><span class="line">    <span class="comment">#数据长度为10行1列</span></span><br><span class="line">    Py = np.zeros((classNum, <span class="number">1</span>))</span><br><span class="line">    <span class="comment">#对每个类别进行一次循环，分别计算它们的先验概率分布</span></span><br><span class="line">    <span class="comment">#计算公式为书中"4.2节 朴素贝叶斯法的参数估计 公式4.8"</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(classNum):</span><br><span class="line">        <span class="comment">#下方式子拆开分析</span></span><br><span class="line">        <span class="comment">#np.mat(trainLabelArr) == i：将标签转换为矩阵形式，里面的每一位与i比较，若相等，该位变为Ture，反之False</span></span><br><span class="line">        <span class="comment">#np.sum(np.mat(trainLabelArr) == i):计算上一步得到的矩阵中Ture的个数，进行求和(直观上就是找所有label中有多少个</span></span><br><span class="line">        <span class="comment">#为i的标记，求得4.8式P（Y = Ck）中的分子)</span></span><br><span class="line">        <span class="comment">#np.sum(np.mat(trainLabelArr) == i)) + 1：参考“4.2.3节 贝叶斯估计”，例如若数据集总不存在y=1的标记，也就是说</span></span><br><span class="line">        <span class="comment">#手写数据集中没有1这张图，那么如果不加1，由于没有y=1，所以分子就会变成0，那么在最后求后验概率时这一项就变成了0，再</span></span><br><span class="line">        <span class="comment">#和条件概率乘，结果同样为0，不允许存在这种情况，所以分子加1，分母加上K（K为标签可取的值数量，这里有10个数，取值为10）</span></span><br><span class="line">        <span class="comment">#参考公式4.11</span></span><br><span class="line">        <span class="comment">#(len(trainLabelArr) + 10)：标签集的总长度+10.</span></span><br><span class="line">        <span class="comment">#((np.sum(np.mat(trainLabelArr) == i)) + 1) / (len(trainLabelArr) + 10)：最后求得的先验概率</span></span><br><span class="line">        Py[i] = ((np.sum(np.mat(trainLabelArr) == i)) + <span class="number">1</span>) / (len(trainLabelArr) + <span class="number">10</span>)</span><br><span class="line">    <span class="comment">#转换为log对数形式</span></span><br><span class="line">    <span class="comment">#log书中没有写到，但是实际中需要考虑到，原因是这样：</span></span><br><span class="line">    <span class="comment">#最后求后验概率估计的时候，形式是各项的相乘（“4.1 朴素贝叶斯法的学习” 式4.7），这里存在两个问题：1.某一项为0时，结果为0.</span></span><br><span class="line">    <span class="comment">#这个问题通过分子和分母加上一个相应的数可以排除，前面已经做好了处理。2.如果特诊特别多（例如在这里，需要连乘的项目有784个特征</span></span><br><span class="line">    <span class="comment">#加一个先验概率分布一共795项相乘，所有数都是0-1之间，结果一定是一个很小的接近0的数。）理论上可以通过结果的大小值判断， 但在</span></span><br><span class="line">    <span class="comment">#程序运行中很可能会向下溢出无法比较，因为值太小了。所以人为把值进行log处理。log在定义域内是一个递增函数，也就是说log（x）中，</span></span><br><span class="line">    <span class="comment">#x越大，log也就越大，单调性和原数据保持一致。所以加上log对结果没有影响。此外连乘项通过log以后，可以变成各项累加，简化了计算。</span></span><br><span class="line">    <span class="comment">#在似然函数中通常会使用log的方式进行处理</span></span><br><span class="line">    Py = np.log(Py)</span><br><span class="line"></span><br><span class="line">    <span class="comment">#计算条件概率 Px_y=P（X=x|Y = y）</span></span><br><span class="line">    <span class="comment">#计算条件概率分成了两个步骤，下方第一个大for循环用于累加，参考书中“4.2.3 贝叶斯估计 式4.10”，下方第一个大for循环内部是</span></span><br><span class="line">    <span class="comment">#用于计算式4.10的分子，至于分子的+1以及分母的计算在下方第二个大For内</span></span><br><span class="line">    <span class="comment">#初始化为全0矩阵，用于存放所有情况下的条件概率</span></span><br><span class="line">    Px_y = np.zeros((classNum, featureNum, <span class="number">2</span>))</span><br><span class="line">    <span class="comment">#对标记集进行遍历</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(len(trainLabelArr)):</span><br><span class="line">        <span class="comment">#获取当前循环所使用的标记</span></span><br><span class="line">        label = trainLabelArr[i]</span><br><span class="line">        <span class="comment">#获取当前要处理的样本</span></span><br><span class="line">        x = trainDataArr[i]</span><br><span class="line">        <span class="comment">#对该样本的每一维特诊进行遍历</span></span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> range(featureNum):</span><br><span class="line">            <span class="comment">#在矩阵中对应位置加1</span></span><br><span class="line">            <span class="comment">#这里还没有计算条件概率，先把所有数累加，全加完以后，在后续步骤中再求对应的条件概率</span></span><br><span class="line">            Px_y[label][j][x[j]] += <span class="number">1</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">#第二个大for，计算式4.10的分母，以及分子和分母之间的除法</span></span><br><span class="line">    <span class="comment">#循环每一个标记（共10个）</span></span><br><span class="line">    <span class="keyword">for</span> label <span class="keyword">in</span> range(classNum):</span><br><span class="line">        <span class="comment">#循环每一个标记对应的每一个特征</span></span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> range(featureNum):</span><br><span class="line">            <span class="comment">#获取y=label，第j个特诊为0的个数</span></span><br><span class="line">            Px_y0 = Px_y[label][j][<span class="number">0</span>]</span><br><span class="line">            <span class="comment">#获取y=label，第j个特诊为1的个数</span></span><br><span class="line">            Px_y1 = Px_y[label][j][<span class="number">1</span>]</span><br><span class="line">            <span class="comment">#对式4.10的分子和分母进行相除，再除之前依据贝叶斯估计，分母需要加上2（为每个特征可取值个数）</span></span><br><span class="line">            <span class="comment">#分别计算对于y= label，x第j个特征为0和1的条件概率分布</span></span><br><span class="line">            Px_y[label][j][<span class="number">0</span>] = np.log((Px_y0 + <span class="number">1</span>) / (Px_y0 + Px_y1 + <span class="number">2</span>))</span><br><span class="line">            Px_y[label][j][<span class="number">1</span>] = np.log((Px_y1 + <span class="number">1</span>) / (Px_y0 + Px_y1 + <span class="number">2</span>))</span><br><span class="line"></span><br><span class="line">    <span class="comment">#返回先验概率分布和条件概率分布</span></span><br><span class="line">    <span class="keyword">return</span> Py, Px_y</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    start = time.time()</span><br><span class="line">    <span class="comment"># 获取训练集</span></span><br><span class="line">    print(<span class="string">'start read transSet'</span>)</span><br><span class="line">    trainDataArr, trainLabelArr = loadData(<span class="string">'../Mnist/mnist_train.csv'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 获取测试集</span></span><br><span class="line">    print(<span class="string">'start read testSet'</span>)</span><br><span class="line">    testDataArr, testLabelArr = loadData(<span class="string">'../Mnist/mnist_test.csv'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">#开始训练，学习先验概率分布和条件概率分布</span></span><br><span class="line">    print(<span class="string">'start to train'</span>)</span><br><span class="line">    Py, Px_y = getAllProbability(trainDataArr, trainLabelArr)</span><br><span class="line"></span><br><span class="line">    <span class="comment">#使用习得的先验概率分布和条件概率分布对测试集进行测试</span></span><br><span class="line">    print(<span class="string">'start to test'</span>)</span><br><span class="line">    accuracy = test(Py, Px_y, testDataArr, testLabelArr)</span><br><span class="line"></span><br><span class="line">    <span class="comment">#打印准确率</span></span><br><span class="line">    print(<span class="string">'the accuracy is:'</span>, accuracy)</span><br><span class="line">    <span class="comment">#打印时间</span></span><br><span class="line">    print(<span class="string">'time span:'</span>, time.time() -start)</span><br></pre></td></tr></table></figure>
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://ericzikun.github.io/2020/04/08/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF%E7%90%86%E8%AE%BA/" data-id="ck8qpnub2000aapt6astm252k" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Eric kun"
+        },
+        "headline": "朴素贝叶斯理论",
+        "image": "https://ericzikun.github.iohttps://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1474209398,3737326875&fm=26&gp=0.jpg",
+        "keywords": "统计学习方法 朴素贝叶斯",
+        "genre": "机器学习 朴素贝叶斯",
+        "datePublished": "2020-04-08",
+        "dateCreated": "2020-04-08",
+        "dateModified": "2020-04-08",
+        "url": "https://ericzikun.github.io/2020/04/08/朴素贝叶斯理论/",
+        "description": "（三）朴素贝叶斯定义 ：朴素贝叶斯是基于贝叶斯定理和特征条件独立假设的分类方法。首先学习输入/输出的联合概率分布,然后基于此模型,对给定的输入$x$,利用贝叶斯定理求出后验概率最大的输出$y$。
+模型:首先学习先验概率分布：$P(Y=c_k),k=1,2,…,K$ ,  $c_k$代表某一类，也就是计算该类别的概率（在样本中我们已知）然后学习条件概率分布：$P(X=x|Y=c_k)=P(X^{1}",
+        "wordCount": 1772
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="twitter" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-twitter"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="facebook" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-facebook"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="stack-overflow" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-stack-overflow"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/ppoffice/hexo-theme-hueman" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="weibo" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-weibo"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="rss" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-rss"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2020/04/08/%E5%86%B3%E7%AD%96%E6%A0%91/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            决策树
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2020/04/07/python/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">我的第一篇博客文章</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/08/%E6%8F%90%E5%8D%87%E6%95%88%E7%8E%87%E5%B0%8F%E6%8A%80%E5%B7%A7/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://pic1.zhimg.com/v2-03ec288dc1a6fd5aa424a067e2d62d24_b.jpg)" alt="提升效率小技巧" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8F%90%E5%8D%87%E6%95%88%E7%8E%87/">提升效率</a></p>
+                            <p class="item-title"><a href="/2020/04/08/%E6%8F%90%E5%8D%87%E6%95%88%E7%8E%87%E5%B0%8F%E6%8A%80%E5%B7%A7/" class="title">提升效率小技巧</a></p>
+                            <p class="item-date"><time datetime="2020-04-08T02:24:52.000Z" itemprop="datePublished">2020-04-08</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/08/MAC/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://pic1.zhimg.com/v2-03ec288dc1a6fd5aa424a067e2d62d24_b.jpg)" alt="MAC" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8F%90%E5%8D%87%E6%95%88%E7%8E%87/">提升效率</a></p>
+                            <p class="item-title"><a href="/2020/04/08/MAC/" class="title">MAC</a></p>
+                            <p class="item-date"><time datetime="2020-04-08T02:23:24.000Z" itemprop="datePublished">2020-04-08</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/08/Mac%E5%AE%89%E8%A3%85gensim%E8%B8%A9%E5%9D%91/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://img-blog.csdnimg.cn/20200225104733764.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70)" alt="Mac安装gensim踩坑" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8A%A5%E9%94%99/">报错</a></p>
+                            <p class="item-title"><a href="/2020/04/08/Mac%E5%AE%89%E8%A3%85gensim%E8%B8%A9%E5%9D%91/" class="title">Mac安装gensim踩坑</a></p>
+                            <p class="item-date"><time datetime="2020-04-08T02:22:27.000Z" itemprop="datePublished">2020-04-08</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/08/mac%E5%AE%89%E8%A3%85cnpm%E8%B8%A9%E5%9D%91/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://img-blog.csdnimg.cn/20200225104733764.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70)" alt="mac安装cnpm踩坑" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8A%A5%E9%94%99/">报错</a></p>
+                            <p class="item-title"><a href="/2020/04/08/mac%E5%AE%89%E8%A3%85cnpm%E8%B8%A9%E5%9D%91/" class="title">mac安装cnpm踩坑</a></p>
+                            <p class="item-date"><time datetime="2020-04-08T02:21:50.000Z" itemprop="datePublished">2020-04-08</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/08/keras%E6%A8%A1%E5%9E%8B%E5%8F%AF%E8%A7%86%E5%8C%96%E5%88%A9%E5%99%A8/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://img-blog.csdnimg.cn/20200306095818107.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center)" alt="keras模型可视化利器" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%A8%A1%E5%9E%8B%E5%8F%AF%E8%A7%86%E5%8C%96/">模型可视化</a></p>
+                            <p class="item-title"><a href="/2020/04/08/keras%E6%A8%A1%E5%9E%8B%E5%8F%AF%E8%A7%86%E5%8C%96%E5%88%A9%E5%99%A8/" class="title">keras模型可视化利器</a></p>
+                            <p class="item-date"><time datetime="2020-04-08T02:20:20.000Z" itemprop="datePublished">2020-04-08</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><span class="category-list-count">5</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8A%A5%E9%94%99/">报错</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8F%90%E5%8D%87%E6%95%88%E7%8E%87/">提升效率</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86/">文本处理</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/">技术栈</a><span class="category-list-count">4</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/Java/">Java</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/Python/">Python</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/React/">React</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a><span class="category-list-count">5</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E5%86%B3%E7%AD%96%E6%A0%91/">决策树</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%84%9F%E7%9F%A5%E6%9C%BA-KNN/">感知机&KNN</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/">朴素贝叶斯</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92/">逻辑回归</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB/">文本分类</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%A8%A1%E5%9E%8B%E5%8F%AF%E8%A7%86%E5%8C%96/">模型可视化</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/">自然语言处理</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/%E6%96%87%E6%9C%AC%E6%8A%BD%E5%8F%96/">文本抽取</a><span class="category-list-count">1</span></li></ul></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a><span class="archive-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">标签</h3>
+        <div class="widget">
+            <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Cnews/" rel="tag">Cnews</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/KNN/" rel="tag">KNN</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Keras/" rel="tag">Keras</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NLP/" rel="tag">NLP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TextCNN/" rel="tag">TextCNN</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Textrank/" rel="tag">Textrank</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mac/" rel="tag">mac</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%B3%E9%94%AE%E8%AF%8D%E6%8A%BD%E5%8F%96/" rel="tag">关键词抽取</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%86%B3%E7%AD%96%E6%A0%91/" rel="tag">决策树</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E6%9C%AF/" rel="tag">学术</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%84%9F%E7%9F%A5%E6%9C%BA/" rel="tag">感知机</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8A%A5%E9%94%99/" rel="tag">报错</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%88%E7%8E%87/" rel="tag">效率</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB/" rel="tag">文本分类</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86/" rel="tag">文本处理</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/" rel="tag">朴素贝叶斯</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag">机器学习</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%A0%BC%E5%BC%8F%E5%8C%96%E6%96%87%E6%9C%AC/" rel="tag">格式化文本</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%9F%E8%AE%A1%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/" rel="tag">统计学习方法</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92/" rel="tag">逻辑回归</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A2%84%E5%A4%84%E7%90%86/" rel="tag">预处理</a><span class="tag-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/Cnews/" style="font-size: 10px;">Cnews</a> <a href="/tags/KNN/" style="font-size: 10px;">KNN</a> <a href="/tags/Keras/" style="font-size: 10px;">Keras</a> <a href="/tags/NLP/" style="font-size: 10px;">NLP</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/TextCNN/" style="font-size: 10px;">TextCNN</a> <a href="/tags/Textrank/" style="font-size: 10px;">Textrank</a> <a href="/tags/mac/" style="font-size: 15px;">mac</a> <a href="/tags/%E5%85%B3%E9%94%AE%E8%AF%8D%E6%8A%BD%E5%8F%96/" style="font-size: 10px;">关键词抽取</a> <a href="/tags/%E5%86%B3%E7%AD%96%E6%A0%91/" style="font-size: 10px;">决策树</a> <a href="/tags/%E5%AD%A6%E6%9C%AF/" style="font-size: 15px;">学术</a> <a href="/tags/%E6%84%9F%E7%9F%A5%E6%9C%BA/" style="font-size: 10px;">感知机</a> <a href="/tags/%E6%8A%A5%E9%94%99/" style="font-size: 15px;">报错</a> <a href="/tags/%E6%95%88%E7%8E%87/" style="font-size: 15px;">效率</a> <a href="/tags/%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB/" style="font-size: 10px;">文本分类</a> <a href="/tags/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86/" style="font-size: 10px;">文本处理</a> <a href="/tags/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/" style="font-size: 10px;">朴素贝叶斯</a> <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">机器学习</a> <a href="/tags/%E6%A0%BC%E5%BC%8F%E5%8C%96%E6%96%87%E6%9C%AC/" style="font-size: 10px;">格式化文本</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">深度学习</a> <a href="/tags/%E7%BB%9F%E8%AE%A1%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/" style="font-size: 20px;">统计学习方法</a> <a href="/tags/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92/" style="font-size: 10px;">逻辑回归</a> <a href="/tags/%E9%A2%84%E5%A4%84%E7%90%86/" style="font-size: 10px;">预处理</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://hexo.io" target="_blank" rel="noopener">Hexo</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2020 Eric kun</p>
+                
+                <p>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="https://github.com/ppoffice" target="_blank">PPOffice</a></p>
+                
+            </div>
+            <div class="parent">
+              <div class="child">
+                <span id="busuanzi_container_site_pv">
+                  访问量<span id="busuanzi_value_site_pv"></span>次
+                </span>
+                <span class="post-meta-divider">|</span>
+                <span id="busuanzi_container_site_uv" style='display:none'>
+                  访客数<span id="busuanzi_value_site_uv"></span>人
+                </span>
+                <script async="" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+              </div>
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+    <style>
+      .parent {
+        position: relative;
+      }
+      .child {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+      }
+    </style>  
+</footer>
+
+        
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'https://ericzikun.github.io/2020/04/08/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF%E7%90%86%E8%AE%BA/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+
+    
+        
+<script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-share.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-video.min.js"></script>
+
+    
+    
+        
+<script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+    
+    
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+        </script>
+        
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML.js"></script>
+
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+
+<script src="/js/main.js"></script>
+
+
+    </div>
+</body>
+</html>

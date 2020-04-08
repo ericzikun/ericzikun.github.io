@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+
+    
+
+    
+    <title>NLP入门实战之——基于词频和TF-IDF，利用朴素贝叶斯机器学习方法新闻分类 | Eric’s blog</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="" />
+    
+    <meta name="description" content="本人是零基础的小白，现在从零开始学习NLP，这是学习的一些简单的笔记，如有错误请指正。编译环境：Jupyter NotebookWindows x64本文数据处理主要分为两个板块：一 是数据预处理（Data Preparation）从而获得所需要的特征（feature），如将数据层层处理（分词、停用词过滤、向量化），本文向量化内容由于使用sklearn库，放置第二板块讲解。二 是利用模型（Mode">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NLP入门实战之——基于词频和TF-IDF，利用朴素贝叶斯机器学习方法新闻分类">
+<meta property="og:url" content="https://ericzikun.github.io/2019/11/07/NLP%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98%E4%B9%8B%E2%80%94%E2%80%94%E5%9F%BA%E4%BA%8E%E8%AF%8D%E9%A2%91%E5%92%8CTF-IDF%EF%BC%8C%E5%88%A9%E7%94%A8%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95%E6%96%B0%E9%97%BB%E5%88%86%E7%B1%BB/index.html">
+<meta property="og:site_name" content="Eric’s blog">
+<meta property="og:description" content="本人是零基础的小白，现在从零开始学习NLP，这是学习的一些简单的笔记，如有错误请指正。编译环境：Jupyter NotebookWindows x64本文数据处理主要分为两个板块：一 是数据预处理（Data Preparation）从而获得所需要的特征（feature），如将数据层层处理（分词、停用词过滤、向量化），本文向量化内容由于使用sklearn库，放置第二板块讲解。二 是利用模型（Mode">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1474209398,3737326875&fm=26&gp=0.jpg">
+<meta property="article:published_time" content="2019-11-07T06:18:08.000Z">
+<meta property="article:modified_time" content="2020-04-08T02:32:20.903Z">
+<meta property="article:author" content="Eric kun">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1474209398,3737326875&fm=26&gp=0.jpg">
+    
+
+    
+        <link rel="alternate" href="/" title="Eric’s blog" type="application/atom+xml" />
+    
+
+    
+
+    
+<link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+
+    
+<link rel="stylesheet" href="/libs/titillium-web/styles.css">
+
+    
+<link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    
+<script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+        
+<link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+
+    
+    
+        
+<link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+
+    
+    
+    
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8A%A5%E9%94%99/">报错</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8F%90%E5%8D%87%E6%95%88%E7%8E%87/">提升效率</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86/">文本处理</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/">技术栈</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/Java/">Java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/Python/">Python</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/React/">React</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E5%86%B3%E7%AD%96%E6%A0%91/">决策树</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%84%9F%E7%9F%A5%E6%9C%BA-KNN/">感知机&KNN</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/">朴素贝叶斯</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92/">逻辑回归</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB/">文本分类</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%A8%A1%E5%9E%8B%E5%8F%AF%E8%A7%86%E5%8C%96/">模型可视化</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/">自然语言处理</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/%E6%96%87%E6%9C%AC%E6%8A%BD%E5%8F%96/">文本抽取</a></li></ul></li></ul>
+                                    
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/about/index.html">关于</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/">朴素贝叶斯</a>
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-NLP入门实战之——基于词频和TF-IDF，利用朴素贝叶斯机器学习方法新闻分类" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        NLP入门实战之——基于词频和TF-IDF，利用朴素贝叶斯机器学习方法新闻分类
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                <span id="busuanzi_container_page_pv" style='display:none' class="article-date">
+  <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+</span>
+
+
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2019/11/07/NLP%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98%E4%B9%8B%E2%80%94%E2%80%94%E5%9F%BA%E4%BA%8E%E8%AF%8D%E9%A2%91%E5%92%8CTF-IDF%EF%BC%8C%E5%88%A9%E7%94%A8%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95%E6%96%B0%E9%97%BB%E5%88%86%E7%B1%BB/" class="article-date">
+         <time datetime="2019-11-07T06:18:08.000Z" itemprop="datePublished">2019-11-07</time>
+      </a>
+    </div>
+
+
+                
+
+                
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <p>本人是零基础的小白，现在从零开始学习NLP，这是学习的一些简单的笔记，如有错误请指正。<br>编译环境：Jupyter Notebook<br>Windows x64<br>本文数据处理主要分为两个板块：<br>一 是数据<strong>预处理</strong>（Data Preparation）从而获得所需要的特征（feature），如将数据层层处理（分词、停用词过滤、向量化），本文向量化内容由于使用sklearn库，放置第二板块讲解。<br>二 是利用<strong>模型</strong>（Modeling）解决具体的问题，本文主要采用朴素贝叶斯经典机器学习方法对文本进行分类。</p>
+<p><a href="基本内容">TOC</a></p>
+<h2 id="一、理论基础"><a href="#一、理论基础" class="headerlink" title="一、理论基础"></a>一、理论基础</h2><p>下面简单回顾一下理论部分（可以直接跳过到实战部分）</p>
+<h3 id="1-1-词频-TF"><a href="#1-1-词频-TF" class="headerlink" title="1.1 词频(TF)"></a>1.1 词频(TF)</h3><p><strong>词频（term frequency）</strong> 指的是某一个给定的词语在该文件中出现的频率。对于在某一文件里的词语$t_i$来说，它的重要性可表示为：<br>$$ tf_{ij}=\frac{n_{i,j}}{\sum_kn_{k,j}} $$<br>其中，$n_{i,j}$是该词在文件$d_j$中出现次数，而分母是文件$d_j$中所有字词出现的次数总和。</p>
+<h3 id="1-2-逆向文本频率（IDF）"><a href="#1-2-逆向文本频率（IDF）" class="headerlink" title="1.2 逆向文本频率（IDF）"></a>1.2 逆向文本频率（IDF）</h3><p><strong>逆向文件频率（inverse document frequency）</strong> 是一个词语普遍重要性的度量。某一特定词语的idf，可以由总文件数目除以包含该词语之文件的数目，再将得到的商取以10为底的对数得到，个人理解为：对词频向量的改进，原因在于：词语出现的越多，并不能代表它就越重要，相反，文档中出现的越多，其实它的重要性是降低的，所以TFIDF考虑了单词的重要性而做的对词频的改进，可表示为：<br>$$ tfidf(w)=tf(d,w)\times{idf(w)}$$<br>（1）其中 $tf(d,w)$ 代表文档d中w的词频<br>（2）$idf(w)=\log\frac{N}{N(w)}$，${N}$代表语料库中的文档总数，${N(w)}$代表词语w出现在多少个文档中，出现在文档的次数越多，$\log$值越小，故称为逆向文本频率</p>
+<h3 id="1-3-朴素贝叶斯（Naive-Bayesian-Model，NBM）"><a href="#1-3-朴素贝叶斯（Naive-Bayesian-Model，NBM）" class="headerlink" title="1.3 朴素贝叶斯（Naive Bayesian Model，NBM）"></a>1.3 朴素贝叶斯（Naive Bayesian Model，NBM）</h3><p><strong>朴素贝叶斯</strong>的中心思想，在于利用各类别在训练样本中的分布以及类别中各特征元素的分布，计算后验概率，使用极大似然法判断测试样本所属,一般用于简单分类。<br>贝叶斯公式：<br>$$P(B\mid{A})=\frac{P(A\mid{B})P(B)}{P(A)}$$<br>对应分类任务则为：<br>$$P(类别\mid{特征})=\frac{P(特征\mid{类别})P(类别)}{P(特征)}$$<br><strong>垃圾邮件分类</strong>（判别模型）举例：<br>$P(特征\mid{类别})$ 相当于<strong>先验概率</strong>，也就是我们已知的概率，比如垃圾邮件分类里面，我们已有的数据中正常的类别邮件里面包含“购买”一词的概率，以及垃圾类别里面包含“购买”一次的概率等，$P(类别)$ 就是正常或者垃圾邮件在数据集中的概率，这些概率都已知。<br>那么要判断邮件为正常还是垃圾，则要判断：</p>
+<p>$P(正常\mid内容)$ 与 $P(垃圾\mid内容)$ 的大小</p>
+<p>$$P(正常\mid内容)=\frac{P(内容\mid正常)P(正常)}{P(内容)}$$<br>$$P(垃圾\mid内容)=\frac{P(内容\mid垃圾)P(垃圾)}{P(内容)}$$<br>$P(正常)$，$P(垃圾)$ 均已知，$P(内容)$消去，剩下就是要比较$P(内容\mid正常)$ 和$P(内容\mid垃圾)$<br>$P(内容\mid正常)=P(购买，物品，广告，产品\mid正常)\<br>=P(购买\mid正常)P(物品\mid正常)P(广告\mid正常)P(产品\mid正常)$，而这些先验概率前面都已算过，带入计算作比较大小即可。</p>
+<h2 id="二、数据预处理"><a href="#二、数据预处理" class="headerlink" title="二、数据预处理"></a>二、数据预处理</h2><p>数据预处理部分可谓是耗费了大部分的时间，参考了一些博客，但是感觉不是特别详细，其中也遇到了不少麻烦，下面一一讲解到位，非常适合小白参考。</p>
+<h3 id="2-1-数据下载及导入"><a href="#2-1-数据下载及导入" class="headerlink" title="2.1 数据下载及导入"></a>2.1 数据下载及导入</h3><p>首先下载搜狗实验室的文本数据（精简版347MB，tar.gz格式）：<br><a href="http://www.sogou.com/labs/resource/ca.php" target="_blank" rel="noopener">下载链接</a><br><img src="https://img-blog.csdnimg.cn/20191122154221125.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>![在这里插入图片描述](<a href="https://img-blog.csdnimg.cn/20191122154242974.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center" target="_blank" rel="noopener">https://img-blog.csdnimg.cn/20191122154242974.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center</a> =500x80)<br>解压后，得到如下128个txt文件<br><img src="https://img-blog.csdnimg.cn/20191122154428104.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>文件格式如下：<br><img src="https://img-blog.csdnimg.cn/20191122154821454.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>对于特定格式的文本，我们一般采用<strong>正则表达式</strong>来提取所需要的信息，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> jieba;</span><br><span class="line"><span class="comment"># 定义正则表达式</span></span><br><span class="line">patternURL = re.compile(<span class="string">r'&lt;url&gt;(.*?)&lt;/url&gt;'</span>, re.S)</span><br><span class="line">patternCtt = re.compile(<span class="string">r'&lt;content&gt;(.*?)&lt;/content&gt;'</span>, re.S)</span><br><span class="line">contents_total = []</span><br><span class="line">urls_total=[]</span><br><span class="line">labels = []</span><br><span class="line"><span class="comment"># os.listdir()返回文件夹里所有文件名</span></span><br><span class="line">file = os.listdir(<span class="string">"C:/Users/84747/Desktop/新建文件夹/SogouCS.reduced"</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(len(file)):  </span><br><span class="line">    file0=file[i]</span><br><span class="line">    file_path = os.path.join(<span class="string">"C:/Users/84747/Desktop/新建文件夹/SogouCS.reduced/"</span>, file0)</span><br><span class="line"><span class="comment"># os.path.join()将路径进行拼接，从而打开每一个txt文件</span></span><br><span class="line">    text = open(file_path, <span class="string">'rb'</span>).read().decode(<span class="string">"gbk"</span>, <span class="string">'ignore'</span>)</span><br><span class="line">    <span class="comment"># 正则匹配出url和content</span></span><br><span class="line">    urls = patternURL.findall(text)</span><br><span class="line">    contents = patternCtt.findall(text)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 得到所有contents和urls</span></span><br><span class="line">    urls_total=urls_total + urls</span><br><span class="line">    contents_total = contents_total + contents</span><br><span class="line">df=pd.DataFrame(&#123;<span class="string">'URL'</span>:urls_total,<span class="string">'content'</span>:contents_total&#125;)</span><br><span class="line"><span class="comment">#将目前处理的数据用dataframe可视化一下，方便查错</span></span><br><span class="line">df.head()  <span class="comment"># 显示dataframe的前五行</span></span><br></pre></td></tr></table></figure>
+<p>结果如下（有空值、内容也很乱），后面一步步处理：<br><img src="https://img-blog.csdnimg.cn/20191122160210727.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>下面我们再将URL内容再次正则一下，提取官方的分类label：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">labels=[]</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>,len(urls_total)):</span><br><span class="line">    patternClass = re.compile(<span class="string">r'http://(.*?).sohu.com'</span>, re.S)</span><br><span class="line">    labels.append(patternClass.findall(urls_total[i]))</span><br><span class="line">df=pd.DataFrame(&#123;<span class="string">'label'</span>:labels,<span class="string">'URL'</span>:urls_total,<span class="string">'content'</span>:contents_total&#125;).dropna()</span><br><span class="line">df.head() <span class="comment">#如果想显示最后五行可用.tail()</span></span><br></pre></td></tr></table></figure>
+<p>其中传统dataframe中dropna() 函数删空值的方法在这里并不适用，结果如下,待会会处理，我们先把label里面的格式调整一下，调整的原因：目前的label格式为list of list，为了方便后面筛选label来替换中文等后续操作，先脱去一层list：<br><img src="https://img-blog.csdnimg.cn/20191122162056992.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">type(labels)</span><br><span class="line"><span class="comment"># print(labels[0:100])</span></span><br><span class="line">labels2 = []</span><br><span class="line"><span class="keyword">for</span> index <span class="keyword">in</span> range(len(labels)):</span><br><span class="line">    labels2.append(<span class="string">' '</span>.join(labels[index]))  <span class="comment">#将list of list转换为list</span></span><br><span class="line">labels2[<span class="number">0</span>:<span class="number">100</span>]  </span><br><span class="line">df.label.unique()</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20191122162659457.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">df=pd.DataFrame(&#123;<span class="string">'label'</span>:labels2,<span class="string">'URL'</span>:urls_total,<span class="string">'content'</span>:contents_total&#125;)</span><br><span class="line">df.tail()</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/2019112216292511.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>好了，到这里label格式已经调好了，接下来需要对label进行中文替换，所以我们需要先把各类label筛选出来，总共有以下label：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">print(df.label.unique()) <span class="comment">#将所有不重复的label显示出来</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20191122163634116.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center" alt><br>将所需要的label对应的内容进行筛选查看（替换‘career’为各个label，查看相关内容），方便人为辨识类别<br>代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">df.loc[df[<span class="string">'label'</span>]== <span class="string">'career'</span>].tail(<span class="number">20</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20191122163606411.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt><br>接下来就是替换label，通过人为的观察上述各label所对应的分类，将中文替换到下列map映射之中，最后完成label替换：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">label_mapping=&#123;<span class="string">'sports'</span>:<span class="string">'体育'</span>, <span class="string">'house'</span>:<span class="string">'房屋'</span>,<span class="string">'it'</span>:<span class="string">'科技'</span>, <span class="string">'2008'</span>:<span class="string">'奥运'</span>, <span class="string">'women'</span>:<span class="string">'女人'</span>,\</span><br><span class="line">               <span class="string">'auto'</span>:<span class="string">'汽车'</span>,<span class="string">'yule'</span>:<span class="string">'娱乐'</span>, <span class="string">'news'</span>:<span class="string">'时事'</span>,<span class="string">'learning'</span>:<span class="string">'教育'</span>, <span class="string">'business'</span>:<span class="string">'财经'</span>,\</span><br><span class="line">               <span class="string">'mil.news'</span>:<span class="string">'军事'</span>, <span class="string">'travel'</span>:<span class="string">'旅游'</span>, <span class="string">'health'</span>:<span class="string">'健康'</span>, <span class="string">'cul'</span>:<span class="string">'文化'</span>, <span class="string">'career'</span>:<span class="string">'职场'</span>&#125;</span><br><span class="line">df[<span class="string">'label'</span>] = df[<span class="string">'label'</span>].map(label_mapping) <span class="comment">#将label进行替换</span></span><br><span class="line">df.head()</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20191122163853926.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt><br>回到刚刚提到的<strong>空值问题</strong>，明明有很多空值，但isnull()查阅后仍然显示false，<strong>原因在于</strong>：pandas里空值是指NA，包括numpy的np.nan,python的None，pandas对空值进行操作可以用isnull／notnull／isna／notna／fillna／dropna等等，但是，这些操作对<strong>空字符串</strong>均无效（此处参考<a href="https://blog.csdn.net/maotianyi941005/article/details/84315965" target="_blank" rel="noopener">链接</a>）。<br>空字符串即“ ”（一个或多个空格），但在excel表格里其实是看不出来，pandas也把它当成有值进行操作。<br>代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">df.content.replace(to_replace=<span class="string">r'^\s*$'</span>,value=np.nan,regex=<span class="literal">True</span>,inplace=<span class="literal">True</span>)</span><br><span class="line">df.head()</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20191122223459783.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt><br>这样一来，就将空值转换成了NaN，从而再可以使用dropna()。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">df2=df.dropna(axis=<span class="number">0</span>, how=<span class="string">'any'</span>) <span class="comment"># 对任意含有NaN的行（axis=0）进行删除</span></span><br><span class="line">df2.head()</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20191122223704748.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt><br>再将索引重新排列一下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">df3=df2.reset_index(drop=<span class="literal">True</span>)</span><br><span class="line">df3.head()</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20191122223755930.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt></p>
+<h3 id="2-2-结巴分词及停用词过滤"><a href="#2-2-结巴分词及停用词过滤" class="headerlink" title="2.2 结巴分词及停用词过滤"></a>2.2 结巴分词及停用词过滤</h3><p>此处我没有用前面的数据进行处理（毕竟有42w行数据，作为新手使用小数据集练手足够，后面可能还会发42w行的运行结果，这里采用了前辈整理好的5000行数据进行处理），格式和我之前处理得到的基本一致，不影响大家参考。<br>样例数据导入：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> gensim</span><br><span class="line"><span class="keyword">import</span> numpy</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> jieba</span><br><span class="line"><span class="comment">#python -m pip install --user gensim  (gensim包)</span></span><br><span class="line"><span class="comment">#pip install jieba</span></span><br><span class="line">df_news = pd.read_table(<span class="string">'./val.txt'</span>,names=[<span class="string">'category'</span>,<span class="string">'theme'</span>,<span class="string">'URL'</span>,<span class="string">'content'</span>],encoding=<span class="string">'utf-8'</span>)</span><br><span class="line">print(df_news.head())</span><br><span class="line">print(df_news.shape)  <span class="comment">#数据类型</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20191122224841747.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt><br><img src="https://img-blog.csdnimg.cn/20191122225124219.png" alt></p>
+<h4 id="2-2-1-结巴分词："><a href="#2-2-1-结巴分词：" class="headerlink" title="2.2.1 结巴分词："></a>2.2.1 结巴分词：</h4><p>分词之前首先我们要将dataframe的格式转换为list才能适应jieba库，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">content = df_news.content.values.tolist()    <span class="comment">#将datafrmae中content转化为list</span></span><br><span class="line">content_S = []            <span class="comment">#对content中内容进行分词</span></span><br><span class="line"><span class="keyword">for</span> line <span class="keyword">in</span> content:</span><br><span class="line">    current_segment = jieba.lcut(line)</span><br><span class="line">    <span class="keyword">if</span> len(current_segment) &gt; <span class="number">1</span> <span class="keyword">and</span> current_segment != <span class="string">'\r\n'</span>: <span class="comment">#换行符</span></span><br><span class="line">        content_S.append(current_segment)</span><br><span class="line">df_content=pd.DataFrame(&#123;<span class="string">'content_S'</span>:content_S&#125;) <span class="comment">#### 将分完词的list转换为dataframe</span></span><br><span class="line">df_content.head()</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20191122225442723.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt></p>
+<h4 id="2-2-2-停用词过滤："><a href="#2-2-2-停用词过滤：" class="headerlink" title="2.2.2 停用词过滤："></a>2.2.2 停用词过滤：</h4><p>需要先下载好一份停用词表，网上有很多，此处提供前辈整理好的素材，很方便</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">topwords=pd.read_csv(<span class="string">"stopwords.txt"</span>,index_col=<span class="literal">False</span>,sep=<span class="string">"\t"</span>,quoting=<span class="number">3</span>,names=[<span class="string">'stopword'</span>], encoding=<span class="string">'utf-8'</span>)</span><br><span class="line">stopwords.head(<span class="number">15</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20191122225842468.png#pic_center" alt="Alt"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">drop_stopwords</span><span class="params">(contents,stopwords)</span>:</span></span><br><span class="line">    contents_clean = []</span><br><span class="line">    all_words = []</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> contents:</span><br><span class="line">        line_clean = []</span><br><span class="line">        <span class="keyword">for</span> word <span class="keyword">in</span> line:</span><br><span class="line">            <span class="keyword">if</span> word <span class="keyword">in</span> stopwords:</span><br><span class="line">                <span class="keyword">continue</span></span><br><span class="line">            line_clean.append(word)</span><br><span class="line">        contents_clean.append(line_clean)</span><br><span class="line">    <span class="keyword">return</span> contents_clean,all_words</span><br><span class="line">    <span class="comment">#print (contents_clean)</span></span><br><span class="line">        </span><br><span class="line"></span><br><span class="line">contents = df_content.content_S.values.tolist()    <span class="comment">#df转换为list</span></span><br><span class="line">stopwords = stopwords.stopword.values.tolist()     <span class="comment">#转换为list</span></span><br><span class="line">contents_clean,all_words = drop_stopwords(contents,stopwords)</span><br><span class="line"></span><br><span class="line">df_content=pd.DataFrame(&#123;<span class="string">'contents_clean'</span>:contents_clean&#125;)  <span class="comment">#将分完词的list再转换为df</span></span><br><span class="line">df_content.head()</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/2019112223122286.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center" alt="Alt"></p>
+<h2 id="三、模型（modeling）贝叶斯分类器"><a href="#三、模型（modeling）贝叶斯分类器" class="headerlink" title="三、模型（modeling）贝叶斯分类器"></a>三、模型（modeling）贝叶斯分类器</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">df_train=pd.DataFrame(&#123;<span class="string">'contents_clean'</span>:contents_clean,<span class="string">'label'</span>:df_news[<span class="string">'category'</span>]&#125;)</span><br><span class="line">df_train.tail() <span class="comment">#tail（）展示最后几个数据（一共是5000个数据）</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20191123122355798.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">df_train.label.unique()</span><br><span class="line"><span class="comment">#对label做映射</span></span><br><span class="line">label_mapping = &#123;<span class="string">"汽车"</span>: <span class="number">1</span>, <span class="string">"财经"</span>: <span class="number">2</span>, <span class="string">"科技"</span>: <span class="number">3</span>, <span class="string">"健康"</span>: <span class="number">4</span>, <span class="string">"体育"</span>:<span class="number">5</span>, <span class="string">"教育"</span>: <span class="number">6</span>,<span class="string">"文化"</span>: <span class="number">7</span>,<span class="string">"军事"</span>: <span class="number">8</span>,<span class="string">"娱乐"</span>: <span class="number">9</span>,<span class="string">"时尚"</span>: <span class="number">0</span>&#125;</span><br><span class="line">df_train[<span class="string">'label'</span>] = df_train[<span class="string">'label'</span>].map(label_mapping) <span class="comment">#将label进行替换</span></span><br><span class="line">df_train.head()</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20191123122423785.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt></p>
+<p>将数据切分为训练集（x_train，y_train）和测试集（x_test，y_test）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split</span><br><span class="line"><span class="comment">#将数据集切分为训练和测试集，x代表content，y代表label</span></span><br><span class="line">x_train, x_test, y_train, y_test = train_test_split(df_train[<span class="string">'contents_clean'</span>].values, df_train[<span class="string">'label'</span>].values, random_state=<span class="number">1</span>)</span><br><span class="line">print(len(x_train),len(x_test),len(y_train),len(y_test))</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20191123093639126.png" alt></p>
+<h3 id="3-1-文本数据向量化"><a href="#3-1-文本数据向量化" class="headerlink" title="3.1 文本数据向量化"></a>3.1 文本数据向量化</h3><p>数据向量化之前，我们先要将类型转换为list以适合<strong>CountVectorizer（词频）/TfidfVectorizer（逆向文本频率IDF）</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#将x_train（numpy.array型转换为list类型，</span></span><br><span class="line"><span class="comment">#以适合CountVectorizer/TfidfVectorizer向量化操作）</span></span><br><span class="line">words = []</span><br><span class="line"><span class="keyword">for</span> line_index <span class="keyword">in</span> range(len(x_train)):</span><br><span class="line">	words.append(<span class="string">' '</span>.join(x_train[line_index]))  <span class="comment">#numpy.array转换为list</span></span><br><span class="line"></span><br><span class="line">test_words = []</span><br><span class="line"><span class="keyword">for</span> line_index <span class="keyword">in</span> range(len(x_test)):</span><br><span class="line">	test_words.append(<span class="string">' '</span>.join(x_test[line_index]))</span><br></pre></td></tr></table></figure>
+<h4 id="3-1-1-基于词频向量化"><a href="#3-1-1-基于词频向量化" class="headerlink" title="3.1.1 基于词频向量化"></a>3.1.1 基于词频向量化</h4><p>导入sklearn机器学习库中的CountVectorizer词频向量化函数</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.feature_extraction.text <span class="keyword">import</span> CountVectorizer</span><br><span class="line"></span><br><span class="line">vec = CountVectorizer(analyzer=<span class="string">'word'</span>, max_features=<span class="number">4000</span>,  lowercase = <span class="literal">False</span>) <span class="comment">#建立向量</span></span><br><span class="line">vec.fit(words)</span><br></pre></td></tr></table></figure>
+<p>导入贝叶斯</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.naive_bayes <span class="keyword">import</span> MultinomialNB  <span class="comment">#导入贝叶斯</span></span><br><span class="line">classifier = MultinomialNB()</span><br><span class="line">classifier.fit(vec.transform(words), y_train)</span><br><span class="line">classifier.score(vec.transform(test_words), y_test)  <span class="comment">#基于词频向量构造的结果</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20191123094520866.png" alt></p>
+<h4 id="3-1-2-基于TFIDF向量化"><a href="#3-1-2-基于TFIDF向量化" class="headerlink" title="3.1.2 基于TFIDF向量化"></a>3.1.2 基于TFIDF向量化</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.feature_extraction.text <span class="keyword">import</span> TfidfVectorizer  <span class="comment">#基于TF-IDF向量</span></span><br><span class="line"></span><br><span class="line">vectorizer = TfidfVectorizer(analyzer=<span class="string">'word'</span>, max_features=<span class="number">4000</span>,  lowercase = <span class="literal">False</span>)</span><br><span class="line">vectorizer.fit(words)</span><br><span class="line"><span class="comment"># 导入贝叶斯</span></span><br><span class="line"><span class="keyword">from</span> sklearn.naive_bayes <span class="keyword">import</span> MultinomialNB</span><br><span class="line">classifier = MultinomialNB()</span><br><span class="line">classifier.fit(vectorizer.transform(words), y_train)</span><br><span class="line"><span class="comment"># 计算分类器精度</span></span><br><span class="line">classifier.score(vectorizer.transform(test_words), y_test)</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/20191123094823354.png" alt><br>相比之下，TFIDF向量化的结果会偏高一点点，当然，这里采用的是很小的数据集（才5000行），精度很低，如果将42w的数据进行训练，精度应该会提升不少。到此为止，整个搜狗新闻文本分类任务就完成了。</p>
+<p>本文到这里就全部结束了，如果有错误或者引用不当，还请指出，我会加以改进！欢迎大家评论留言，相互学习和进步！（前辈整理的数据集后面会上传到csdn上，如有需要可以联系）<br><br><br><br></p>
+<p><strong>参考文章：</strong><br><a href="https://blog.csdn.net/weixin_43269174/article/details/88634129" target="_blank" rel="noopener">https://blog.csdn.net/weixin_43269174/article/details/88634129</a><br><a href="https://blog.csdn.net/sadfassd/article/details/80568321" target="_blank" rel="noopener">https://blog.csdn.net/sadfassd/article/details/80568321</a><br><a href="https://www.jianshu.com/p/edad714110fb" target="_blank" rel="noopener">https://www.jianshu.com/p/edad714110fb</a><br><a href="https://blog.csdn.net/maotianyi941005/article/details/84315965" target="_blank" rel="noopener">https://blog.csdn.net/maotianyi941005/article/details/84315965</a><br><a href="https://www.cnblogs.com/datou-swag/articles/10060532.html" target="_blank" rel="noopener">https://www.cnblogs.com/datou-swag/articles/10060532.html</a></p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://ericzikun.github.io/2019/11/07/NLP%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98%E4%B9%8B%E2%80%94%E2%80%94%E5%9F%BA%E4%BA%8E%E8%AF%8D%E9%A2%91%E5%92%8CTF-IDF%EF%BC%8C%E5%88%A9%E7%94%A8%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95%E6%96%B0%E9%97%BB%E5%88%86%E7%B1%BB/" data-id="ck8qpvxa50000s3t60nj0haiv" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Eric kun"
+        },
+        "headline": "NLP入门实战之——基于词频和TF-IDF，利用朴素贝叶斯机器学习方法新闻分类",
+        "image": "https://ericzikun.github.iohttps://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1474209398,3737326875&fm=26&gp=0.jpg",
+        "keywords": "",
+        "genre": "机器学习 朴素贝叶斯",
+        "datePublished": "2019-11-07",
+        "dateCreated": "2019-11-07",
+        "dateModified": "2020-04-08",
+        "url": "https://ericzikun.github.io/2019/11/07/NLP入门实战之——基于词频和TF-IDF，利用朴素贝叶斯机器学习方法新闻分类/",
+        "description": "本人是零基础的小白，现在从零开始学习NLP，这是学习的一些简单的笔记，如有错误请指正。编译环境：Jupyter NotebookWindows x64本文数据处理主要分为两个板块：一 是数据预处理（Data Preparation）从而获得所需要的特征（feature），如将数据层层处理（分词、停用词过滤、向量化），本文向量化内容由于使用sklearn库，放置第二板块讲解。二 是利用模型（Mode",
+        "wordCount": 1175
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="twitter" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-twitter"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="facebook" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-facebook"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="stack-overflow" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-stack-overflow"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/ppoffice/hexo-theme-hueman" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="weibo" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-weibo"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="rss" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-rss"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2019/11/08/%E6%84%9F%E7%9F%A5%E6%9C%BA%E3%80%81KNN/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            感知机、KNN
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/08/%E6%8F%90%E5%8D%87%E6%95%88%E7%8E%87%E5%B0%8F%E6%8A%80%E5%B7%A7/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://pic1.zhimg.com/v2-03ec288dc1a6fd5aa424a067e2d62d24_b.jpg)" alt="提升效率小技巧" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8F%90%E5%8D%87%E6%95%88%E7%8E%87/">提升效率</a></p>
+                            <p class="item-title"><a href="/2020/04/08/%E6%8F%90%E5%8D%87%E6%95%88%E7%8E%87%E5%B0%8F%E6%8A%80%E5%B7%A7/" class="title">提升效率小技巧</a></p>
+                            <p class="item-date"><time datetime="2020-04-08T02:24:52.000Z" itemprop="datePublished">2020-04-08</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/08/MAC/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://pic1.zhimg.com/v2-03ec288dc1a6fd5aa424a067e2d62d24_b.jpg)" alt="MAC" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8F%90%E5%8D%87%E6%95%88%E7%8E%87/">提升效率</a></p>
+                            <p class="item-title"><a href="/2020/04/08/MAC/" class="title">MAC</a></p>
+                            <p class="item-date"><time datetime="2020-04-08T02:23:24.000Z" itemprop="datePublished">2020-04-08</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/08/Mac%E5%AE%89%E8%A3%85gensim%E8%B8%A9%E5%9D%91/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://img-blog.csdnimg.cn/20200225104733764.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70)" alt="Mac安装gensim踩坑" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8A%A5%E9%94%99/">报错</a></p>
+                            <p class="item-title"><a href="/2020/04/08/Mac%E5%AE%89%E8%A3%85gensim%E8%B8%A9%E5%9D%91/" class="title">Mac安装gensim踩坑</a></p>
+                            <p class="item-date"><time datetime="2020-04-08T02:22:27.000Z" itemprop="datePublished">2020-04-08</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/08/mac%E5%AE%89%E8%A3%85cnpm%E8%B8%A9%E5%9D%91/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://img-blog.csdnimg.cn/20200225104733764.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70)" alt="mac安装cnpm踩坑" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8A%A5%E9%94%99/">报错</a></p>
+                            <p class="item-title"><a href="/2020/04/08/mac%E5%AE%89%E8%A3%85cnpm%E8%B8%A9%E5%9D%91/" class="title">mac安装cnpm踩坑</a></p>
+                            <p class="item-date"><time datetime="2020-04-08T02:21:50.000Z" itemprop="datePublished">2020-04-08</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/08/keras%E6%A8%A1%E5%9E%8B%E5%8F%AF%E8%A7%86%E5%8C%96%E5%88%A9%E5%99%A8/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://img-blog.csdnimg.cn/20200306095818107.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center)" alt="keras模型可视化利器" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%A8%A1%E5%9E%8B%E5%8F%AF%E8%A7%86%E5%8C%96/">模型可视化</a></p>
+                            <p class="item-title"><a href="/2020/04/08/keras%E6%A8%A1%E5%9E%8B%E5%8F%AF%E8%A7%86%E5%8C%96%E5%88%A9%E5%99%A8/" class="title">keras模型可视化利器</a></p>
+                            <p class="item-date"><time datetime="2020-04-08T02:20:20.000Z" itemprop="datePublished">2020-04-08</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><span class="category-list-count">5</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8A%A5%E9%94%99/">报错</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8F%90%E5%8D%87%E6%95%88%E7%8E%87/">提升效率</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86/">文本处理</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/">技术栈</a><span class="category-list-count">4</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/Java/">Java</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/Python/">Python</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/React/">React</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a><span class="category-list-count">5</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E5%86%B3%E7%AD%96%E6%A0%91/">决策树</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%84%9F%E7%9F%A5%E6%9C%BA-KNN/">感知机&KNN</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/">朴素贝叶斯</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92/">逻辑回归</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB/">文本分类</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%A8%A1%E5%9E%8B%E5%8F%AF%E8%A7%86%E5%8C%96/">模型可视化</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/">自然语言处理</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/%E6%96%87%E6%9C%AC%E6%8A%BD%E5%8F%96/">文本抽取</a><span class="category-list-count">1</span></li></ul></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a><span class="archive-list-count">15</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a><span class="archive-list-count">2</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">标签</h3>
+        <div class="widget">
+            <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Cnews/" rel="tag">Cnews</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/KNN/" rel="tag">KNN</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Keras/" rel="tag">Keras</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NLP/" rel="tag">NLP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TextCNN/" rel="tag">TextCNN</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Textrank/" rel="tag">Textrank</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/mac/" rel="tag">mac</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%B3%E9%94%AE%E8%AF%8D%E6%8A%BD%E5%8F%96/" rel="tag">关键词抽取</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%86%B3%E7%AD%96%E6%A0%91/" rel="tag">决策树</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E6%9C%AF/" rel="tag">学术</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%84%9F%E7%9F%A5%E6%9C%BA/" rel="tag">感知机</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8A%A5%E9%94%99/" rel="tag">报错</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%88%E7%8E%87/" rel="tag">效率</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB/" rel="tag">文本分类</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86/" rel="tag">文本处理</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/" rel="tag">朴素贝叶斯</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag">机器学习</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%A0%BC%E5%BC%8F%E5%8C%96%E6%96%87%E6%9C%AC/" rel="tag">格式化文本</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%9F%E8%AE%A1%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/" rel="tag">统计学习方法</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92/" rel="tag">逻辑回归</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A2%84%E5%A4%84%E7%90%86/" rel="tag">预处理</a><span class="tag-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/Cnews/" style="font-size: 10px;">Cnews</a> <a href="/tags/KNN/" style="font-size: 10px;">KNN</a> <a href="/tags/Keras/" style="font-size: 10px;">Keras</a> <a href="/tags/NLP/" style="font-size: 10px;">NLP</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/TextCNN/" style="font-size: 10px;">TextCNN</a> <a href="/tags/Textrank/" style="font-size: 10px;">Textrank</a> <a href="/tags/mac/" style="font-size: 15px;">mac</a> <a href="/tags/%E5%85%B3%E9%94%AE%E8%AF%8D%E6%8A%BD%E5%8F%96/" style="font-size: 10px;">关键词抽取</a> <a href="/tags/%E5%86%B3%E7%AD%96%E6%A0%91/" style="font-size: 10px;">决策树</a> <a href="/tags/%E5%AD%A6%E6%9C%AF/" style="font-size: 15px;">学术</a> <a href="/tags/%E6%84%9F%E7%9F%A5%E6%9C%BA/" style="font-size: 10px;">感知机</a> <a href="/tags/%E6%8A%A5%E9%94%99/" style="font-size: 15px;">报错</a> <a href="/tags/%E6%95%88%E7%8E%87/" style="font-size: 15px;">效率</a> <a href="/tags/%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB/" style="font-size: 10px;">文本分类</a> <a href="/tags/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86/" style="font-size: 10px;">文本处理</a> <a href="/tags/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/" style="font-size: 10px;">朴素贝叶斯</a> <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">机器学习</a> <a href="/tags/%E6%A0%BC%E5%BC%8F%E5%8C%96%E6%96%87%E6%9C%AC/" style="font-size: 10px;">格式化文本</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">深度学习</a> <a href="/tags/%E7%BB%9F%E8%AE%A1%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/" style="font-size: 20px;">统计学习方法</a> <a href="/tags/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92/" style="font-size: 10px;">逻辑回归</a> <a href="/tags/%E9%A2%84%E5%A4%84%E7%90%86/" style="font-size: 10px;">预处理</a>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://hexo.io" target="_blank" rel="noopener">Hexo</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2020 Eric kun</p>
+                
+                <p>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="https://github.com/ppoffice" target="_blank">PPOffice</a></p>
+                
+            </div>
+            <div class="parent">
+              <div class="child">
+                <span id="busuanzi_container_site_pv">
+                  访问量<span id="busuanzi_value_site_pv"></span>次
+                </span>
+                <span class="post-meta-divider">|</span>
+                <span id="busuanzi_container_site_uv" style='display:none'>
+                  访客数<span id="busuanzi_value_site_uv"></span>人
+                </span>
+                <script async="" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+              </div>
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+    <style>
+      .parent {
+        position: relative;
+      }
+      .child {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+      }
+    </style>  
+</footer>
+
+        
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'https://ericzikun.github.io/2019/11/07/NLP%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98%E4%B9%8B%E2%80%94%E2%80%94%E5%9F%BA%E4%BA%8E%E8%AF%8D%E9%A2%91%E5%92%8CTF-IDF%EF%BC%8C%E5%88%A9%E7%94%A8%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95%E6%96%B0%E9%97%BB%E5%88%86%E7%B1%BB/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+
+    
+        
+<script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-share.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-video.min.js"></script>
+
+    
+    
+        
+<script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+    
+    
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+        </script>
+        
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML.js"></script>
+
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+
+<script src="/js/main.js"></script>
+
+
+    </div>
+</body>
+</html>
