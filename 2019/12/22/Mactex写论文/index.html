@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+
+    
+
+    
+    <title>Mactex写论文 | Eric’s blog</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="效率,学术,Mac，论文排版" />
+    
+    <meta name="description" content="前言这两个下载mactex花了不少时间，参考了不少文章，有的推荐texstudio、texpad等等，最终还是比较喜欢mactex+sublime text3+skim，环境配置方面并不算麻烦，只要一步一步来就ok！本文主要分为如下几个部分，帮助大家迅速安装Mac版的latex，成为论文高产者！ 安装Mactex如果在官网下载mactex，速度非常慢，这里推荐使用mac的必备终端插件homebre">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mactex写论文">
+<meta property="og:url" content="https://ericzikun.github.io/2019/12/22/Mactex%E5%86%99%E8%AE%BA%E6%96%87/index.html">
+<meta property="og:site_name" content="Eric’s blog">
+<meta property="og:description" content="前言这两个下载mactex花了不少时间，参考了不少文章，有的推荐texstudio、texpad等等，最终还是比较喜欢mactex+sublime text3+skim，环境配置方面并不算麻烦，只要一步一步来就ok！本文主要分为如下几个部分，帮助大家迅速安装Mac版的latex，成为论文高产者！ 安装Mactex如果在官网下载mactex，速度非常慢，这里推荐使用mac的必备终端插件homebre">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pic1.zhimg.com/v2-03ec288dc1a6fd5aa424a067e2d62d24_b.jpg">
+<meta property="article:published_time" content="2019-12-22T02:18:54.000Z">
+<meta property="article:modified_time" content="2020-04-08T08:56:41.797Z">
+<meta property="article:author" content="Eric kun">
+<meta property="article:tag" content="效率">
+<meta property="article:tag" content="学术">
+<meta property="article:tag" content="Mac，论文排版">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pic1.zhimg.com/v2-03ec288dc1a6fd5aa424a067e2d62d24_b.jpg">
+    
+
+    
+        <link rel="alternate" href="/" title="Eric’s blog" type="application/atom+xml" />
+    
+
+    
+        <link rel="icon" href="https://pic2.zhimg.com/80/v2-f19e0e0add10a40489cdb8df576a0f7e_qhd.jpg" />
+    
+
+    
+<link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+
+    
+<link rel="stylesheet" href="/libs/titillium-web/styles.css">
+
+    
+<link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    
+<script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+        
+<link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+
+    
+    
+        
+<link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+
+    
+    
+    
+        <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?0d6b4455953d3e1c0917234dfebaa739";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+    
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8A%A5%E9%94%99/">报错</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8F%90%E5%8D%87%E6%95%88%E7%8E%87/">提升效率</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86/">文本处理</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E8%AE%BA%E6%96%87%E6%8E%92%E7%89%88/">论文排版</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/">技术栈</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/Java/">Java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/Python/">Python</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/React/">React</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E5%86%B3%E7%AD%96%E6%A0%91/">决策树</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%84%9F%E7%9F%A5%E6%9C%BA-KNN/">感知机&KNN</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/">朴素贝叶斯</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92/">逻辑回归</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB/">文本分类</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%A8%A1%E5%9E%8B%E5%8F%AF%E8%A7%86%E5%8C%96/">模型可视化</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/">自然语言处理</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/%E6%96%87%E6%9C%AC%E6%8A%BD%E5%8F%96/">文本抽取</a></li></ul></li></ul>
+                                    
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/about/index.html">联系方式</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/%E6%8A%80%E5%B7%A7/%E8%AE%BA%E6%96%87%E6%8E%92%E7%89%88/">论文排版</a>
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-Mactex写论文" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        Mactex写论文
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                <span id="busuanzi_container_page_pv" style='display:none' class="article-date">
+  <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+</span>
+
+
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2019/12/22/Mactex%E5%86%99%E8%AE%BA%E6%96%87/" class="article-date">
+         <time datetime="2019-12-22T02:18:54.000Z" itemprop="datePublished">2019-12-22</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Mac%EF%BC%8C%E8%AE%BA%E6%96%87%E6%8E%92%E7%89%88/" rel="tag">Mac，论文排版</a>, <a class="tag-link" href="/tags/%E5%AD%A6%E6%9C%AF/" rel="tag">学术</a>, <a class="tag-link" href="/tags/%E6%95%88%E7%8E%87/" rel="tag">效率</a>
+    </div>
+
+                
+   <span id="/2019/12/22/Mactex%E5%86%99%E8%AE%BA%E6%96%87/" class="leancloud-visitors" data-flag-title="Mactex写论文">
+   <i class="fa fa-eye"></i>
+   <span class="post-meta-item-text">阅读次数: </span>
+   <i class="leancloud-visitors-count">1000000</i>
+   </span>
+
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>这两个下载mactex花了不少时间，参考了不少文章，有的推荐texstudio、texpad等等，最终还是比较喜欢mactex+sublime text3+skim，环境配置方面并不算麻烦，只要一步一步来就ok！<br>本文主要分为如下几个部分，帮助大家迅速安装Mac版的latex，成为论文高产者！</p>
+<h1 id="安装Mactex"><a href="#安装Mactex" class="headerlink" title="安装Mactex"></a>安装Mactex</h1><p>如果在<a href="https://tug.org/mactex/" target="_blank" rel="noopener">官网</a>下载mactex，速度非常慢，这里推荐使用mac的必备终端插件homebrew，不用担心学习成本，很简单几步就可以完成可以参考<a href="https://zhuanlan.zhihu.com/p/59805070" target="_blank" rel="noopener">网站</a>：</p>
+<ol>
+<li><p>打开mac终端(在实用工具里面) </p>
+</li>
+<li><p>输入：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;usr&#x2F;bin&#x2F;ruby -e &quot;$(curl -fsSL https:&#x2F;&#x2F;raw.githubusercontent.com&#x2F;Homebrew&#x2F;install&#x2F;master&#x2F;install)&quot;</span><br></pre></td></tr></table></figure></li>
+<li><p>更改为国内中科大镜像资源：<br>在访达中搜索： brew_install,用文本编辑器打开：<br><img src="https://img-blog.csdnimg.cn/2019120819014149.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center" alt></p>
+<p>将下方内容用#注释:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BREW_REPO &#x3D; “https:&#x2F;&#x2F;github.com&#x2F;Homebrew&#x2F;brew“.freeze</span><br></pre></td></tr></table></figure>
+<p>并在下面一行添加：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BREW_REPO &#x3D; &quot;git:&#x2F;&#x2F;mirrors.ustc.edu.cn&#x2F;brew.git&quot;.freeze</span><br></pre></td></tr></table></figure></li>
+<li><p>安装brew：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;usr&#x2F;bin&#x2F;ruby ~&#x2F;brew_install</span><br></pre></td></tr></table></figure></li>
+<li><p>用brew安装 mactex</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew cask install mactex</span><br></pre></td></tr></table></figure>
+<p>等待几十分钟（有进度条），中间不要断网息屏，matex最终安装成功！！</p>
+<h1 id="下载-amp-配置sublime"><a href="#下载-amp-配置sublime" class="headerlink" title="下载&amp;配置sublime"></a>下载&amp;配置sublime</h1><p>此处我是直接在公众号找链接下载的，很多公众号都可以下载（微信搜索mac软件会有一堆），找到sublime text3的资源并下载安装即可，很简单！可以设置中文<br><img src="https://img-blog.csdnimg.cn/20191208190906823.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center" alt><br>再配置</p>
+</li>
+<li><p>进入<a href="https://packagecontrol.io/installation" target="_blank" rel="noopener">Package Control</a> 官网，复制灰色区块的代码（记得对应好版本）；</p>
+</li>
+<li><p>打开下载好的 Sublime Text；<br>使用快捷键“control+”（就在Esc键的下方）打开 Console，这时，会在底部看到弹出一个白色窗口；然后，将刚才复制的代码粘贴到控制面板；按下“Enter”回车键。待 install 完成后， 退出并重启软件；</p>
+<ol start="3">
+<li>Sublime Text重启后，按下 ’ Command+Shift+P ‘ 打开 Command pallet，输入命令“Install Package”，按下Enter回车建。</li>
+<li>完成之后，再输入“LaTeX Tools”，找到这一项并安装；</li>
+<li>安装完成后，退出并重启Sublime Text。<br>从而完成了Mac LaTeX 的配置了。</li>
+</ol>
+</li>
+</ol>
+<h1 id="安装pdf预览器skim"><a href="#安装pdf预览器skim" class="headerlink" title="安装pdf预览器skim"></a>安装pdf预览器skim</h1><p>为了方便左边编译，右边实时更新pdf，这里需要调用skim软件：<br><a href="https://skim.en.softonic.com/mac" target="_blank" rel="noopener">下载地址</a><br><img src="https://img-blog.csdnimg.cn/20191208191631649.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center" alt><br>在左上角skim中选项一栏进行设置：将预设编译器改为sublime，打钩检查文件变化，<br>好了，到这里基本上就完成了<br>好了，现在新建一个sublime文件就可以了，由于很生成很多文件，所以一定在新建文件夹里面新建一个.tex的文件（这一步很重要，否则编译不出来），编译的快捷键为：command+B<br>下面给两个大家来测试一下：</p>
+<ol>
+<li>包含中文的代码：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">%!TEX program &#x3D; xelatex  </span><br><span class="line">\documentclass&#123;article&#125;</span><br><span class="line">\usepackage&#123;xeCJK, fontspec, xunicode, xltxtra&#125;  </span><br><span class="line">\begin&#123;document&#125;</span><br><span class="line">hello world!</span><br><span class="line">成功</span><br><span class="line">\end&#123;document&#125;</span><br></pre></td></tr></table></figure></li>
+<li>IEEE官方提供的会议论文模板<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br></pre></td><td class="code"><pre><span class="line">\documentclass[conference]&#123;IEEEtran&#125;</span><br><span class="line">\IEEEoverridecommandlockouts</span><br><span class="line">% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.</span><br><span class="line">\usepackage&#123;cite&#125;</span><br><span class="line">\usepackage&#123;amsmath,amssymb,amsfonts&#125;</span><br><span class="line">\usepackage&#123;algorithmic&#125;</span><br><span class="line">\usepackage&#123;graphicx&#125;</span><br><span class="line">\usepackage&#123;textcomp&#125;</span><br><span class="line">\usepackage&#123;xcolor&#125;</span><br><span class="line">\def\BibTeX&#123;&#123;\rm B\kern-.05em&#123;\sc i\kern-.025em b&#125;\kern-.08em</span><br><span class="line">    T\kern-.1667em\lower.7ex\hbox&#123;E&#125;\kern-.125emX&#125;&#125;</span><br><span class="line">\begin&#123;document&#125;</span><br><span class="line"></span><br><span class="line">\title&#123;Real-vessel trajectory data-based in crowed inland waterway\\</span><br><span class="line">&#123;\footnotesize \textsuperscript&#123;*&#125;Note: Sub-titles are not captured in Xplore and</span><br><span class="line">should not be used&#125;</span><br><span class="line">\thanks&#123;Identify applicable funding agency here. If none, delete this.&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">\author&#123;\IEEEauthorblockN&#123;1\textsuperscript&#123;st&#125; Given Name Surname&#125;</span><br><span class="line">\IEEEauthorblockA&#123;\textit&#123;dept. name of organization (of Aff.)&#125; \\</span><br><span class="line">\textit&#123;name of organization (of Aff.)&#125;\\</span><br><span class="line">City, Country \\</span><br><span class="line">email address&#125;</span><br><span class="line">\and</span><br><span class="line">\IEEEauthorblockN&#123;2\textsuperscript&#123;nd&#125; Given Name Surname&#125;</span><br><span class="line">\IEEEauthorblockA&#123;\textit&#123;dept. name of organization (of Aff.)&#125; \\</span><br><span class="line">\textit&#123;name of organization (of Aff.)&#125;\\</span><br><span class="line">City, Country \\</span><br><span class="line">email address&#125;</span><br><span class="line">\and</span><br><span class="line">\IEEEauthorblockN&#123;3\textsuperscript&#123;rd&#125; Given Name Surname&#125;</span><br><span class="line">\IEEEauthorblockA&#123;\textit&#123;dept. name of organization (of Aff.)&#125; \\</span><br><span class="line">\textit&#123;name of organization (of Aff.)&#125;\\</span><br><span class="line">City, Country \\</span><br><span class="line">email address&#125;</span><br><span class="line">\and</span><br><span class="line">\IEEEauthorblockN&#123;4\textsuperscript&#123;th&#125; Given Name Surname&#125;</span><br><span class="line">\IEEEauthorblockA&#123;\textit&#123;dept. name of organization (of Aff.)&#125; \\</span><br><span class="line">\textit&#123;name of organization (of Aff.)&#125;\\</span><br><span class="line">City, Country \\</span><br><span class="line">email address&#125;</span><br><span class="line">\and</span><br><span class="line">\IEEEauthorblockN&#123;5\textsuperscript&#123;th&#125; Given Name Surname&#125;</span><br><span class="line">\IEEEauthorblockA&#123;\textit&#123;dept. name of organization (of Aff.)&#125; \\</span><br><span class="line">\textit&#123;name of organization (of Aff.)&#125;\\</span><br><span class="line">City, Country \\</span><br><span class="line">email address&#125;</span><br><span class="line">\and</span><br><span class="line">\IEEEauthorblockN&#123;6\textsuperscript&#123;th&#125; Given Name Surname&#125;</span><br><span class="line">\IEEEauthorblockA&#123;\textit&#123;dept. name of organization (of Aff.)&#125; \\</span><br><span class="line">\textit&#123;name of organization (of Aff.)&#125;\\</span><br><span class="line">City, Country \\</span><br><span class="line">email address&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">\maketitle</span><br><span class="line"></span><br><span class="line">\begin&#123;abstract&#125;</span><br><span class="line">This document is a model and instructions for \LaTeX.</span><br><span class="line">This and the IEEEtran.cls file define the components of your paper [title, text, heads, etc.]. *CRITICAL: Do Not Use Symbols, Special Characters, Footnotes, </span><br><span class="line">or Math in Paper Title or Abstract.</span><br><span class="line">\end&#123;abstract&#125;</span><br><span class="line"></span><br><span class="line">\begin&#123;IEEEkeywords&#125;</span><br><span class="line">component, formatting, style, styling, insert</span><br><span class="line">\end&#123;IEEEkeywords&#125;</span><br><span class="line"></span><br><span class="line">\section&#123;Introduction&#125;</span><br><span class="line">This document is a model and instructions for \LaTeX.</span><br><span class="line">Please observe the conference page limits. </span><br><span class="line"></span><br><span class="line">\section&#123;Ease of Use&#125;</span><br><span class="line"></span><br><span class="line">\subsection&#123;Maintaining the Integrity of the Specifications&#125;</span><br><span class="line"></span><br><span class="line">The IEEEtran class file is used to format your paper and style the text. All margins, </span><br><span class="line">column widths, line spaces, and text fonts are prescribed; please do not </span><br><span class="line">alter them. You may note peculiarities. For example, the head margin</span><br><span class="line">measures proportionately more than is customary. This measurement </span><br><span class="line">and others are deliberate, using specifications that anticipate your paper </span><br><span class="line">as one part of the entire proceedings, and not as an independent document. </span><br><span class="line">Please do not revise any of the current designations.</span><br><span class="line"></span><br><span class="line">\section&#123;Prepare Your Paper Before Styling&#125;</span><br><span class="line">Before you begin to format your paper, first write and save the content as a </span><br><span class="line">separate text file. Complete all content and organizational editing before </span><br><span class="line">formatting. Please note sections \ref&#123;AA&#125;--\ref&#123;SCM&#125; below for more information on </span><br><span class="line">proofreading, spelling and grammar.</span><br><span class="line"></span><br><span class="line">Keep your text and graphic files separate until after the text has been </span><br><span class="line">formatted and styled. Do not number text heads---&#123;\LaTeX&#125; will do that </span><br><span class="line">for you.</span><br><span class="line"></span><br><span class="line">\subsection&#123;Abbreviations and Acronyms&#125;\label&#123;AA&#125;</span><br><span class="line">Define abbreviations and acronyms the first time they are used in the text, </span><br><span class="line">even after they have been defined in the abstract. Abbreviations such as </span><br><span class="line">IEEE, SI, MKS, CGS, ac, dc, and rms do not have to be defined. Do not use </span><br><span class="line">abbreviations in the title or heads unless they are unavoidable.</span><br><span class="line"></span><br><span class="line">\subsection&#123;Units&#125;</span><br><span class="line">\begin&#123;itemize&#125;</span><br><span class="line">\item Use either SI (MKS) or CGS as primary units. (SI units are encouraged.) English units may be used as secondary units (in parentheses). An exception would be the use of English units as identifiers in trade, such as &#96;&#96;3.5-inch disk drive&#39;&#39;.</span><br><span class="line">\item Avoid combining SI and CGS units, such as current in amperes and magnetic field in oersteds. This often leads to confusion because equations do not balance dimensionally. If you must use mixed units, clearly state the units for each quantity that you use in an equation.</span><br><span class="line">\item Do not mix complete spellings and abbreviations of units: &#96;&#96;Wb&#x2F;m\textsuperscript&#123;2&#125;&#39;&#39; or &#96;&#96;webers per square meter&#39;&#39;, not &#96;&#96;webers&#x2F;m\textsuperscript&#123;2&#125;&#39;&#39;. Spell out units when they appear in text: &#96;&#96;. . . a few henries&#39;&#39;, not &#96;&#96;. . . a few H&#39;&#39;.</span><br><span class="line">\item Use a zero before decimal points: &#96;&#96;0.25&#39;&#39;, not &#96;&#96;.25&#39;&#39;. Use &#96;&#96;cm\textsuperscript&#123;3&#125;&#39;&#39;, not &#96;&#96;cc&#39;&#39;.)</span><br><span class="line">\end&#123;itemize&#125;</span><br><span class="line"></span><br><span class="line">\subsection&#123;Equations&#125;</span><br><span class="line">Number equations consecutively. To make your </span><br><span class="line">equations more compact, you may use the solidus (~&#x2F;~), the exp function, or </span><br><span class="line">appropriate exponents. Italicize Roman symbols for quantities and variables, </span><br><span class="line">but not Greek symbols. Use a long dash rather than a hyphen for a minus </span><br><span class="line">sign. Punctuate equations with commas or periods when they are part of a </span><br><span class="line">sentence, as in:</span><br><span class="line">\begin&#123;equation&#125;</span><br><span class="line">a+b&#x3D;\gamma\label&#123;eq&#125;</span><br><span class="line">\end&#123;equation&#125;</span><br><span class="line"></span><br><span class="line">Be sure that the </span><br><span class="line">symbols in your equation have been defined before or immediately following </span><br><span class="line">the equation. Use &#96;&#96;\eqref&#123;eq&#125;&#39;&#39;, not &#96;&#96;Eq.~\eqref&#123;eq&#125;&#39;&#39; or &#96;&#96;equation \eqref&#123;eq&#125;&#39;&#39;, except at </span><br><span class="line">the beginning of a sentence: &#96;&#96;Equation \eqref&#123;eq&#125; is . . .&#39;&#39;</span><br><span class="line"></span><br><span class="line">\subsection&#123;\LaTeX-Specific Advice&#125;</span><br><span class="line"></span><br><span class="line">Please use &#96;&#96;soft&#39;&#39; (e.g., \verb|\eqref&#123;Eq&#125;|) cross references instead</span><br><span class="line">of &#96;&#96;hard&#39;&#39; references (e.g., \verb|(1)|). That will make it possible</span><br><span class="line">to combine sections, add equations, or change the order of figures or</span><br><span class="line">citations without having to go through the file line by line.</span><br><span class="line"></span><br><span class="line">Please don&#39;t use the \verb|&#123;eqnarray&#125;| equation environment. Use</span><br><span class="line">\verb|&#123;align&#125;| or \verb|&#123;IEEEeqnarray&#125;| instead. The \verb|&#123;eqnarray&#125;|</span><br><span class="line">environment leaves unsightly spaces around relation symbols.</span><br><span class="line"></span><br><span class="line">Please note that the \verb|&#123;subequations&#125;| environment in &#123;\LaTeX&#125;</span><br><span class="line">will increment the main equation counter even when there are no</span><br><span class="line">equation numbers displayed. If you forget that, you might write an</span><br><span class="line">article in which the equation numbers skip from (17) to (20), causing</span><br><span class="line">the copy editors to wonder if you&#39;ve discovered a new method of</span><br><span class="line">counting.</span><br><span class="line"></span><br><span class="line">&#123;\BibTeX&#125; does not work by magic. It doesn&#39;t get the bibliographic</span><br><span class="line">data from thin air but from .bib files. If you use &#123;\BibTeX&#125; to produce a</span><br><span class="line">bibliography you must send the .bib files. </span><br><span class="line"></span><br><span class="line">&#123;\LaTeX&#125; can&#39;t read your mind. If you assign the same label to a</span><br><span class="line">subsubsection and a table, you might find that Table I has been cross</span><br><span class="line">referenced as Table IV-B3. </span><br><span class="line"></span><br><span class="line">&#123;\LaTeX&#125; does not have precognitive abilities. If you put a</span><br><span class="line">\verb|\label| command before the command that updates the counter it&#39;s</span><br><span class="line">supposed to be using, the label will pick up the last counter to be</span><br><span class="line">cross referenced instead. In particular, a \verb|\label| command</span><br><span class="line">should not go before the caption of a figure or a table.</span><br><span class="line"></span><br><span class="line">Do not use \verb|\nonumber| inside the \verb|&#123;array&#125;| environment. It</span><br><span class="line">will not stop equation numbers inside \verb|&#123;array&#125;| (there won&#39;t be</span><br><span class="line">any anyway) and it might stop a wanted equation number in the</span><br><span class="line">surrounding equation.</span><br><span class="line"></span><br><span class="line">\subsection&#123;Some Common Mistakes&#125;\label&#123;SCM&#125;</span><br><span class="line">\begin&#123;itemize&#125;</span><br><span class="line">\item The word &#96;&#96;data&#39;&#39; is plural, not singular.</span><br><span class="line">\item The subscript for the permeability of vacuum $\mu_&#123;0&#125;$, and other common scientific constants, is zero with subscript formatting, not a lowercase letter &#96;&#96;o&#39;&#39;.</span><br><span class="line">\item In American English, commas, semicolons, periods, question and exclamation marks are located within quotation marks only when a complete thought or name is cited, such as a title or full quotation. When quotation marks are used, instead of a bold or italic typeface, to highlight a word or phrase, punctuation should appear outside of the quotation marks. A parenthetical phrase or statement at the end of a sentence is punctuated outside of the closing parenthesis (like this). (A parenthetical sentence is punctuated within the parentheses.)</span><br><span class="line">\item A graph within a graph is an &#96;&#96;inset&#39;&#39;, not an &#96;&#96;insert&#39;&#39;. The word alternatively is preferred to the word &#96;&#96;alternately&#39;&#39; (unless you really mean something that alternates).</span><br><span class="line">\item Do not use the word &#96;&#96;essentially&#39;&#39; to mean &#96;&#96;approximately&#39;&#39; or &#96;&#96;effectively&#39;&#39;.</span><br><span class="line">\item In your paper title, if the words &#96;&#96;that uses&#39;&#39; can accurately replace the word &#96;&#96;using&#39;&#39;, capitalize the &#96;&#96;u&#39;&#39;; if not, keep using lower-cased.</span><br><span class="line">\item Be aware of the different meanings of the homophones &#96;&#96;affect&#39;&#39; and &#96;&#96;effect&#39;&#39;, &#96;&#96;complement&#39;&#39; and &#96;&#96;compliment&#39;&#39;, &#96;&#96;discreet&#39;&#39; and &#96;&#96;discrete&#39;&#39;, &#96;&#96;principal&#39;&#39; and &#96;&#96;principle&#39;&#39;.</span><br><span class="line">\item Do not confuse &#96;&#96;imply&#39;&#39; and &#96;&#96;infer&#39;&#39;.</span><br><span class="line">\item The prefix &#96;&#96;non&#39;&#39; is not a word; it should be joined to the word it modifies, usually without a hyphen.</span><br><span class="line">\item There is no period after the &#96;&#96;et&#39;&#39; in the Latin abbreviation &#96;&#96;et al.&#39;&#39;.</span><br><span class="line">\item The abbreviation &#96;&#96;i.e.&#39;&#39; means &#96;&#96;that is&#39;&#39;, and the abbreviation &#96;&#96;e.g.&#39;&#39; means &#96;&#96;for example&#39;&#39;.</span><br><span class="line">\end&#123;itemize&#125;</span><br><span class="line">An excellent style manual for science writers is \cite&#123;b7&#125;.</span><br><span class="line"></span><br><span class="line">\subsection&#123;Authors and Affiliations&#125;</span><br><span class="line">\textbf&#123;The class file is designed for, but not limited to, six authors.&#125; A </span><br><span class="line">minimum of one author is required for all conference articles. Author names </span><br><span class="line">should be listed starting from left to right and then moving down to the </span><br><span class="line">next line. This is the author sequence that will be used in future citations </span><br><span class="line">and by indexing services. Names should not be listed in columns nor group by </span><br><span class="line">affiliation. Please keep your affiliations as succinct as possible (for </span><br><span class="line">example, do not differentiate among departments of the same organization).</span><br><span class="line"></span><br><span class="line">\subsection&#123;Identify the Headings&#125;</span><br><span class="line">Headings, or heads, are organizational devices that guide the reader through </span><br><span class="line">your paper. There are two types: component heads and text heads.</span><br><span class="line"></span><br><span class="line">Component heads identify the different components of your paper and are not </span><br><span class="line">topically subordinate to each other. Examples include Acknowledgments and </span><br><span class="line">References and, for these, the correct style to use is &#96;&#96;Heading 5&#39;&#39;. Use </span><br><span class="line">&#96;&#96;figure caption&#39;&#39; for your Figure captions, and &#96;&#96;table head&#39;&#39; for your </span><br><span class="line">table title. Run-in heads, such as &#96;&#96;Abstract&#39;&#39;, will require you to apply a </span><br><span class="line">style (in this case, italic) in addition to the style provided by the drop </span><br><span class="line">down menu to differentiate the head from the text.</span><br><span class="line"></span><br><span class="line">Text heads organize the topics on a relational, hierarchical basis. For </span><br><span class="line">example, the paper title is the primary text head because all subsequent </span><br><span class="line">material relates and elaborates on this one topic. If there are two or more </span><br><span class="line">sub-topics, the next level head (uppercase Roman numerals) should be used </span><br><span class="line">and, conversely, if there are not at least two sub-topics, then no subheads </span><br><span class="line">should be introduced.</span><br><span class="line"></span><br><span class="line">\subsection&#123;Figures and Tables&#125;</span><br><span class="line">\paragraph&#123;Positioning Figures and Tables&#125; Place figures and tables at the top and </span><br><span class="line">bottom of columns. Avoid placing them in the middle of columns. Large </span><br><span class="line">figures and tables may span across both columns. Figure captions should be </span><br><span class="line">below the figures; table heads should appear above the tables. Insert </span><br><span class="line">figures and tables after they are cited in the text. Use the abbreviation </span><br><span class="line">&#96;&#96;Fig.~\ref&#123;fig&#125;&#39;&#39;, even at the beginning of a sentence.</span><br><span class="line"></span><br><span class="line">\begin&#123;table&#125;[htbp]</span><br><span class="line">\caption&#123;Table Type Styles&#125;</span><br><span class="line">\begin&#123;center&#125;</span><br><span class="line">\begin&#123;tabular&#125;&#123;|c|c|c|c|&#125;</span><br><span class="line">\hline</span><br><span class="line">\textbf&#123;Table&#125;&amp;\multicolumn&#123;3&#125;&#123;|c|&#125;&#123;\textbf&#123;Table Column Head&#125;&#125; \\</span><br><span class="line">\cline&#123;2-4&#125; </span><br><span class="line">\textbf&#123;Head&#125; &amp; \textbf&#123;\textit&#123;Table column subhead&#125;&#125;&amp; \textbf&#123;\textit&#123;Subhead&#125;&#125;&amp; \textbf&#123;\textit&#123;Subhead&#125;&#125; \\</span><br><span class="line">\hline</span><br><span class="line">copy&amp; More table copy$^&#123;\mathrm&#123;a&#125;&#125;$&amp; &amp;  \\</span><br><span class="line">\hline</span><br><span class="line">\multicolumn&#123;4&#125;&#123;l&#125;&#123;$^&#123;\mathrm&#123;a&#125;&#125;$Sample of a Table footnote.&#125;</span><br><span class="line">\end&#123;tabular&#125;</span><br><span class="line">\label&#123;tab1&#125;</span><br><span class="line">\end&#123;center&#125;</span><br><span class="line">\end&#123;table&#125;</span><br><span class="line"></span><br><span class="line">\begin&#123;figure&#125;[htbp]</span><br><span class="line">%\centerline&#123;\includegraphics&#123;fig1.png&#125;&#125;</span><br><span class="line">\caption&#123;Example of a figure caption.&#125;</span><br><span class="line">\label&#123;fig&#125;</span><br><span class="line">\end&#123;figure&#125;</span><br><span class="line"></span><br><span class="line">Figure Labels: Use 8 point Times New Roman for Figure labels. Use words </span><br><span class="line">rather than symbols or abbreviations when writing Figure axis labels to </span><br><span class="line">avoid confusing the reader. As an example, write the quantity </span><br><span class="line">&#96;&#96;Magnetization&#39;&#39;, or &#96;&#96;Magnetization, M&#39;&#39;, not just &#96;&#96;M&#39;&#39;. If including </span><br><span class="line">units in the label, present them within parentheses. Do not label axes only </span><br><span class="line">with units. In the example, write &#96;&#96;Magnetization (A&#x2F;m)&#39;&#39; or &#96;&#96;Magnetization </span><br><span class="line">\&#123;A[m(1)]\&#125;&#39;&#39;, not just &#96;&#96;A&#x2F;m&#39;&#39;. Do not label axes with a ratio of </span><br><span class="line">quantities and units. For example, write &#96;&#96;Temperature (K)&#39;&#39;, not </span><br><span class="line">&#96;&#96;Temperature&#x2F;K&#39;&#39;.</span><br><span class="line"></span><br><span class="line">\section*&#123;Acknowledgment&#125;</span><br><span class="line"></span><br><span class="line">The preferred spelling of the word &#96;&#96;acknowledgment&#39;&#39; in America is without </span><br><span class="line">an &#96;&#96;e&#39;&#39; after the &#96;&#96;g&#39;&#39;. Avoid the stilted expression &#96;&#96;one of us (R. B. </span><br><span class="line">G.) thanks $\ldots$&#39;&#39;. Instead, try &#96;&#96;R. B. G. thanks$\ldots$&#39;&#39;. Put sponsor </span><br><span class="line">acknowledgments in the unnumbered footnote on the first page.</span><br><span class="line"></span><br><span class="line">\section*&#123;References&#125;</span><br><span class="line"></span><br><span class="line">Please number citations consecutively within brackets \cite&#123;IEEEhowto:IEEEtranpage&#125;. The </span><br><span class="line">sentence punctuation follows the bracket \cite&#123;b2&#125;. Refer simply to the reference </span><br><span class="line">number, as in \cite&#123;b3&#125;---do not use &#96;&#96;Ref. \cite&#123;b3&#125;&#39;&#39; or &#96;&#96;reference \cite&#123;b3&#125;&#39;&#39; except at </span><br><span class="line">the beginning of a sentence: &#96;&#96;Reference \cite&#123;b3&#125; was the first $\ldots$&#39;&#39;</span><br><span class="line"></span><br><span class="line">Number footnotes separately in superscripts. Place the actual footnote at </span><br><span class="line">the bottom of the column in which it was cited. Do not put footnotes in the </span><br><span class="line">abstract or reference list. Use letters for table footnotes.</span><br><span class="line"></span><br><span class="line">Unless there are six authors or more give all authors&#39; names; do not use </span><br><span class="line">&#96;&#96;et al.&#39;&#39;. Papers that have not been published, even if they have been </span><br><span class="line">submitted for publication, should be cited as &#96;&#96;unpublished&#39;&#39; \cite&#123;b4&#125;. Papers </span><br><span class="line">that have been accepted for publication should be cited as &#96;&#96;in press&#39;&#39; \cite&#123;b5&#125;. </span><br><span class="line">Capitalize only the first word in a paper title, except for proper nouns and </span><br><span class="line">element symbols.</span><br><span class="line"></span><br><span class="line">For papers published in translation journals, please give the English </span><br><span class="line">citation first, followed by the original foreign-language citation \cite&#123;b6&#125;.</span><br><span class="line"></span><br><span class="line">\bibliographystyle&#123;.&#x2F;bibliography&#x2F;IEEEtran&#125;</span><br><span class="line">\bibliography&#123;.&#x2F;bibliography&#x2F;IEEEabrv,.&#x2F;bibliography&#x2F;IEEEexample&#125;</span><br><span class="line"></span><br><span class="line">\vspace&#123;12pt&#125;</span><br><span class="line">\color&#123;red&#125;</span><br><span class="line">IEEE conference templates contain guidance text for composing and formatting conference papers. Please ensure that all template text is removed from your conference paper prior to submission to the conference. Failure to remove the template text from your paper may result in your paper not being published.</span><br><span class="line"></span><br><span class="line">\end&#123;document&#125;</span><br></pre></td></tr></table></figure>
+按下command+B，就会自动调出skim的pdf啦！英文期刊、会议的模板，都可以在<a href="https://www.overleaf.com" target="_blank" rel="noopener">overleaf</a>在线latex网站下载，要注册账号（如果登不了就用梯），然后就可以替换对应的文字部分生成论文了，当然，公式还是要一点点语句功底的，可以对照latex公式手册来进行就好！遇到不会的地方直接百度即可！</li>
+</ol>
+<p><img src="https://img-blog.csdnimg.cn/20191208193437645.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt><br><img src="https://img-blog.csdnimg.cn/20191208192348163.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt></p>
+<p>参考博客：<br><a href="https://www.jianshu.com/p/b1e3b029ded5" target="_blank" rel="noopener">https://www.jianshu.com/p/b1e3b029ded5</a><br><a href="https://zhuanlan.zhihu.com/p/59805070" target="_blank" rel="noopener">https://zhuanlan.zhihu.com/p/59805070</a></p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://ericzikun.github.io/2019/12/22/Mactex%E5%86%99%E8%AE%BA%E6%96%87/" data-id="ck8qpnu9x0001apt6axscf9ah" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Eric kun"
+        },
+        "headline": "Mactex写论文",
+        "image": "https://ericzikun.github.iohttps://pic1.zhimg.com/v2-03ec288dc1a6fd5aa424a067e2d62d24_b.jpg",
+        "keywords": "效率 学术 Mac，论文排版",
+        "genre": "技巧 论文排版",
+        "datePublished": "2019-12-22",
+        "dateCreated": "2019-12-22",
+        "dateModified": "2020-04-08",
+        "url": "https://ericzikun.github.io/2019/12/22/Mactex写论文/",
+        "description": "前言这两个下载mactex花了不少时间，参考了不少文章，有的推荐texstudio、texpad等等，最终还是比较喜欢mactex+sublime text3+skim，环境配置方面并不算麻烦，只要一步一步来就ok！本文主要分为如下几个部分，帮助大家迅速安装Mac版的latex，成为论文高产者！
+安装Mactex如果在官网下载mactex，速度非常慢，这里推荐使用mac的必备终端插件homebre",
+        "wordCount": 2540
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <div id="disqus_thread">
+        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
+    </div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="twitter" href="https://www.zhihu.com/people/feng-kun-33-65" target="_blank" rel="noopener">
+                        <i class="icon fa fa-twitter"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="facebook" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-facebook"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="stack-overflow" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-stack-overflow"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/ericzikun" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="weibo" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-weibo"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="rss" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-rss"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+        <a href="/2020/02/01/%E5%88%A9%E7%94%A8TextCNN%E5%AF%B9Cnews%E5%81%9A%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB%E4%BB%BB%E5%8A%A1/" id="article-nav-newer" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">下一篇</strong>
+        <p class="article-nav-title">
+        
+            利用TextCNN对CNews做文本分类任务
+        
+        </p>
+        <i class="icon fa fa-chevron-right" id="icon-chevron-right"></i>
+    </a>
+    
+    
+        <a href="/2019/12/20/%E6%96%87%E6%9C%AC%E6%8A%BD%E5%8F%96%E7%AE%97%E6%B3%95Textrank/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">文本抽取算法Textrank</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+  <div class="widget-wrap widget-list">
+      <h3 class="widget-title"></h3>
+      <div class="widget">
+        <b>联系方式：847473488@qq.com<br/>
+        知乎：ERICK</b>
+          <!--这里添加你要写的内容-->
+      </div>
+  </div>
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/Cnews/" style="font-size: 10px;">Cnews</a> <a href="/tags/KNN/" style="font-size: 10px;">KNN</a> <a href="/tags/Keras/" style="font-size: 10px;">Keras</a> <a href="/tags/Mac/" style="font-size: 15px;">Mac</a> <a href="/tags/Mac%EF%BC%8C%E8%AE%BA%E6%96%87%E6%8E%92%E7%89%88/" style="font-size: 10px;">Mac，论文排版</a> <a href="/tags/NLP/" style="font-size: 10px;">NLP</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/TextCNN/" style="font-size: 10px;">TextCNN</a> <a href="/tags/Textrank/" style="font-size: 10px;">Textrank</a> <a href="/tags/%E5%85%B3%E9%94%AE%E8%AF%8D%E6%8A%BD%E5%8F%96/" style="font-size: 10px;">关键词抽取</a> <a href="/tags/%E5%86%B3%E7%AD%96%E6%A0%91/" style="font-size: 10px;">决策树</a> <a href="/tags/%E5%AD%A6%E6%9C%AF/" style="font-size: 20px;">学术</a> <a href="/tags/%E6%84%9F%E7%9F%A5%E6%9C%BA/" style="font-size: 10px;">感知机</a> <a href="/tags/%E6%8A%A5%E9%94%99/" style="font-size: 15px;">报错</a> <a href="/tags/%E6%95%88%E7%8E%87/" style="font-size: 20px;">效率</a> <a href="/tags/%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB/" style="font-size: 10px;">文本分类</a> <a href="/tags/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86/" style="font-size: 10px;">文本处理</a> <a href="/tags/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/" style="font-size: 10px;">朴素贝叶斯</a> <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">机器学习</a> <a href="/tags/%E6%A0%BC%E5%BC%8F%E5%8C%96%E6%96%87%E6%9C%AC/" style="font-size: 10px;">格式化文本</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">深度学习</a> <a href="/tags/%E7%BB%9F%E8%AE%A1%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/" style="font-size: 20px;">统计学习方法</a> <a href="/tags/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92/" style="font-size: 10px;">逻辑回归</a> <a href="/tags/%E9%A2%84%E5%A4%84%E7%90%86/" style="font-size: 10px;">预处理</a>
+        </div>
+    </div>
+
+
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/08/Mac%E5%AE%89%E8%A3%85gensim%E8%B8%A9%E5%9D%91/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://img-blog.csdnimg.cn/20200225104733764.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70)" alt="Mac安装gensim踩坑" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8A%A5%E9%94%99/">报错</a></p>
+                            <p class="item-title"><a href="/2020/04/08/Mac%E5%AE%89%E8%A3%85gensim%E8%B8%A9%E5%9D%91/" class="title">Mac安装gensim踩坑</a></p>
+                            <p class="item-date"><time datetime="2020-04-08T02:22:27.000Z" itemprop="datePublished">2020-04-08</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/08/mac%E5%AE%89%E8%A3%85cnpm%E8%B8%A9%E5%9D%91/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://img-blog.csdnimg.cn/20200225104733764.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70)" alt="mac安装cnpm踩坑" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8A%A5%E9%94%99/">报错</a></p>
+                            <p class="item-title"><a href="/2020/04/08/mac%E5%AE%89%E8%A3%85cnpm%E8%B8%A9%E5%9D%91/" class="title">mac安装cnpm踩坑</a></p>
+                            <p class="item-date"><time datetime="2020-04-08T02:21:50.000Z" itemprop="datePublished">2020-04-08</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/08/keras%E6%A8%A1%E5%9E%8B%E5%8F%AF%E8%A7%86%E5%8C%96%E5%88%A9%E5%99%A8/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://img-blog.csdnimg.cn/20200306095818107.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center)" alt="keras模型可视化利器" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%A8%A1%E5%9E%8B%E5%8F%AF%E8%A7%86%E5%8C%96/">模型可视化</a></p>
+                            <p class="item-title"><a href="/2020/04/08/keras%E6%A8%A1%E5%9E%8B%E5%8F%AF%E8%A7%86%E5%8C%96%E5%88%A9%E5%99%A8/" class="title">keras模型可视化利器</a></p>
+                            <p class="item-date"><time datetime="2020-04-08T02:20:20.000Z" itemprop="datePublished">2020-04-08</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/08/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86%E4%B8%AD%E5%B8%B8%E8%A7%81%E7%9A%84Str-list%E8%BD%AC%E6%8D%A2/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://img-blog.csdnimg.cn/20200229100525972.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70)" alt="文本处理中常见的Str/list转换" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86/">文本处理</a></p>
+                            <p class="item-title"><a href="/2020/04/08/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86%E4%B8%AD%E5%B8%B8%E8%A7%81%E7%9A%84Str-list%E8%BD%AC%E6%8D%A2/" class="title">文本处理中常见的Str/list转换</a></p>
+                            <p class="item-date"><time datetime="2020-04-08T02:19:44.000Z" itemprop="datePublished">2020-04-08</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/08/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF%E7%90%86%E8%AE%BA/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=1474209398,3737326875&fm=26&gp=0.jpg)" alt="朴素贝叶斯理论" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/">朴素贝叶斯</a></p>
+                            <p class="item-title"><a href="/2020/04/08/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF%E7%90%86%E8%AE%BA/" class="title">朴素贝叶斯理论</a></p>
+                            <p class="item-date"><time datetime="2020-04-08T02:16:54.000Z" itemprop="datePublished">2020-04-08</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">分类</h3>
+        <div class="widget">
+            <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><span class="category-list-count">6</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8A%A5%E9%94%99/">报错</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8F%90%E5%8D%87%E6%95%88%E7%8E%87/">提升效率</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86/">文本处理</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E8%AE%BA%E6%96%87%E6%8E%92%E7%89%88/">论文排版</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/">技术栈</a><span class="category-list-count">4</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/Java/">Java</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/Python/">Python</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/React/">React</a><span class="category-list-count">2</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a><span class="category-list-count">5</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E5%86%B3%E7%AD%96%E6%A0%91/">决策树</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%84%9F%E7%9F%A5%E6%9C%BA-KNN/">感知机&KNN</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/">朴素贝叶斯</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92/">逻辑回归</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a><span class="category-list-count">2</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB/">文本分类</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%A8%A1%E5%9E%8B%E5%8F%AF%E8%A7%86%E5%8C%96/">模型可视化</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/">自然语言处理</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/%E6%96%87%E6%9C%AC%E6%8A%BD%E5%8F%96/">文本抽取</a><span class="category-list-count">1</span></li></ul></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a><span class="archive-list-count">9</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a><span class="archive-list-count">4</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">标签</h3>
+        <div class="widget">
+            <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/Cnews/" rel="tag">Cnews</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/KNN/" rel="tag">KNN</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Keras/" rel="tag">Keras</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Mac/" rel="tag">Mac</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Mac%EF%BC%8C%E8%AE%BA%E6%96%87%E6%8E%92%E7%89%88/" rel="tag">Mac，论文排版</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/NLP/" rel="tag">NLP</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Tensorflow/" rel="tag">Tensorflow</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/TextCNN/" rel="tag">TextCNN</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/Textrank/" rel="tag">Textrank</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%85%B3%E9%94%AE%E8%AF%8D%E6%8A%BD%E5%8F%96/" rel="tag">关键词抽取</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%86%B3%E7%AD%96%E6%A0%91/" rel="tag">决策树</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%A6%E6%9C%AF/" rel="tag">学术</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%84%9F%E7%9F%A5%E6%9C%BA/" rel="tag">感知机</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%8A%A5%E9%94%99/" rel="tag">报错</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%95%88%E7%8E%87/" rel="tag">效率</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB/" rel="tag">文本分类</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86/" rel="tag">文本处理</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/" rel="tag">朴素贝叶斯</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag">机器学习</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%A0%BC%E5%BC%8F%E5%8C%96%E6%96%87%E6%9C%AC/" rel="tag">格式化文本</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BB%9F%E8%AE%A1%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/" rel="tag">统计学习方法</a><span class="tag-list-count">3</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92/" rel="tag">逻辑回归</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E9%A2%84%E5%A4%84%E7%90%86/" rel="tag">预处理</a><span class="tag-list-count">1</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://hexo.io" target="_blank" rel="noopener">Hexo</a>
+                    </li>
+                
+                    <li>
+                        <a href="https://blog.csdn.net/popofzk" target="_blank" rel="noopener">CSDN</a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.zhihu.com/people/feng-kun-33-65" target="_blank" rel="noopener">知乎</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2020 Eric kun</p>
+                
+                <p>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="https://github.com/ppoffice" target="_blank">PPOffice</a></p>
+                
+            </div>
+            <div class="parent">
+              <div class="child">
+                <span id="busuanzi_container_site_pv">
+                  访问量<span id="busuanzi_value_site_pv"></span>次
+                </span>
+                <span class="post-meta-divider">|</span>
+                <span id="busuanzi_container_site_uv" style='display:none'>
+                  访客数<span id="busuanzi_value_site_uv"></span>人
+                </span>
+                <script async="" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+              </div>
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+    <style>
+      .parent {
+        position: relative;
+      }
+      .child {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+      }
+    </style>  
+</footer>
+
+        
+    
+    <script>
+    var disqus_shortname = 'hexo-theme-hueman';
+    
+    
+    var disqus_url = 'https://ericzikun.github.io/2019/12/22/Mactex%E5%86%99%E8%AE%BA%E6%96%87/';
+    
+    (function() {
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
+
+
+
+
+
+    
+        
+<script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-share.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-video.min.js"></script>
+
+    
+    
+        
+<script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+    
+    
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+        </script>
+        
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML.js"></script>
+
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+
+<script src="/js/main.js"></script>
+
+
+    </div>
+</body>
+</html>
