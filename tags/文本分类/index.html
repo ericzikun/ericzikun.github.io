@@ -188,7 +188,7 @@ var _hmt = _hmt || [];
 <span class="comment-counter">
     <i class="fa fa-comments-o"></i>
     
-        <span class="disqus-comment-count" data-disqus-identifier="" data-disqus-url="https://ericzikun.github.io/2020/02/01/%E5%88%A9%E7%94%A8TextCNN%E5%AF%B9Cnews%E5%81%9A%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB%E4%BB%BB%E5%8A%A1/">0</span>
+        <span><a href="https://ericzikun.github.io/2020/02/01/%E5%88%A9%E7%94%A8TextCNN%E5%AF%B9Cnews%E5%81%9A%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB%E4%BB%BB%E5%8A%A1/#isso-thread"></a></span>
     
 </span>
 
@@ -533,17 +533,25 @@ TextCNN模型
 
         
     
+    <script src="//unpkg.com/valine"></script>
     <script>
-    var disqus_shortname = 'hexo-theme-hueman';
-    
-    
-    (function() {
-    var dsq = document.createElement('script');
-    dsq.type = 'text/javascript';
-    dsq.async = true;
-    dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
+        var GUEST = ['nick','mail','link'];
+        var meta = '';
+        meta = meta.split(',').filter(function (item) {
+            return GUEST.indexOf(item)>-1;
+        });
+        var avatarcdn = 'https://gravatar.loli.net/avatar/' == true;
+        new Valine({
+            el: '.vcomments',
+            notify: "",
+            verify: "",
+            appId: "tx6zs0UB1yRovubWAD3heyoM-gzGzoHsz",
+            appKey: "8SJzl4MBSSjcdEESUaALKRXk",
+            placeholder: "Just Do It",
+            avatar:"identicon",
+            recordIP:"",
+            visitor: ""
+        });
     </script>
 
 

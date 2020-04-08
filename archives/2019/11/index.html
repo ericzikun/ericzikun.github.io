@@ -188,7 +188,7 @@ var _hmt = _hmt || [];
 <span class="comment-counter">
     <i class="fa fa-comments-o"></i>
     
-        <span class="disqus-comment-count" data-disqus-identifier="" data-disqus-url="https://ericzikun.github.io/2019/11/15/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92/">0</span>
+        <span><a href="https://ericzikun.github.io/2019/11/15/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92/#isso-thread"></a></span>
     
 </span>
 
@@ -276,7 +276,7 @@ YES
 <span class="comment-counter">
     <i class="fa fa-comments-o"></i>
     
-        <span class="disqus-comment-count" data-disqus-identifier="" data-disqus-url="https://ericzikun.github.io/2019/11/13/%E5%86%B3%E7%AD%96%E6%A0%91/">0</span>
+        <span><a href="https://ericzikun.github.io/2019/11/13/%E5%86%B3%E7%AD%96%E6%A0%91/#isso-thread"></a></span>
     
 </span>
 
@@ -327,7 +327,7 @@ YES
 <span class="comment-counter">
     <i class="fa fa-comments-o"></i>
     
-        <span class="disqus-comment-count" data-disqus-identifier="" data-disqus-url="https://ericzikun.github.io/2019/11/08/%E6%84%9F%E7%9F%A5%E6%9C%BA%E3%80%81KNN/">0</span>
+        <span><a href="https://ericzikun.github.io/2019/11/08/%E6%84%9F%E7%9F%A5%E6%9C%BA%E3%80%81KNN/#isso-thread"></a></span>
     
 </span>
 
@@ -375,7 +375,7 @@ YES
 <span class="comment-counter">
     <i class="fa fa-comments-o"></i>
     
-        <span class="disqus-comment-count" data-disqus-identifier="" data-disqus-url="https://ericzikun.github.io/2019/11/07/NLP%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98%E4%B9%8B%E2%80%94%E2%80%94%E5%9F%BA%E4%BA%8E%E8%AF%8D%E9%A2%91%E5%92%8CTF-IDF%EF%BC%8C%E5%88%A9%E7%94%A8%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95%E6%96%B0%E9%97%BB%E5%88%86%E7%B1%BB/">0</span>
+        <span><a href="https://ericzikun.github.io/2019/11/07/NLP%E5%85%A5%E9%97%A8%E5%AE%9E%E6%88%98%E4%B9%8B%E2%80%94%E2%80%94%E5%9F%BA%E4%BA%8E%E8%AF%8D%E9%A2%91%E5%92%8CTF-IDF%EF%BC%8C%E5%88%A9%E7%94%A8%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95%E6%96%B0%E9%97%BB%E5%88%86%E7%B1%BB/#isso-thread"></a></span>
     
 </span>
 
@@ -717,17 +717,25 @@ YES
 
         
     
+    <script src="//unpkg.com/valine"></script>
     <script>
-    var disqus_shortname = 'hexo-theme-hueman';
-    
-    
-    (function() {
-    var dsq = document.createElement('script');
-    dsq.type = 'text/javascript';
-    dsq.async = true;
-    dsq.src = '//' + disqus_shortname + '.disqus.com/count.js';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
+        var GUEST = ['nick','mail','link'];
+        var meta = '';
+        meta = meta.split(',').filter(function (item) {
+            return GUEST.indexOf(item)>-1;
+        });
+        var avatarcdn = 'https://gravatar.loli.net/avatar/' == true;
+        new Valine({
+            el: '.vcomments',
+            notify: "",
+            verify: "",
+            appId: "tx6zs0UB1yRovubWAD3heyoM-gzGzoHsz",
+            appKey: "8SJzl4MBSSjcdEESUaALKRXk",
+            placeholder: "Just Do It",
+            avatar:"identicon",
+            recordIP:"",
+            visitor: ""
+        });
     </script>
 
 

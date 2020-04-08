@@ -19,7 +19,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3950852797,1582001636&fm=26&gp=0.jpg">
 <meta property="article:published_time" content="2020-04-07T06:18:08.000Z">
-<meta property="article:modified_time" content="2020-04-08T02:33:16.434Z">
+<meta property="article:modified_time" content="2020-04-08T11:27:18.258Z">
 <meta property="article:author" content="Eric kun">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3950852797,1582001636&fm=26&gp=0.jpg">
@@ -197,12 +197,6 @@ var _hmt = _hmt || [];
 
                 
                 
-   <span id="/2020/04/07/Java/" class="leancloud-visitors" data-flag-title="我的第一篇博客文章">
-   <i class="fa fa-eye"></i>
-   <span class="post-meta-item-text">阅读次数: </span>
-   <i class="leancloud-visitors-count">1000000</i>
-   </span>
-
 
                 
 
@@ -305,9 +299,8 @@ var _hmt = _hmt || [];
     <section id="comments">
     
         
-    <div id="disqus_thread">
-        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
-    </div>
+    <!-- Valine -->
+    <div class="vcomments"></div>
 
 
     
@@ -644,19 +637,25 @@ var _hmt = _hmt || [];
 
         
     
+    <script src="//unpkg.com/valine"></script>
     <script>
-    var disqus_shortname = 'hexo-theme-hueman';
-    
-    
-    var disqus_url = 'https://ericzikun.github.io/2020/04/07/Java/';
-    
-    (function() {
-    var dsq = document.createElement('script');
-    dsq.type = 'text/javascript';
-    dsq.async = true;
-    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
+        var GUEST = ['nick','mail','link'];
+        var meta = '';
+        meta = meta.split(',').filter(function (item) {
+            return GUEST.indexOf(item)>-1;
+        });
+        var avatarcdn = 'https://gravatar.loli.net/avatar/' == true;
+        new Valine({
+            el: '.vcomments',
+            notify: "",
+            verify: "",
+            appId: "tx6zs0UB1yRovubWAD3heyoM-gzGzoHsz",
+            appKey: "8SJzl4MBSSjcdEESUaALKRXk",
+            placeholder: "Just Do It",
+            avatar:"identicon",
+            recordIP:"",
+            visitor: ""
+        });
     </script>
 
 

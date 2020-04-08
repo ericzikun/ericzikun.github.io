@@ -21,7 +21,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20200229100525972.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70">
 <meta property="article:published_time" content="2020-04-08T02:19:44.000Z">
-<meta property="article:modified_time" content="2020-04-08T02:43:58.244Z">
+<meta property="article:modified_time" content="2020-04-08T11:27:14.594Z">
 <meta property="article:author" content="Eric kun">
 <meta property="article:tag" content="文本处理">
 <meta property="article:tag" content="预处理">
@@ -207,12 +207,6 @@ var _hmt = _hmt || [];
     </div>
 
                 
-   <span id="/2020/04/08/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86%E4%B8%AD%E5%B8%B8%E8%A7%81%E7%9A%84Str-list%E8%BD%AC%E6%8D%A2/" class="leancloud-visitors" data-flag-title="文本处理中常见的Str/list转换">
-   <i class="fa fa-eye"></i>
-   <span class="post-meta-item-text">阅读次数: </span>
-   <i class="leancloud-visitors-count">1000000</i>
-   </span>
-
 
                 
 
@@ -329,9 +323,8 @@ var _hmt = _hmt || [];
     <section id="comments">
     
         
-    <div id="disqus_thread">
-        <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript" target="_blank" rel="noopener">comments powered by Disqus.</a></noscript>
-    </div>
+    <!-- Valine -->
+    <div class="vcomments"></div>
 
 
     
@@ -668,19 +661,25 @@ var _hmt = _hmt || [];
 
         
     
+    <script src="//unpkg.com/valine"></script>
     <script>
-    var disqus_shortname = 'hexo-theme-hueman';
-    
-    
-    var disqus_url = 'https://ericzikun.github.io/2020/04/08/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86%E4%B8%AD%E5%B8%B8%E8%A7%81%E7%9A%84Str-list%E8%BD%AC%E6%8D%A2/';
-    
-    (function() {
-    var dsq = document.createElement('script');
-    dsq.type = 'text/javascript';
-    dsq.async = true;
-    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
+        var GUEST = ['nick','mail','link'];
+        var meta = '';
+        meta = meta.split(',').filter(function (item) {
+            return GUEST.indexOf(item)>-1;
+        });
+        var avatarcdn = 'https://gravatar.loli.net/avatar/' == true;
+        new Valine({
+            el: '.vcomments',
+            notify: "",
+            verify: "",
+            appId: "tx6zs0UB1yRovubWAD3heyoM-gzGzoHsz",
+            appKey: "8SJzl4MBSSjcdEESUaALKRXk",
+            placeholder: "Just Do It",
+            avatar:"identicon",
+            recordIP:"",
+            visitor: ""
+        });
     </script>
 
 
