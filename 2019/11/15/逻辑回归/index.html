@@ -21,7 +21,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20200114131425132.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70">
 <meta property="article:published_time" content="2019-11-15T02:17:14.000Z">
-<meta property="article:modified_time" content="2020-04-08T11:26:59.820Z">
+<meta property="article:modified_time" content="2020-04-09T06:05:12.113Z">
 <meta property="article:author" content="Eric kun">
 <meta property="article:tag" content="统计学习方法">
 <meta property="article:tag" content="逻辑回归">
@@ -264,7 +264,7 @@ var _hmt = _hmt || [];
 <p>$$P(Y=1|X)=\frac{1}{1+e^{-w^T+b}}$$</p>
 <p>$$P(Y=0|X)=\frac{e^{-w^T+b}}{1+e^{-w^T+b}}$$</p>
 <p>两个式子可以合并为：</p>
-<p>$P(y|x,w)=p(y=1|x,w)^y[1-p(y=1|x,w)]$</p>
+<p>$P(y|x,w)=p(y=1|x,w)^y[1-p(y=1|x,w)]^{(1-y)}$</p>
 <p>合并的式子可这样理解：当$y=1$时：$p(y=1|x,w)=p(y=1|x,w)\times1$</p>
 <p>当$y=0$时：$p(y=0|x,w)=1-p(y=1|x,w)$</p>
 <p><strong>逻辑函数为线性分类器</strong></p>
@@ -282,13 +282,13 @@ var _hmt = _hmt || [];
 <p>下面我们要来由训练集训练出最好的权重$(w)$和偏置$(b)$,从而使得能够最好的拟合我们的数据集$(X)$,因此我们需要最大化：给定样本数据的$x_i,w,b$情况下，对应为label$(y_i)$的概率，也就是条件概率$p(y_i|x_i,w,b)$（最大似然）,想让每一项都最大，那么每个样本条件概率相乘也就最大。</p>
 <p>即最大化目标函数：</p>
 <p>$$\hat{w},\hat{b}=armax_{w,b}\prod_{i=1}^{n}p(y_i|x_i,w,b)$$（寻找$w,b$使得连乘式最大化）</p>
-<p>$armax_{w,b}\prod_{i=1}^{n}p(y_i|x_i,w,b)=argmax_{w,b}\log(\prod_{i=1}^{n}p(y_i|x_i,w,b))=argmax_{w,b}\sum_{i=1}^{n} \log p(y_i|x_i,w,b)$</p>
+<p>$armax_{w,b}\prod_{i=1}^{n}p(y_i|x_i,w,b)=argmax_{w,b}\log(\prod_{i=1}^{n}p(y_i|x_i,w,b))=argmax_{w,b}\sum_{i=1}^{n} \\log p(y_i|x_i,w,b)$</p>
 <p>通常我们不喜欢去求最大值，而是转化为最小值求解，即：</p>
 <p>$$argmin_{w,b}=-\sum_{i=1}^{n}\log{p(y_i|x_i,w)}$$</p>
 <p><strong>逻辑回归的梯度下降法：</strong></p>
 <p>$argmin_{w,b}-\sum_{i=1}^{n}\log{p(y_i|x_i,w)} \\ =argmin_{w,b}-\sum_{i=1}^{n}\log p(y_i=1|x,w)^{y_i}[1-p(y_i=1|x,w)]^{1-y_i} \\ =argmax_{w,b}-\sum_{i=1}^{n}y_i\log p(y_i=1|x,w)+(1-y_i)\log p(y_i=1|x,w)$</p>
 <p>令$-\sum_{i=1}^{n}y_i\log \sigma (w^Tx+b)+(1-y_i)\log \sigma (w^Tx+b)$为$L(w,b)$</p>
-<p><strong>对权重$w$求导：</strong> 求导知识：$\begin{cases}\sigma(x)=\frac{1}{1+e^{-x}}\\sigma^{‘}(x)=\sigma(x)[1-\sigma(x)]\\ (\log x)^{‘} =\frac{1}{x} \end{cases}$</p>
+<p><strong>对权重$w$求导：</strong> 求导知识：$\begin{cases}\sigma(x)=\frac{1}{1+e^{-x}}\\sigma^{’}(x)=\sigma(x)[1-\sigma(x)]\\ (\log x)^{’} =\frac{1}{x} \end{cases}$</p>
 <p>$\frac{\partial L(w,b)}{\partial w}=-\sum_{i=1}^{n}y_i\frac{\sigma(w^Tx+b)[1-\sigma(w^Tx+b)]}{\sigma(w^Tx+b)}x_i+(1-y_i)\frac{-\sigma(w^Tx+b)[1-\sigma(w^Tx+b)]}{1-\sigma(w^Tx+b)}x_i \\ =-\sum_{i=1}^{n}y_i[1-\sigma(w^Tx+b)]x_i+(y_i-1)\sigma(w^Tx+b)x_i \\ =-\sum_{i=1}^{n}[y_i-\sigma(w^Tx+b)]x_i \\ =\sum_{i=1}^{n}[\sigma(w^Tx+b)-y_i]x_i$</p>
 <p><strong>对偏置$b$求导：</strong></p>
 <p>$\frac{\partial L(w,b)}{\partial b}=\sum_{i=1}^{n}[\sigma(w^Tx+b)-y_i]$</p>
@@ -297,7 +297,7 @@ var _hmt = _hmt || [];
 <p>初始化$w^1,b^1$</p>
 <p>$For ：t=1,2…$</p>
 <p>​    $w^{t+1}=w^t-\eta \sum_{i=1}^{n}[\sigma(w^Tx+b)-y_i]x_i \\ b^{t+1}=b^t-\eta \sum_{i=1}^{n}[\sigma(w^Tx+b)-y_i]$</p>
-<p>梯度下降方式又分为：$\begin{cases}1.标准梯度下降 \\ 2.随机梯度下降 \\ 3.Mini-batch梯度下降 \end{cases}$<br>标准梯度下降是在权值更新前对所有样例汇总误差,而随机梯度下降的权值是通过考查某个训练样例来更新的，而mini-batch则是两者的折中。</p>
+<p>梯度下降方式又分为：$\begin{cases}1.标准梯度下降 \\ 2.随机梯度下降 \\ 3.Mini-batch梯度下降 \end{cases}$<br>标准梯度下降是在权值更新前对所有样例汇总误差,而随机梯度下降的权值是通过考查某个训练样例来更新的，而mini-batch则是两者的折中。<br>一般来说不管是机器学习还是深度学习算法，我们一般都常用mini-batch，其原因在于，假如我们每次将全部样本丢进去计算，此时的计算量（例如导数、w、b、激活值等等缓存值）占用内存相当之大！对于一般计算机而言承担不起，所以mini-batch的选择其实主要还是根据自身硬件水平，比如深度学习中用GPU时要考虑显卡大小，显卡越好，mini-batch可以越大（一般来说是这样）。</p>
 <p><strong>参考博客：</strong><br><a href="https://www.cnblogs.com/limitlessun/p/8611103.html" target="_blank" rel="noopener">https://www.cnblogs.com/limitlessun/p/8611103.html</a><br><a href="https://www.pkudodo.com" target="_blank" rel="noopener">https://www.pkudodo.com</a></p>
 
         </div>
@@ -382,7 +382,7 @@ var _hmt = _hmt || [];
         "genre": "机器学习 逻辑回归",
         "datePublished": "2019-11-15",
         "dateCreated": "2019-11-15",
-        "dateModified": "2020-04-08",
+        "dateModified": "2020-04-09",
         "url": "https://ericzikun.github.io/2019/11/15/逻辑回归/",
         "description": "（五）逻辑回归定义：当给定一个训练集（矩阵），如下：
 
