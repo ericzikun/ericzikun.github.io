@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+
+    
+
+    
+    <title>Transformer 原理+源码分析总结(Tensorflow官方源码) | Eric’s blog</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="Transformer,源码,自然语言处理" />
+    
+    <meta name="description" content="Transformer理解参考博客：https:&#x2F;&#x2F;jalammar.github.io&#x2F;illustrated-transformer&#x2F;https:&#x2F;&#x2F;github.com&#x2F;aespresso&#x2F;a_journey_into_math_of_mlhttps:&#x2F;&#x2F;www.tensorflow.org&#x2F;tutorials&#x2F;text&#x2F;transformer#encoder_and_decoder &amp;nb">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Transformer 原理+源码分析总结(Tensorflow官方源码)">
+<meta property="og:url" content="https://ericzikun.github.io/2020/04/11/Transformer-%E5%8E%9F%E7%90%86-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E6%80%BB%E7%BB%93-Tensorflow%E5%AE%98%E6%96%B9%E6%BA%90%E7%A0%81/index.html">
+<meta property="og:site_name" content="Eric’s blog">
+<meta property="og:description" content="Transformer理解参考博客：https:&#x2F;&#x2F;jalammar.github.io&#x2F;illustrated-transformer&#x2F;https:&#x2F;&#x2F;github.com&#x2F;aespresso&#x2F;a_journey_into_math_of_mlhttps:&#x2F;&#x2F;www.tensorflow.org&#x2F;tutorials&#x2F;text&#x2F;transformer#encoder_and_decoder &amp;nb">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200411142658336.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center">
+<meta property="article:published_time" content="2020-04-11T09:49:11.000Z">
+<meta property="article:modified_time" content="2020-04-11T12:06:22.999Z">
+<meta property="article:author" content="Eric kun">
+<meta property="article:tag" content="Transformer">
+<meta property="article:tag" content="源码">
+<meta property="article:tag" content="自然语言处理">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/20200411142658336.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center">
+    
+
+    
+        <link rel="alternate" href="/" title="Eric’s blog" type="application/atom+xml" />
+    
+
+    
+        <link rel="icon" href="https://pic2.zhimg.com/80/v2-f19e0e0add10a40489cdb8df576a0f7e_qhd.jpg" />
+    
+
+    
+<link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+
+    
+<link rel="stylesheet" href="/libs/titillium-web/styles.css">
+
+    
+<link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    
+<script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+        
+<link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+
+    
+    
+        
+<link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+
+    
+    
+    
+        <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?0d6b4455953d3e1c0917234dfebaa739";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+    
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E5%8D%87%E5%AD%A6%E5%B0%B1%E4%B8%9A/">升学就业</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E5%8D%87%E5%AD%A6%E5%B0%B1%E4%B8%9A/%E4%BF%9D%E7%A0%94/">保研</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/Linux/">Linux</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8A%A5%E9%94%99/">报错</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8F%90%E5%8D%87%E6%95%88%E7%8E%87/">提升效率</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86/">文本处理</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E8%AE%BA%E6%96%87%E6%8E%92%E7%89%88/">论文排版</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/">技术栈</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/Java/">Java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/Python/">Python</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/React/">React</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E5%86%B3%E7%AD%96%E6%A0%91/">决策树</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%84%9F%E7%9F%A5%E6%9C%BA-KNN/">感知机&KNN</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/">朴素贝叶斯</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92/">逻辑回归</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/TextCNN/">TextCNN</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Transformer/">Transformer</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%A8%A1%E5%9E%8B%E5%8F%AF%E8%A7%86%E5%8C%96/">模型可视化</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/">自然语言处理</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/%E6%96%87%E6%9C%AC%E6%8A%BD%E5%8F%96/">文本抽取</a></li></ul></li></ul>
+                                    
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/about/index.html">联系方式</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Transformer/">Transformer</a>
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-Transformer-原理-源码分析总结-Tensorflow官方源码" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        Transformer 原理+源码分析总结(Tensorflow官方源码)
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                <span id="busuanzi_container_page_pv" style='display:none' class="article-date">
+  <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+</span>
+
+
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2020/04/11/Transformer-%E5%8E%9F%E7%90%86-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E6%80%BB%E7%BB%93-Tensorflow%E5%AE%98%E6%96%B9%E6%BA%90%E7%A0%81/" class="article-date">
+         <time datetime="2020-04-11T09:49:11.000Z" itemprop="datePublished">2020-04-11</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/Transformer/" rel="tag">Transformer</a>, <a class="tag-link" href="/tags/%E6%BA%90%E7%A0%81/" rel="tag">源码</a>, <a class="tag-link" href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/" rel="tag">自然语言处理</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <h2 id="Transformer理解"><a href="#Transformer理解" class="headerlink" title="Transformer理解"></a>Transformer理解</h2><p><strong>参考博客：</strong><br><a href="https://jalammar.github.io/illustrated-transformer/" target="_blank" rel="noopener">https://jalammar.github.io/illustrated-transformer/</a><br><a href="https://github.com/aespresso/a_journey_into_math_of_ml" target="_blank" rel="noopener">https://github.com/aespresso/a_journey_into_math_of_ml</a><br><a href="https://www.tensorflow.org/tutorials/text/transformer#encoder_and_decoder" target="_blank" rel="noopener">https://www.tensorflow.org/tutorials/text/transformer#encoder_and_decoder</a></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;学了 TextCNN、LSTM后，谈起如今NLP最流行、最热的模型，当然是Transformer、bert，语言模型、命名实体识别、机器翻译等任务，很多都开始用Transformer，或者说是bert预训练模型来做，在机器阅读理解榜单中（SQuAD2.0），机器成绩已经超越人类表现！<br>这些天看了几个经典博客、视频，最后读了一遍源码，加深了对模型的理解，整体结构也基本上理顺了。</p>
+<h3 id="背景："><a href="#背景：" class="headerlink" title="背景："></a>背景：</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  <strong>transformer</strong>是谷歌大脑在2017年底发表的论文 attention is all you need中所提出的seq2seq模型。现在已经取得了大范围的应用和扩展,而BERT就是从 transformer中衍生出来的预训练语言模型。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 其中主要的应用的方式是2步——先进行预训练语言模型——然后把预训练的模型适配给下游任务（分类、生成、标记等）。其中：<strong>预训练模型</strong>非常重要,预训练的模型的性能直接影响下游任务。</p>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>先上图吧：<br><img src="https://img-blog.csdnimg.cn/20200411142658336.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center =500x500" style="zoom:30%;"></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 整个Transformer结构分为：Encoding（编码器）和Decoding（解码器）两大部分；而编码器又有N个编码器层，解码器也有N个解码器层；<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 那么先把一个编码器层搞清楚，串联N个就能理解了；理解好了编码器，解码器就快了。<br>一个编码器层包含五个组成部分：<br>$\begin{cases} 1. Positional Encoding\\2.Multi-Head Attention\\3. Add\&amp;Norm\\4.FeedForward\\5.Add\&amp;Norm\end{cases}$<br>看似很复杂，一个一个来就不怕：</p>
+<h4 id="1-Positional-Encoding"><a href="#1-Positional-Encoding" class="headerlink" title="1.Positional Encoding"></a>1.Positional Encoding</h4><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 首先得清楚<strong>为何Transformer用位置嵌入</strong>？在LSTM中我们用一个词一个词灌进去，从而学习了时序关系，但是transformer模型<strong>没有</strong>循环神经网络的迭代操作, 它是将所有词一起喂进去，并行操作的。所以我们必须提供每个字的<strong>位置信息</strong>给transformer, 才能识别出语言中的顺序关系。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 位置嵌入的定义其实就是作者自定义的一个函数，来做到区别每个词在句子中的位置，仅此而已。<br><strong>定义 ：</strong><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 位置嵌入的维度为$[max \ sequence \ length, \ embedding \ dimension]$, 嵌入的维度同词向量的维度, $max \ sequence \ length$属于超参数, 指的是限定的最大单个句长.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 在transformer模型中,一般以字为单位，不需要分词了, 首先我们要初始化字向量为$[vocab \ size, \ embedding \ dimension]$, $vocab \ size$为总共的字库数量, $embedding \ dimension$为字向量的维度, 也是每个字的向量。（这里的理解和之前的TextCNN LSTM中的$Embedding$一致！）<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 在这里论文中使用了$sine$和$cosine$函数的线性变换来提供给模型位置信息:<br>$$PE_{(pos,2i)} = sin(pos / 10000^{2i/d_{\text{model}}}) \quad PE_{(pos,2i+1)} = cos(pos / 10000^{2i/d_{\text{model}}})$$<br>上式中$pos$指的是句中字的位置, 取值范围是$[0, \ max \ sequence \ length)$, $i$指的是词向量的维度, 取值范围是$[0, \ embedding \ dimension)$, 上面有$sin$和$cos$一组公式, 也就是对应着$embedding \ dimension$维度的一组奇数和偶数的序号的维度, 例如$0, 1$一组, $2, 3$一组, 分别用上面的$sin$和$cos$函数做处理, 从而产生不同的周期性变化。<br>看源码（就是对应的上面的公式）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_angles</span><span class="params">(pos, i, d_model)</span>:</span></span><br><span class="line">  angle_rates = <span class="number">1</span> / np.power(<span class="number">10000</span>, (<span class="number">2</span> * (i//<span class="number">2</span>)) / np.float32(d_model))</span><br><span class="line">  <span class="keyword">return</span> pos * angle_rates</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">positional_encoding</span><span class="params">(position, d_model)</span>:</span></span><br><span class="line">  angle_rads = get_angles(np.arange(position)[:, np.newaxis],</span><br><span class="line">                          np.arange(d_model)[np.newaxis, :],</span><br><span class="line">                          d_model)</span><br><span class="line">  </span><br><span class="line">  <span class="comment"># 将 sin 应用于数组中的偶数索引（indices）；2i</span></span><br><span class="line">  angle_rads[:, <span class="number">0</span>::<span class="number">2</span>] = np.sin(angle_rads[:, <span class="number">0</span>::<span class="number">2</span>])</span><br><span class="line">  </span><br><span class="line">  <span class="comment"># 将 cos 应用于数组中的奇数索引；2i+1</span></span><br><span class="line">  angle_rads[:, <span class="number">1</span>::<span class="number">2</span>] = np.cos(angle_rads[:, <span class="number">1</span>::<span class="number">2</span>])</span><br><span class="line">    </span><br><span class="line">  pos_encoding = angle_rads[np.newaxis, ...]</span><br><span class="line">    </span><br><span class="line">  <span class="keyword">return</span> tf.cast(pos_encoding, dtype=tf.float32)</span><br></pre></td></tr></table></figure>
+<p>输出这个周期性的矩阵图：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">pos_encoding = positional_encoding(<span class="number">50</span>, <span class="number">512</span>)</span><br><span class="line"><span class="keyword">print</span> (pos_encoding.shape)</span><br><span class="line"></span><br><span class="line">plt.pcolormesh(pos_encoding[<span class="number">0</span>], cmap=<span class="string">'RdBu'</span>)</span><br><span class="line">plt.xlabel(<span class="string">'Depth'</span>)</span><br><span class="line">plt.xlim((<span class="number">0</span>, <span class="number">512</span>))</span><br><span class="line">plt.ylabel(<span class="string">'Position'</span>)</span><br><span class="line">plt.colorbar()</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<img src="https://img-blog.csdnimg.cn/20200411150113592.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center =500x300" style="zoom:50%;">
+
+<h4 id="2-Muti-Head-Attention"><a href="#2-Muti-Head-Attention" class="headerlink" title="2.Muti-Head Attention"></a>2.Muti-Head Attention</h4><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在前面的基础上，我们已经有了词向量矩阵和位置嵌入了，例如有一些样本。维度是：$[batch size, \ sequence \ length]$,再在字典中找到对应的字向量，变为：$[batch size, \ sequence \ length, \ embedding \ dimension]$,同时我们再加上位置嵌入（位置嵌入纬度一致，直接元素相加即可），相加后的维度还是$[batch size, \ sequence \ length, \ embedding \ dimension]$<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 要了解Muti-Head Attention，首先要知道self-attention,Multi无非是在其基础上并行了多个头而已。</p>
+<h5 id="2-1-self-Attention"><a href="#2-1-self-Attention" class="headerlink" title="2.1 self Attention"></a>2.1 self Attention</h5><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Attention机制的创新点就在于这里，为了学到多重含义的表示，我们想让一个字的向量包含这句话所有字的一个相关程度（后面还会说），那么首先初始化三个权重矩阵$W_Q、W_K、W_V$，然后将$X_{embedding}$与这三个权重矩阵相乘，得到$Q、K、V$<br>也就是：<br>$$\begin{cases}Q=X_{embedding} W_Q \ K=X_{embedding} W_K \ V=X_{embedding} W_V\end{cases}$$<br>下面用图来理解更舒适！<br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9qYWxhbW1hci5naXRodWIuaW8vaW1hZ2VzL3QvdHJhbnNmb3JtZXJfc2VsZl9hdHRlbnRpb25fc2NvcmUucG5n?x-oss-process=image/format,png#pic_center =500x300" style="zoom:50%;"></p>
+<p>得到了$Q、K、V$之后 那么我们用$q\times k$也就是对于一个字（中文是字，英文是词）它的score包含所有的自身$q$和别的字的$k$相乘,当然这里相乘肯定是和$k$的转置相乘哈！从而就可以得到一个注意力矩阵！(点积：两个向量越相似，点积则越大！)这里你会观察到，对角线上也就是每个字，自己对自己的相关程度，一行就是一个字中所有字与它的相关性。然后再对每一行做归一化（$softmax$），这样就保证对一个字来说，所有字与它的相关程度概率和为1！<br><img src="https://img-blog.csdnimg.cn/20200411153038943.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center =300x200" style="zoom:50%;"><br>然后论文中又除了一个$\sqrt{d_k}$,是为了把注意力矩阵编程标准正态分布，使得softmax归一化后的结果更加稳定，以便于反向传播时候获取平衡的梯度，最后将注意力矩阵给$V$加权，为啥要给$V$加权，其实就是因为注意力矩阵维度是$[batch \ size, \ sequence \ length, \ sequence \ length]$，而$V$维度是$[batch \ size ,\ sequence \ length, \ embedding \ dimension]$为了使得维度保持不变，则乘以$V$后为: $[batch \ size ,\ sequence \ length, \ embedding \ dimension]$,从而再次和$X_{embedding}$的维度相同了，是不是很妙！<br>$${Attention(Q, K, V) = softmax_k(\frac{QK^T}{\sqrt{d_k}}) V} $$<br>下图是论文中对$d_k$的解释：<br><img src="https://img-blog.csdnimg.cn/20200411155134175.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt="论文"></p>
+<h6 id="源码分析："><a href="#源码分析：" class="headerlink" title="源码分析："></a>源码分析：</h6><p>包含$Q，K$相乘，注意到相乘的时候有个转置操作，以及后面对$V$加权，和我们给出的公式其实是一致的，这里的mask语句后面会讲。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">scaled_dot_product_attention</span><span class="params">(q, k, v, mask)</span>:</span></span><br><span class="line">  <span class="string">"""计算注意力权重。</span></span><br><span class="line"><span class="string">  q, k, v 必须具有匹配的前置维度。</span></span><br><span class="line"><span class="string">  k, v 必须有匹配的倒数第二个维度，例如：seq_len_k = seq_len_v。</span></span><br><span class="line"><span class="string">  虽然 mask 根据其类型（填充或前瞻）有不同的形状，</span></span><br><span class="line"><span class="string">  但是 mask 必须能进行广播转换以便求和。</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  参数:</span></span><br><span class="line"><span class="string">    q: 请求的形状 == (..., seq_len_q, depth)</span></span><br><span class="line"><span class="string">    k: 主键的形状 == (..., seq_len_k, depth)</span></span><br><span class="line"><span class="string">    v: 数值的形状 == (..., seq_len_v, depth_v)</span></span><br><span class="line"><span class="string">    mask: Float 张量，其形状能转换成</span></span><br><span class="line"><span class="string">          (..., seq_len_q, seq_len_k)。默认为None。</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">  返回值:</span></span><br><span class="line"><span class="string">    输出，注意力权重</span></span><br><span class="line"><span class="string">  """</span></span><br><span class="line"></span><br><span class="line">  matmul_qk = tf.matmul(q, k, transpose_b=<span class="literal">True</span>)  <span class="comment"># (..., seq_len_q, seq_len_k)</span></span><br><span class="line">  </span><br><span class="line">  <span class="comment"># 缩放 matmul_qk</span></span><br><span class="line">  dk = tf.cast(tf.shape(k)[<span class="number">-1</span>], tf.float32)</span><br><span class="line">  scaled_attention_logits = matmul_qk / tf.math.sqrt(dk)</span><br><span class="line"></span><br><span class="line">  <span class="comment"># 将 mask 加入到缩放的张量上。</span></span><br><span class="line">  <span class="keyword">if</span> mask <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">    scaled_attention_logits += (mask * <span class="number">-1e9</span>)  </span><br><span class="line"></span><br><span class="line">  <span class="comment"># softmax 在最后一个轴（seq_len_k）上归一化，因此分数   （对注意力矩阵每一行归一化，则每个字的注意力向量一行，就是与其余字的相关程度，和为1）</span></span><br><span class="line">  <span class="comment"># 相加等于1。</span></span><br><span class="line">  attention_weights = tf.nn.softmax(scaled_attention_logits, axis=<span class="number">-1</span>)  <span class="comment"># (..., seq_len_q, seq_len_k)  注意力矩阵</span></span><br><span class="line"></span><br><span class="line">  output = tf.matmul(attention_weights, v)  <span class="comment"># (..., seq_len_q, depth_v)  再把注意力矩阵乘V</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> output, attention_weights</span><br></pre></td></tr></table></figure>
+<h5 id="2-2-Multi-Head-Attention"><a href="#2-2-Multi-Head-Attention" class="headerlink" title="2.2 Multi-Head Attention"></a>2.2 Multi-Head Attention</h5><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 那么对于多头其实是一样的，只是在开始的时候将$embedding \ dimension$分割成了$h$份（头的个数）,这里每个头权重都不同，多头训练效果理论上肯定更好（反正想着就是这样，至于为什么，也不好解释）<br>，最后再把它及联拼接。大佬的图展现的很好：<br><img src="https://jalammar.github.io/images/t/transformer_multi-headed_self-attention-recap.png" zoom="100%" alt="多头级联"></p>
+<h6 id="源码分析：-1"><a href="#源码分析：-1" class="headerlink" title="源码分析："></a>源码分析：</h6><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MultiHeadAttention</span><span class="params">(tf.keras.layers.Layer)</span>:</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, d_model, num_heads)</span>:</span></span><br><span class="line">    super(MultiHeadAttention, self).__init__()</span><br><span class="line">    self.num_heads = num_heads</span><br><span class="line">    self.d_model = d_model</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">assert</span> d_model % self.num_heads == <span class="number">0</span></span><br><span class="line">    </span><br><span class="line">    self.depth = d_model // self.num_heads   <span class="comment">#本来QKV维度：【batch size，seq.length,embed dim】,拆分后就是【batch size，seq length，h，embed dim/h】</span></span><br><span class="line">                                            <span class="comment"># depth 就是用embed dim 除头的个数</span></span><br><span class="line">    </span><br><span class="line">    self.wq = tf.keras.layers.Dense(d_model)  <span class="comment">#初始化qkv矩阵</span></span><br><span class="line">    self.wk = tf.keras.layers.Dense(d_model)</span><br><span class="line">    self.wv = tf.keras.layers.Dense(d_model)</span><br><span class="line">    </span><br><span class="line">    self.dense = tf.keras.layers.Dense(d_model)</span><br><span class="line">        </span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">split_heads</span><span class="params">(self, x, batch_size)</span>:</span> </span><br><span class="line">    <span class="string">"""拆分embedding dimension维度到 (num_heads, depth)，</span></span><br><span class="line"><span class="string">    这里的 depth=embed dim/h</span></span><br><span class="line"><span class="string">    转置结果使得形状为 (batch_size, num_heads, seq_len, depth)</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    x = tf.reshape(x, (batch_size, <span class="number">-1</span>, self.num_heads, self.depth))</span><br><span class="line">    <span class="keyword">return</span> tf.transpose(x, perm=[<span class="number">0</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">3</span>])</span><br><span class="line">    </span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">call</span><span class="params">(self, v, k, q, mask)</span>:</span></span><br><span class="line">    batch_size = tf.shape(q)[<span class="number">0</span>]</span><br><span class="line">    </span><br><span class="line">    q = self.wq(q)  <span class="comment"># (batch_size, seq_len, d_model)</span></span><br><span class="line">    k = self.wk(k)  <span class="comment"># (batch_size, seq_len, d_model)</span></span><br><span class="line">    v = self.wv(v)  <span class="comment"># (batch_size, seq_len, d_model)</span></span><br><span class="line">    </span><br><span class="line">    q = self.split_heads(q, batch_size)  <span class="comment"># (batch_size, num_heads, seq_len_q, depth)</span></span><br><span class="line">    k = self.split_heads(k, batch_size)  <span class="comment"># (batch_size, num_heads, seq_len_k, depth)</span></span><br><span class="line">    v = self.split_heads(v, batch_size)  <span class="comment"># (batch_size, num_heads, seq_len_v, depth)</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># scaled_attention.shape == (batch_size, num_heads, seq_len_q, depth)   之前没有分头的时候是：【batch size,seq</span></span><br><span class="line">     <span class="comment">#length,embed dim】</span></span><br><span class="line">    <span class="comment"># attention_weights.shape == (batch_size, num_heads, seq_len_q, seq_len_k)</span></span><br><span class="line">    scaled_attention, attention_weights = scaled_dot_product_attention(</span><br><span class="line">        q, k, v, mask)</span><br><span class="line">    </span><br><span class="line">    scaled_attention = tf.transpose(scaled_attention, perm=[<span class="number">0</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">3</span>])  <span class="comment"># (batch_size, seq_len_q, num_heads, depth)  转置操作</span></span><br><span class="line"></span><br><span class="line">    concat_attention = tf.reshape(scaled_attention, </span><br><span class="line">                                  (batch_size, <span class="number">-1</span>, self.d_model))  <span class="comment"># (batch_size, seq_len_q, d_model) 级联操作 看下图</span></span><br><span class="line"></span><br><span class="line">    output = self.dense(concat_attention)  <span class="comment"># (batch_size, seq_len_q, d_model)</span></span><br><span class="line">        </span><br><span class="line">    <span class="keyword">return</span> output, attention_weights</span><br></pre></td></tr></table></figure>
+<h5 id="2-3-Mask"><a href="#2-3-Mask" class="headerlink" title="2.3 Mask"></a>2.3 Mask</h5><p>有两个mask：$\begin{cases}1.padding \  mask  \\2.lookahead mask（翻译任务中预测文本时(decoder部分))\end{cases}$</p>
+<h6 id="2-3-1-padding-mask"><a href="#2-3-1-padding-mask" class="headerlink" title="2.3.1 padding mask"></a>2.3.1 padding mask</h6><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 当我们在确定$Max \  length$时候，对于不够长的句子肯定要做$padding$但是对于为0的那一部分在$softmax$时候会变为1：<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 回顾$softmax$函数:</p>
+<p>$$<br>\sigma (\mathbf {z} )_{i}= \frac {e^{z_i} } {\sum _{j=1} ^ {K} e^ {z_j} }<br>$$</p>
+<p>$$ $$</p>
+<p>$e^0$是1, 是有值的, 这样的话 $softmax$ 中被 $padding$ 的部分就参与了运算, 就等于是让无效的部分参与了运算,这样肯定不对, 这时就需要做一个$mask$让这些无效区域不参与运算, 我们一般给无效区域加一个很大的负数的偏置, 也就是:</p>
+<p>$$z_{illegal}=z_{illegal}+bias_{illegal}$$<br>$$bias_{illegal}\to-\infty$$<br>$$e^{z_{illegal}}\to0$$</p>
+<h6 id="源码分析：-2"><a href="#源码分析：-2" class="headerlink" title="源码分析："></a>源码分析：</h6><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">create_padding_mask</span><span class="params">(seq)</span>:</span></span><br><span class="line">  seq = tf.cast(tf.math.equal(seq, <span class="number">0</span>), tf.float32)</span><br><span class="line">  </span><br><span class="line">  <span class="comment"># 添加额外的维度来将填充加到</span></span><br><span class="line">  <span class="comment"># 注意力对数（logits）。</span></span><br><span class="line">  <span class="keyword">return</span> seq[:, tf.newaxis, tf.newaxis, :]  <span class="comment"># (batch_size, 1, 1, seq_len)</span></span><br></pre></td></tr></table></figure>
+<p>输出效果(把原本为0的地方变成了1)：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x = tf.constant([[<span class="number">7</span>, <span class="number">6</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>], [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">0</span>, <span class="number">0</span>], [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">4</span>, <span class="number">5</span>]])</span><br><span class="line">create_padding_mask(x)</span><br></pre></td></tr></table></figure>
+<img src="https://img-blog.csdnimg.cn/20200411161219194.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center =500x150" style="zoom:50%;">
+最后再在一句代码中体现，如果mask不是None，则在此处乘以负无穷：
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">scaled_dot_product_attention</span><span class="params">(q, k, v, mask)</span>:</span></span><br><span class="line">  <span class="string">"""计算注意力权重。</span></span><br><span class="line"><span class="string">  q, k, v 必须具有匹配的前置维度。</span></span><br><span class="line"><span class="string">  k, v 必须有匹配的倒数第二个维度，例如：seq_len_k = seq_len_v。</span></span><br><span class="line"><span class="string">  虽然 mask 根据其类型（填充或前瞻）有不同的形状，</span></span><br><span class="line"><span class="string">  但是 mask 必须能进行广播转换以便求和。</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  参数:</span></span><br><span class="line"><span class="string">    q: 请求的形状 == (..., seq_len_q, depth)</span></span><br><span class="line"><span class="string">    k: 主键的形状 == (..., seq_len_k, depth)</span></span><br><span class="line"><span class="string">    v: 数值的形状 == (..., seq_len_v, depth_v)</span></span><br><span class="line"><span class="string">    mask: Float 张量，其形状能转换成</span></span><br><span class="line"><span class="string">          (..., seq_len_q, seq_len_k)。默认为None。</span></span><br><span class="line"><span class="string">    </span></span><br><span class="line"><span class="string">  返回值:</span></span><br><span class="line"><span class="string">    输出，注意力权重</span></span><br><span class="line"><span class="string">  """</span></span><br><span class="line"></span><br><span class="line">  matmul_qk = tf.matmul(q, k, transpose_b=<span class="literal">True</span>)  <span class="comment"># (..., seq_len_q, seq_len_k)</span></span><br><span class="line">  </span><br><span class="line">  <span class="comment"># 缩放 matmul_qk</span></span><br><span class="line">  dk = tf.cast(tf.shape(k)[<span class="number">-1</span>], tf.float32)</span><br><span class="line">  scaled_attention_logits = matmul_qk / tf.math.sqrt(dk)</span><br><span class="line"></span><br><span class="line">  <span class="comment"># 将 mask 加入到缩放的张量上。</span></span><br><span class="line">  <span class="keyword">if</span> mask <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">    scaled_attention_logits += (mask * <span class="number">-1e9</span>)  </span><br><span class="line"></span><br><span class="line">  <span class="comment"># softmax 在最后一个轴（seq_len_k）上归一化，因此分数   （对注意力矩阵每一行归一化，则每个字的注意力向量一行，就是与其余字的相关程度，和为1）</span></span><br><span class="line">  <span class="comment"># 相加等于1。</span></span><br><span class="line">  attention_weights = tf.nn.softmax(scaled_attention_logits, axis=<span class="number">-1</span>)  <span class="comment"># (..., seq_len_q, seq_len_k)  注意力矩阵</span></span><br><span class="line"></span><br><span class="line">  output = tf.matmul(attention_weights, v)  <span class="comment"># (..., seq_len_q, depth_v)  再把注意力矩阵乘V</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> output, attention_weights</span><br></pre></td></tr></table></figure>
+
+<h6 id="2-3-2-Lookahead-mask"><a href="#2-3-2-Lookahead-mask" class="headerlink" title="2.3.2 Lookahead mask"></a>2.3.2 Lookahead mask</h6><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 这里我也不知道咋翻译（前瞻遮罩？）这个mask操作就是在翻译的时候，要预测第三个词，将仅使用第一个和第二个词，与此类似，预测第四个词，仅使用第一个，第二个和第三个词，依此类推。</p>
+<h6 id="源码分析：-3"><a href="#源码分析：-3" class="headerlink" title="源码分析："></a>源码分析：</h6><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">create_look_ahead_mask</span><span class="params">(size)</span>:</span></span><br><span class="line">  mask = <span class="number">1</span> - tf.linalg.band_part(tf.ones((size, size)), <span class="number">-1</span>, <span class="number">0</span>)</span><br><span class="line">  <span class="keyword">return</span> mask  <span class="comment"># (seq_len, seq_len)</span></span><br></pre></td></tr></table></figure>
+<p>  <strong>输出结果：</strong><br>  (每一行是一个时刻，第一个时刻，遮盖了后两个（遮盖操作后也就是变为了1）)，用第一个字预测第二个字；第二个时刻，遮盖了第三个字，用第1、2个字预测第三个字；第三个时刻，则是用前三个字去预测结束符……当然这里其实每次预测的时候解码器还加上了编码器输出的embedding向量，这一点后面会详细说！</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">x = tf.random.uniform((<span class="number">1</span>, <span class="number">3</span>))</span><br><span class="line">temp = create_look_ahead_mask(x.shape[<span class="number">1</span>])</span><br><span class="line">print(x)</span><br><span class="line">temp</span><br></pre></td></tr></table></figure>
+<img src="https://img-blog.csdnimg.cn/20200411162211193.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" style="zoom:50%;">
+
+<h4 id="3-Add-amp-Norm"><a href="#3-Add-amp-Norm" class="headerlink" title="3.Add&amp;Norm"></a>3.Add&amp;Norm</h4><h5 id="3-1残差连接"><a href="#3-1残差连接" class="headerlink" title="3.1残差连接"></a>3.1残差连接</h5><p><strong>归纳：模型太深，需要避免梯度消失</strong><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 我们在上一步得到了经过注意力矩阵加权之后的$V$, 也就是$Attention(Q, \ K, \ V)$, 我们对它进行一下转置, 使其和$X_{embedding}$的维度一致, 也就是$[batch \ size, \ sequence \ length, \ embedding \ dimension]$, 然后把他们加起来做残差连接, 直接进行元素相加, 因为他们的维度一致:<br>$$X_{embedding} + Attention(Q, \ K, \ V)$$<br>在之后的运算里, 每经过一个模块的运算, 都要把运算之前的值和运算之后的值相加, 从而得到残差连接, 训练的时候可以使梯度直接走捷径反传到最初始层:<br>$$X + SubLayer(X) $$</p>
+<h5 id="3-2-LayerNorm"><a href="#3-2-LayerNorm" class="headerlink" title="3.2 $LayerNorm$:"></a>3.2 $LayerNorm$:</h5><p><strong>归纳：加速收敛</strong><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $Layer Normalization$的作用是把神经网络中隐藏层归一为标准正态分布, 也就是$i.i.d$独立同分布, 以起到加快训练速度, 加速收敛的作用:<br>$$ \mu_i=\frac {1} {m}\sum^{m} _ { i=1 } x _ {ij} $$<br>上式中以矩阵的行$(row)$为单位求均值;<br>$$\sigma^{2} _ { j } =\frac { 1 } { m } \sum^ { m } _ { i=1 } (x _ { ij } -\mu_ { j } )^ { 2 } $$<br>上式中以矩阵的行$(row)$为单位求方差;<br>$$LayerNorm(x)=\alpha \odot \frac{x_{ij}-\mu_{i}}<br>{\sqrt{\sigma^{2}_{i}+\epsilon}} + \beta \tag{eq.6}$$<br>然后用<strong>每一行</strong>的<strong>每一个元素</strong>减去<strong>这行的均值</strong>, 再除以<strong>这行的标准差</strong>, 从而得到归一化后的数值, $\epsilon$是为了防止除$0$;<br>之后引入两个可训练参数$\alpha, \ \beta$来弥补归一化的过程中损失掉的信息, 注意$\odot$表示元素相乘而不是点积, 我们一般初始化$\alpha$为全$1$, 而$\beta$为全$0$.</p>
+<h6 id="源码分析：-4"><a href="#源码分析：-4" class="headerlink" title="源码分析："></a>源码分析：</h6><p>在源码中就是一个加号代表了一切！<code>out1 = self.layernorm1(x + attn_output)</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">EncoderLayer</span><span class="params">(tf.keras.layers.Layer)</span>:</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, d_model, num_heads, dff, rate=<span class="number">0.1</span>)</span>:</span></span><br><span class="line">    super(EncoderLayer, self).__init__()</span><br><span class="line"></span><br><span class="line">    self.mha = MultiHeadAttention(d_model, num_heads)   </span><br><span class="line">    self.ffn = point_wise_feed_forward_network(d_model, dff)  <span class="comment"># 前向传播</span></span><br><span class="line"></span><br><span class="line">    self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=<span class="number">1e-6</span>)</span><br><span class="line">    self.layernorm2 = tf.keras.layers.LayerNormalization(epsilon=<span class="number">1e-6</span>)</span><br><span class="line">    </span><br><span class="line">    self.dropout1 = tf.keras.layers.Dropout(rate)</span><br><span class="line">    self.dropout2 = tf.keras.layers.Dropout(rate)</span><br><span class="line">    </span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">call</span><span class="params">(self, x, training, mask)</span>:</span></span><br><span class="line"></span><br><span class="line">    attn_output, _ = self.mha(x, x, x, mask)  <span class="comment"># (batch_size, input_seq_len, d_model)  三个x代表上一层的输出，N个encoder是串联的</span></span><br><span class="line">    attn_output = self.dropout1(attn_output, training=training)</span><br><span class="line">    out1 = self.layernorm1(x + attn_output)  <span class="comment"># (batch_size, input_seq_len, d_model) 残差连接</span></span><br><span class="line">    </span><br><span class="line">    ffn_output = self.ffn(out1)  <span class="comment"># (batch_size, input_seq_len, d_model)</span></span><br><span class="line">    ffn_output = self.dropout2(ffn_output, training=training)</span><br><span class="line">    out2 = self.layernorm2(out1 + ffn_output)  <span class="comment"># (batch_size, input_seq_len, d_model)</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> out2</span><br></pre></td></tr></table></figure>
+<h4 id="4-FeedForward"><a href="#4-FeedForward" class="headerlink" title="4.FeedForward"></a>4.FeedForward</h4><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;前向传播层，就是一个全连接，<code>dff</code>设置了内部全连接层数，和以往的没什么区别，不多说了。</p>
+<h5 id="源码分析：-5"><a href="#源码分析：-5" class="headerlink" title="源码分析："></a>源码分析：</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">point_wise_feed_forward_network</span><span class="params">(d_model, dff)</span>:</span> <span class="comment"># dff内部层维数</span></span><br><span class="line">  <span class="keyword">return</span> tf.keras.Sequential([</span><br><span class="line">      tf.keras.layers.Dense(dff, activation=<span class="string">'relu'</span>),  <span class="comment"># (batch_size, seq_len, dff)</span></span><br><span class="line">      tf.keras.layers.Dense(d_model)  <span class="comment"># (batch_size, seq_len, d_model)</span></span><br><span class="line">  ])</span><br></pre></td></tr></table></figure>
+<h4 id="Transformer-encoder整体结构"><a href="#Transformer-encoder整体结构" class="headerlink" title="Transformer encoder整体结构"></a>Transformer encoder整体结构</h4><p>1). 字向量与位置编码:<br>$$X = EmbeddingLookup(X) + PositionalEncoding $$<br>$$X \in \mathbb{R}^{batch \ size  \ * \  seq. \ len. \  * \  embed. \ dim.} $$<br>2). 自注意力机制:<br>$$Q = Linear(X) = XW_{Q}$$<br>$$K = Linear(X) = XW_{K} $$<br>$$V = Linear(X) = XW_{V}$$<br>$$X_{attention} = SelfAttention(Q, \ K, \ V) $$<br>3). 残差连接与$Layer \ Normalization$<br>$$X_{attention} = X + X_{attention} $$<br>$$X_{attention} = LayerNorm(X_{attention}) $$<br>4). $FeedForward$, 其实就是两层线性映射并用激活函数激活, 比如说$ReLU$:<br>$$X_{hidden} = Activate(Linear(Linear(X_{attention})))$$<br>5). 重复3).:<br>$$X_{hidden} = X_{attention} + X_{hidden}$$<br>$$X_{hidden} = LayerNorm(X_{hidden})$$<br>$$X_{hidden} \in \mathbb{R}^{batch \ size  \ * \  seq. \ len. \  * \  embed. \ dim.} $$</p>
+<h4 id="Transformer-decoder部分"><a href="#Transformer-decoder部分" class="headerlink" title="Transformer decoder部分"></a>Transformer decoder部分</h4><img src="https://img-blog.csdnimg.cn/20200411142658336.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center =500x500" style="zoom:30%;">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 还是这个图最直观，注意观察编码器和解码器的差异，最下面的一块其实差不多，只是解码器加了一个Mask，这个mask当然是Lookahead mask，因为翻译任务里面，我们是在解码器中输入一个词，解码器拿着编码器最终隐藏层输出的向量来预测下一个词，所以需要去遮盖后面的词：
+**解码器预测过程：**
+第1时刻——输入'I，解码器拿着编码器输出的embedding向量去预测'am'。
+第2时刻——输入'am'，解码器拿着embedding向量 + 'I' 去预测 'a'
+第3时刻——输入'a',编码器拿着embedding向量 + 'I' + 'a' 去预测 'student'...
+<img src="https://img-blog.csdnimg.cn/20200411171038906.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center =600x300" style="zoom:30%;">
+
+<h6 id="源码分析：-6"><a href="#源码分析：-6" class="headerlink" title="源码分析："></a>源码分析：</h6><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DecoderLayer</span><span class="params">(tf.keras.layers.Layer)</span>:</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, d_model, num_heads, dff, rate=<span class="number">0.1</span>)</span>:</span></span><br><span class="line">    super(DecoderLayer, self).__init__()</span><br><span class="line"></span><br><span class="line">    self.mha1 = MultiHeadAttention(d_model, num_heads)  <span class="comment">#decoder中有两个MultiHeadAttention，最下面一个有Lookahead mask，上面一个有padding mask</span></span><br><span class="line">    self.mha2 = MultiHeadAttention(d_model, num_heads)</span><br><span class="line"></span><br><span class="line">    self.ffn = point_wise_feed_forward_network(d_model, dff)</span><br><span class="line"> </span><br><span class="line">    self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=<span class="number">1e-6</span>)</span><br><span class="line">    self.layernorm2 = tf.keras.layers.LayerNormalization(epsilon=<span class="number">1e-6</span>)</span><br><span class="line">    self.layernorm3 = tf.keras.layers.LayerNormalization(epsilon=<span class="number">1e-6</span>)</span><br><span class="line">    </span><br><span class="line">    self.dropout1 = tf.keras.layers.Dropout(rate)</span><br><span class="line">    self.dropout2 = tf.keras.layers.Dropout(rate)</span><br><span class="line">    self.dropout3 = tf.keras.layers.Dropout(rate)</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">call</span><span class="params">(self, x, enc_output, training, </span></span></span><br><span class="line"><span class="function"><span class="params">           look_ahead_mask, padding_mask)</span>:</span></span><br><span class="line">    <span class="comment"># enc_output.shape == (batch_size, input_seq_len, d_model)</span></span><br><span class="line"></span><br><span class="line">    attn1, attn_weights_block1 = self.mha1(x, x, x, look_ahead_mask)  <span class="comment"># (batch_size, target_seq_len, d_model)下面一个，这里的输入和encoder一样 也是三个x</span></span><br><span class="line">    attn1 = self.dropout1(attn1, training=training)</span><br><span class="line">    out1 = self.layernorm1(attn1 + x)</span><br><span class="line">    </span><br><span class="line">    attn2, attn_weights_block2 = self.mha2(</span><br><span class="line">        enc_output, enc_output, out1, padding_mask)  <span class="comment"># (batch_size, target_seq_len, d_model) 上面一个，这里的输入不同，要注意：是两个encoder输出和一个decoder输出；但是维数都是一样的</span></span><br><span class="line">    attn2 = self.dropout2(attn2, training=training)</span><br><span class="line">    out2 = self.layernorm2(attn2 + out1)  <span class="comment"># (batch_size, target_seq_len, d_model)</span></span><br><span class="line">    </span><br><span class="line">    ffn_output = self.ffn(out2)  <span class="comment"># (batch_size, target_seq_len, d_model)</span></span><br><span class="line">    ffn_output = self.dropout3(ffn_output, training=training)</span><br><span class="line">    out3 = self.layernorm3(ffn_output + out2)  <span class="comment"># (batch_size, target_seq_len, d_model)</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> out3, attn_weights_block1, attn_weights_block2      <span class="comment"># 再有N个decoder串联</span></span><br></pre></td></tr></table></figure>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 这里的<code>self.mha1</code>和<code>self.mha2</code>就是图中解码器层定义的两个Multi-Head Attention，这里上面的Multi-Head Attention也就是<code>self.mha2</code>，它是只做了padding mask的，这个和编码器的一致，但是下面的这个Multi-Head Attention（<code>self.mha1</code>）就不一样了，它的mask自然是Lookahead mask，用于遮盖后面的词，现在基本上前后就可以串起来了！<br>注意看两个的输入：</p>
+<figure class="highlight plain"><figcaption><span>x, x, look_ahead_mask)```</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#96;&#96;&#96;self.mha2(enc_output, enc_output, out1, padding_mask)</span><br></pre></td></tr></table></figure>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 对于下面的Multi-Head Attention<code>self.mha1</code>，它和编码器层那里的代码一致，都是接收三个相同的x（也就是q、k、v）<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 但是对于上面的Multi-Head Attention<code>self.mha2</code>，它的输入是不同的，它是用的编码器的输出和解码器下面的Multi-Head Attention<code>self.mha1</code>的输出<code>out1</code>来共同输出<code>out3</code>，之前不理解为什么编码器那里要写三个x，写一个不也可以吗？反正都是一样，现在明白了，是为了和解码器这里的输入做到格式一致！！！<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 编码器层、解码器层都理解完了，最后编码器串联N个，解码器串联N个就OK啦！<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 一个图说明了一切：<br><img src="https://img-blog.csdnimg.cn/20200411173424382.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" style="zoom:50%;"></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 之前不理解为什么画了这么多的线，一根线不行吗？还真不行，因为每次的解码器在预测的时候需要拿编码器输出的embedding向量呀！！</p>
+<h6 id="源码分析：-7"><a href="#源码分析：-7" class="headerlink" title="源码分析："></a>源码分析：</h6><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 编码器和解码器无非就是做了N个编码器层和解码器层，然后这里的<code>training</code>代表的是否训练，因为训练的时候和预测的时候不一样。<br><strong>编码器：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Encoder</span><span class="params">(tf.keras.layers.Layer)</span>:</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, num_layers, d_model, num_heads, dff, input_vocab_size,</span></span></span><br><span class="line"><span class="function"><span class="params">               maximum_position_encoding, rate=<span class="number">0.1</span>)</span>:</span></span><br><span class="line">    super(Encoder, self).__init__()</span><br><span class="line"></span><br><span class="line">    self.d_model = d_model</span><br><span class="line">    self.num_layers = num_layers</span><br><span class="line">    </span><br><span class="line">    self.embedding = tf.keras.layers.Embedding(input_vocab_size, d_model)</span><br><span class="line">    self.pos_encoding = positional_encoding(maximum_position_encoding, </span><br><span class="line">                                            self.d_model)</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    self.enc_layers = [EncoderLayer(d_model, num_heads, dff, rate) </span><br><span class="line">                       <span class="keyword">for</span> _ <span class="keyword">in</span> range(num_layers)]</span><br><span class="line">  </span><br><span class="line">    self.dropout = tf.keras.layers.Dropout(rate)</span><br><span class="line">        </span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">call</span><span class="params">(self, x, training, mask)</span>:</span></span><br><span class="line"></span><br><span class="line">    seq_len = tf.shape(x)[<span class="number">1</span>]</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 将嵌入和位置编码相加。</span></span><br><span class="line">    x = self.embedding(x)  <span class="comment"># (batch_size, input_seq_len, d_model)</span></span><br><span class="line">    x *= tf.math.sqrt(tf.cast(self.d_model, tf.float32))</span><br><span class="line">    x += self.pos_encoding[:, :seq_len, :]</span><br><span class="line"></span><br><span class="line">    x = self.dropout(x, training=training)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(self.num_layers):</span><br><span class="line">      x = self.enc_layers[i](x, training, mask)   <span class="comment">#上一层的输出是下一层的输入 体现在这里</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> x  <span class="comment"># (batch_size, input_seq_len, d_model)</span></span><br></pre></td></tr></table></figure>
+<p><strong>解码器：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Decoder</span><span class="params">(tf.keras.layers.Layer)</span>:</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, num_layers, d_model, num_heads, dff, target_vocab_size,</span></span></span><br><span class="line"><span class="function"><span class="params">               maximum_position_encoding, rate=<span class="number">0.1</span>)</span>:</span></span><br><span class="line">    super(Decoder, self).__init__()</span><br><span class="line"></span><br><span class="line">    self.d_model = d_model</span><br><span class="line">    self.num_layers = num_layers</span><br><span class="line">    </span><br><span class="line">    self.embedding = tf.keras.layers.Embedding(target_vocab_size, d_model)</span><br><span class="line">    self.pos_encoding = positional_encoding(maximum_position_encoding, d_model)</span><br><span class="line">    </span><br><span class="line">    self.dec_layers = [DecoderLayer(d_model, num_heads, dff, rate) </span><br><span class="line">                       <span class="keyword">for</span> _ <span class="keyword">in</span> range(num_layers)]</span><br><span class="line">    self.dropout = tf.keras.layers.Dropout(rate)</span><br><span class="line">    </span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">call</span><span class="params">(self, x, enc_output, training, </span></span></span><br><span class="line"><span class="function"><span class="params">           look_ahead_mask, padding_mask)</span>:</span></span><br><span class="line"></span><br><span class="line">    seq_len = tf.shape(x)[<span class="number">1</span>]</span><br><span class="line">    attention_weights = &#123;&#125;</span><br><span class="line">    </span><br><span class="line">    x = self.embedding(x)  <span class="comment"># (batch_size, target_seq_len, d_model)</span></span><br><span class="line">    x *= tf.math.sqrt(tf.cast(self.d_model, tf.float32))</span><br><span class="line">    x += self.pos_encoding[:, :seq_len, :]</span><br><span class="line">    </span><br><span class="line">    x = self.dropout(x, training=training)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(self.num_layers):</span><br><span class="line">      x, block1, block2 = self.dec_layers[i](x, enc_output, training,</span><br><span class="line">                                             look_ahead_mask, padding_mask)</span><br><span class="line">      </span><br><span class="line">      attention_weights[<span class="string">'decoder_layer&#123;&#125;_block1'</span>.format(i+<span class="number">1</span>)] = block1</span><br><span class="line">      attention_weights[<span class="string">'decoder_layer&#123;&#125;_block2'</span>.format(i+<span class="number">1</span>)] = block2</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># x.shape == (batch_size, target_seq_len, d_model)</span></span><br><span class="line">    <span class="keyword">return</span> x, attention_weights</span><br></pre></td></tr></table></figure>
+
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://ericzikun.github.io/2020/04/11/Transformer-%E5%8E%9F%E7%90%86-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E6%80%BB%E7%BB%93-Tensorflow%E5%AE%98%E6%96%B9%E6%BA%90%E7%A0%81/" data-id="ck8vkq5eu00039qt68nu1d7dt" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Eric kun"
+        },
+        "headline": "Transformer 原理+源码分析总结(Tensorflow官方源码)",
+        "image": "https://ericzikun.github.iohttps://img-blog.csdnimg.cn/20200411142658336.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center",
+        "keywords": "Transformer 源码 自然语言处理",
+        "genre": "深度学习 Transformer",
+        "datePublished": "2020-04-11",
+        "dateCreated": "2020-04-11",
+        "dateModified": "2020-04-11",
+        "url": "https://ericzikun.github.io/2020/04/11/Transformer-原理-源码分析总结-Tensorflow官方源码/",
+        "description": "Transformer理解参考博客：https://jalammar.github.io/illustrated-transformer/https://github.com/aespresso/a_journey_into_math_of_mlhttps://www.tensorflow.org/tutorials/text/transformer#encoder_and_decoder
+&nb",
+        "wordCount": 3504
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <!-- Valine -->
+    <div class="vcomments"></div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="twitter" href="https://www.zhihu.com/people/feng-kun-33-65" target="_blank" rel="noopener">
+                        <i class="icon fa fa-twitter"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="facebook" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-facebook"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="stack-overflow" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-stack-overflow"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/ericzikun" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="weibo" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-weibo"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="rss" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-rss"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+    
+        <a href="/2020/04/10/%E7%BB%88%E7%AB%AF%E5%91%BD%E4%BB%A4%E5%8F%8AColab%E7%99%BD%E5%AB%96%E5%BF%85%E5%A4%87/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">终端命令及Colab白嫖必备</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+  <div class="widget-wrap widget-list">
+      <h3 class="widget-title"></h3>
+      <div class="widget">
+        <b>联系方式：847473488@qq.com<br/>
+        知乎：ERICK</b>
+          <!--这里添加你要写的内容-->
+      </div>
+  </div>
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/Cnews/" style="font-size: 10px;">Cnews</a> <a href="/tags/KNN/" style="font-size: 10px;">KNN</a> <a href="/tags/Keras/" style="font-size: 10px;">Keras</a> <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/Mac/" style="font-size: 20px;">Mac</a> <a href="/tags/NLP/" style="font-size: 10px;">NLP</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/TextCNN/" style="font-size: 10px;">TextCNN</a> <a href="/tags/Textrank/" style="font-size: 10px;">Textrank</a> <a href="/tags/Transformer/" style="font-size: 10px;">Transformer</a> <a href="/tags/%E4%BF%9D%E7%A0%94/" style="font-size: 10px;">保研</a> <a href="/tags/%E5%85%B3%E9%94%AE%E8%AF%8D%E6%8A%BD%E5%8F%96/" style="font-size: 10px;">关键词抽取</a> <a href="/tags/%E5%86%B3%E7%AD%96%E6%A0%91/" style="font-size: 10px;">决策树</a> <a href="/tags/%E5%8D%87%E5%AD%A6%EF%BC%8C%E8%AF%BB%E7%A0%94/" style="font-size: 10px;">升学，读研</a> <a href="/tags/%E5%AD%A6%E6%9C%AF/" style="font-size: 16.67px;">学术</a> <a href="/tags/%E6%84%9F%E7%9F%A5%E6%9C%BA/" style="font-size: 10px;">感知机</a> <a href="/tags/%E6%8A%A5%E9%94%99/" style="font-size: 13.33px;">报错</a> <a href="/tags/%E6%95%88%E7%8E%87/" style="font-size: 20px;">效率</a> <a href="/tags/%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB/" style="font-size: 10px;">文本分类</a> <a href="/tags/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86/" style="font-size: 10px;">文本处理</a> <a href="/tags/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/" style="font-size: 10px;">朴素贝叶斯</a> <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">机器学习</a> <a href="/tags/%E6%A0%BC%E5%BC%8F%E5%8C%96%E6%96%87%E6%9C%AC/" style="font-size: 10px;">格式化文本</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">深度学习</a> <a href="/tags/%E6%BA%90%E7%A0%81/" style="font-size: 10px;">源码</a> <a href="/tags/%E7%BB%88%E7%AB%AF/" style="font-size: 10px;">终端</a> <a href="/tags/%E7%BB%8F%E9%AA%8C/" style="font-size: 10px;">经验</a> <a href="/tags/%E7%BB%9F%E8%AE%A1%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/" style="font-size: 16.67px;">统计学习方法</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/" style="font-size: 10px;">自然语言处理</a> <a href="/tags/%E8%AE%BA%E6%96%87%E6%8E%92%E7%89%88/" style="font-size: 10px;">论文排版</a> <a href="/tags/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92/" style="font-size: 10px;">逻辑回归</a> <a href="/tags/%E9%A2%84%E5%A4%84%E7%90%86/" style="font-size: 10px;">预处理</a>
+        </div>
+    </div>
+
+
+            
+                
+<div class="widget-wrap widget-list">
+    <h3 class="widget-title">目录</h3>
+    <div class="widget">
+        <div id="toc" class="toc-article">
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Transformer理解"><span class="toc-number">1.</span> <span class="toc-text">Transformer理解</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#背景："><span class="toc-number">1.1.</span> <span class="toc-text">背景：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#原理"><span class="toc-number">1.2.</span> <span class="toc-text">原理</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-Positional-Encoding"><span class="toc-number">1.2.1.</span> <span class="toc-text">1.Positional Encoding</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-Muti-Head-Attention"><span class="toc-number">1.2.2.</span> <span class="toc-text">2.Muti-Head Attention</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#2-1-self-Attention"><span class="toc-number">1.2.2.1.</span> <span class="toc-text">2.1 self Attention</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#源码分析："><span class="toc-number">1.2.2.1.1.</span> <span class="toc-text">源码分析：</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-2-Multi-Head-Attention"><span class="toc-number">1.2.2.2.</span> <span class="toc-text">2.2 Multi-Head Attention</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#源码分析：-1"><span class="toc-number">1.2.2.2.1.</span> <span class="toc-text">源码分析：</span></a></li></ol></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-3-Mask"><span class="toc-number">1.2.2.3.</span> <span class="toc-text">2.3 Mask</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#2-3-1-padding-mask"><span class="toc-number">1.2.2.3.1.</span> <span class="toc-text">2.3.1 padding mask</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#源码分析：-2"><span class="toc-number">1.2.2.3.2.</span> <span class="toc-text">源码分析：</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#2-3-2-Lookahead-mask"><span class="toc-number">1.2.2.3.3.</span> <span class="toc-text">2.3.2 Lookahead mask</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#源码分析：-3"><span class="toc-number">1.2.2.3.4.</span> <span class="toc-text">源码分析：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-Add-amp-Norm"><span class="toc-number">1.2.3.</span> <span class="toc-text">3.Add&amp;Norm</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#3-1残差连接"><span class="toc-number">1.2.3.1.</span> <span class="toc-text">3.1残差连接</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#3-2-LayerNorm"><span class="toc-number">1.2.3.2.</span> <span class="toc-text">3.2 $LayerNorm$:</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#源码分析：-4"><span class="toc-number">1.2.3.2.1.</span> <span class="toc-text">源码分析：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-FeedForward"><span class="toc-number">1.2.4.</span> <span class="toc-text">4.FeedForward</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#源码分析：-5"><span class="toc-number">1.2.4.1.</span> <span class="toc-text">源码分析：</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Transformer-encoder整体结构"><span class="toc-number">1.2.5.</span> <span class="toc-text">Transformer encoder整体结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Transformer-decoder部分"><span class="toc-number">1.2.6.</span> <span class="toc-text">Transformer decoder部分</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#源码分析：-6"><span class="toc-number">1.2.6.0.1.</span> <span class="toc-text">源码分析：</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#源码分析：-7"><span class="toc-number">1.2.6.0.2.</span> <span class="toc-text">源码分析：</span></a></li></ol></li></ol></li></ol></li></ol></li></ol>
+        </div>
+    </div>
+</div>
+
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/11/Transformer-%E5%8E%9F%E7%90%86-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E6%80%BB%E7%BB%93-Tensorflow%E5%AE%98%E6%96%B9%E6%BA%90%E7%A0%81/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://img-blog.csdnimg.cn/20200411142658336.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center)" alt="Transformer 原理+源码分析总结(Tensorflow官方源码)" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Transformer/">Transformer</a></p>
+                            <p class="item-title"><a href="/2020/04/11/Transformer-%E5%8E%9F%E7%90%86-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E6%80%BB%E7%BB%93-Tensorflow%E5%AE%98%E6%96%B9%E6%BA%90%E7%A0%81/" class="title">Transformer 原理+源码分析总结(Tensorflow官方源码)</a></p>
+                            <p class="item-date"><time datetime="2020-04-11T09:49:11.000Z" itemprop="datePublished">2020-04-11</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/10/%E7%BB%88%E7%AB%AF%E5%91%BD%E4%BB%A4%E5%8F%8AColab%E7%99%BD%E5%AB%96%E5%BF%85%E5%A4%87/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://img-blog.csdnimg.cn/20200410192110723.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70)" alt="终端命令及Colab白嫖必备" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/Linux/">Linux</a></p>
+                            <p class="item-title"><a href="/2020/04/10/%E7%BB%88%E7%AB%AF%E5%91%BD%E4%BB%A4%E5%8F%8AColab%E7%99%BD%E5%AB%96%E5%BF%85%E5%A4%87/" class="title">终端命令及Colab白嫖必备</a></p>
+                            <p class="item-date"><time datetime="2020-04-10T15:24:35.000Z" itemprop="datePublished">2020-04-10</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/09/%E4%BF%9D%E7%A0%94%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="thumbnail">
+    
+    
+        <span style="background-image:url(http://img4.imgtn.bdimg.com/it/u=2273282424,2294415740&fm=11&gp=0.jpg)" alt="保研经验总结" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E5%8D%87%E5%AD%A6%E5%B0%B1%E4%B8%9A/">升学就业</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E5%8D%87%E5%AD%A6%E5%B0%B1%E4%B8%9A/%E4%BF%9D%E7%A0%94/">保研</a></p>
+                            <p class="item-title"><a href="/2020/04/09/%E4%BF%9D%E7%A0%94%E7%BB%8F%E9%AA%8C%E6%80%BB%E7%BB%93/" class="title">保研经验总结</a></p>
+                            <p class="item-date"><time datetime="2020-04-09T12:40:45.000Z" itemprop="datePublished">2020-04-09</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/08/Mac%E5%AE%89%E8%A3%85gensim%E8%B8%A9%E5%9D%91/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://img-blog.csdnimg.cn/20200225104733764.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70)" alt="Mac安装gensim踩坑" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8A%A5%E9%94%99/">报错</a></p>
+                            <p class="item-title"><a href="/2020/04/08/Mac%E5%AE%89%E8%A3%85gensim%E8%B8%A9%E5%9D%91/" class="title">Mac安装gensim踩坑</a></p>
+                            <p class="item-date"><time datetime="2020-04-08T02:22:27.000Z" itemprop="datePublished">2020-04-08</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/08/mac%E5%AE%89%E8%A3%85cnpm%E8%B8%A9%E5%9D%91/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://img-blog.csdnimg.cn/20200225104733764.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70)" alt="mac安装cnpm踩坑" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8A%A5%E9%94%99/">报错</a></p>
+                            <p class="item-title"><a href="/2020/04/08/mac%E5%AE%89%E8%A3%85cnpm%E8%B8%A9%E5%9D%91/" class="title">mac安装cnpm踩坑</a></p>
+                            <p class="item-date"><time datetime="2020-04-08T02:21:50.000Z" itemprop="datePublished">2020-04-08</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a><span class="archive-list-count">11</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a><span class="archive-list-count">4</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://hexo.io" target="_blank" rel="noopener">Hexo</a>
+                    </li>
+                
+                    <li>
+                        <a href="https://blog.csdn.net/popofzk" target="_blank" rel="noopener">CSDN</a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.zhihu.com/people/feng-kun-33-65" target="_blank" rel="noopener">知乎</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2020 Eric kun</p>
+                
+                <p>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="https://github.com/ppoffice" target="_blank">PPOffice</a></p>
+                
+            </div>
+            <div class="parent">
+              <div class="child">
+                <span id="busuanzi_container_site_pv">
+                  访问量<span id="busuanzi_value_site_pv"></span>次
+                </span>
+                <span class="post-meta-divider">|</span>
+                <span id="busuanzi_container_site_uv" style='display:none'>
+                  访客数<span id="busuanzi_value_site_uv"></span>人
+                </span>
+                <script async="" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+              </div>
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+    <style>
+      .parent {
+        position: relative;
+      }
+      .child {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+      }
+    </style>  
+</footer>
+
+        
+    
+    <script src="//unpkg.com/valine"></script>
+    <script>
+        var GUEST = ['nick','mail','link'];
+        var meta = '';
+        meta = meta.split(',').filter(function (item) {
+            return GUEST.indexOf(item)>-1;
+        });
+        var avatarcdn = 'https://gravatar.loli.net/avatar/' == true;
+        new Valine({
+            el: '.vcomments',
+            notify: "",
+            verify: "",
+            appId: "tx6zs0UB1yRovubWAD3heyoM-gzGzoHsz",
+            appKey: "8SJzl4MBSSjcdEESUaALKRXk",
+            placeholder: "Just Do It",
+            avatar:"identicon",
+            recordIP:"",
+            visitor: ""
+        });
+    </script>
+
+
+
+
+
+    
+        
+<script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-share.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-video.min.js"></script>
+
+    
+    
+        
+<script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+    
+    
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+        </script>
+        
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML.js"></script>
+
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+
+<script src="/js/main.js"></script>
+
+
+    </div>
+</body>
+</html>
