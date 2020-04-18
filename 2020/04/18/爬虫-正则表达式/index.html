@@ -6,17 +6,28 @@
     
 
     
-    <title>分类: Java | Eric’s blog</title>
+    <title>爬虫&amp;正则表达式基础 | Eric’s blog</title>
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     
-    <meta property="og:type" content="website">
-<meta property="og:title" content="Eric’s blog">
-<meta property="og:url" content="https://ericzikun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/Java/index.html">
+    <meta name="keywords" content="文本处理,爬虫,正则表达式" />
+    
+    <meta name="description" content="爬虫流程：  正则表达式  正则表达式由字符和操作符组成 常用操作符：  举例： 经典正则表达式： eg： Re库： re库可以采用raw string类型表示正则表达式，表示为： r&#39;text&#39;,  PS: raw string是不包含对转义符再次转义的字符串 例如：r&#39;[1‐9]\d{5}&#39;和r&#39;\d{3}‐\d{8}|\d{4}‐\d{7}&#39;">
+<meta property="og:type" content="article">
+<meta property="og:title" content="爬虫&amp;正则表达式基础">
+<meta property="og:url" content="https://ericzikun.github.io/2020/04/18/%E7%88%AC%E8%99%AB-%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/index.html">
 <meta property="og:site_name" content="Eric’s blog">
+<meta property="og:description" content="爬虫流程：  正则表达式  正则表达式由字符和操作符组成 常用操作符：  举例： 经典正则表达式： eg： Re库： re库可以采用raw string类型表示正则表达式，表示为： r&#39;text&#39;,  PS: raw string是不包含对转义符再次转义的字符串 例如：r&#39;[1‐9]\d{5}&#39;和r&#39;\d{3}‐\d{8}|\d{4}‐\d{7}&#39;">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://pic3.zhimg.com/80/v2-76456da23ec5e34df97d29549b8d1bc8_1440w.jpg">
+<meta property="article:published_time" content="2020-04-18T14:43:24.000Z">
+<meta property="article:modified_time" content="2020-04-18T15:05:02.043Z">
 <meta property="article:author" content="Eric kun">
+<meta property="article:tag" content="文本处理">
+<meta property="article:tag" content="爬虫">
+<meta property="article:tag" content="正则表达式">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://pic3.zhimg.com/80/v2-76456da23ec5e34df97d29549b8d1bc8_1440w.jpg">
     
 
     
@@ -154,74 +165,223 @@ var _hmt = _hmt || [];
                         <div class="main-body-header">
     <h1 class="header">
     
-    <i class="icon fa fa-folder-open"></i>分类: <em class="page-title-link">Java</em>
+    <a class="page-title-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86/">文本处理</a>
     </h1>
 </div>
 
                         <div class="main-body-content">
-                            
-
-    
-    
+                            <article id="post-爬虫-正则表达式" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
         
-        
-        <section class="archives-wrap">
-            <div class="archive-year-wrap">
-                <a href="/archives/2020" class="archive-year"><i class="icon fa fa-calendar-o"></i>2020</a>
-            </div>
-            <div class="archives">
-    
-    
-    
-        <div class="article-row">
-    
-        <article class="article article-summary">
-    <div class="article-summary-inner">
-        
-        <a href="/2020/04/07/Java/" class="thumbnail">
-    
-    
-        <span style="background-image:url(https://ss1.bdstatic.com/70cFuXSh_Q1YnxGkpoWK1HF6hhy/it/u=3950852797,1582001636&fm=26&gp=0.jpg)" alt="我的第一篇博客文章" class="thumbnail-image"></span>
-    
-    
-        
-<span class="comment-counter">
-    <i class="fa fa-comments-o"></i>
-    
-        <span><a href="https://ericzikun.github.io/2020/04/07/Java/#isso-thread"></a></span>
-    
-</span>
-
-
-    
-</a>
-
-        
-        <div class="article-meta">
-            <div class="category">
-            <a class="article-category-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/">技术栈</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/Java/">Java</a>
-            </div>
-            <div class="date"><time datetime="2020-04-07T06:18:08.000Z" itemprop="datePublished">2020-04-07</time></div>
-        </div>
-        
+            <header class="article-header">
+                
     
         <h1 class="article-title" itemprop="name">
-        <a href="/2020/04/07/Java/">我的第一篇博客文章</a>
+        爬虫&amp;正则表达式基础
         </h1>
     
 
-        <p class="article-excerpt">
-            
-        </p>
+            </header>
+        
+        
+            <div class="article-meta">
+                <span id="busuanzi_container_page_pv" style='display:none' class="article-date">
+  <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+</span>
+
+
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2020/04/18/%E7%88%AC%E8%99%AB-%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" class="article-date">
+         <time datetime="2020-04-18T14:43:24.000Z" itemprop="datePublished">2020-04-18</time>
+      </a>
     </div>
-</article>
-    
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86/" rel="tag">文本处理</a>, <a class="tag-link" href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" rel="tag">正则表达式</a>, <a class="tag-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <h2 id="爬虫流程："><a href="#爬虫流程：" class="headerlink" title="爬虫流程："></a>爬虫流程：</h2><img src="https://img-blog.csdnimg.cn/20200418222723979.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center =300x400" style="zoom:50%;">
+
+<h2 id="正则表达式"><a href="#正则表达式" class="headerlink" title="正则表达式"></a>正则表达式</h2><img src="https://img-blog.csdnimg.cn/20200418222819648.png#pic_center =300x20" style="zoom:50%;">
+
+<p>正则表达式由<strong>字符</strong>和<strong>操作符</strong>组成</p>
+<p>常用操作符：</p>
+<p><img src="https://img-blog.csdnimg.cn/20200418222925667.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt></p>
+<p><strong>举例：</strong><br><img src="https://img-blog.csdnimg.cn/2020041822295565.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center =500x200" style="zoom:50%;"></p>
+<p><strong>经典正则表达式：</strong><br><img src="https://img-blog.csdnimg.cn/20200418223008713.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center =500x200" style="zoom:50%;"></p>
+<p>eg：<br><img src="https://img-blog.csdnimg.cn/20200418223031684.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center =500x200" style="zoom:50%;"></p>
+<p><strong>Re库：</strong></p>
+<p>re库可以采用raw string类型表示正则表达式，表示为： <code>r&#39;text&#39;</code>,  PS: raw string是不包含对转义符再次转义的字符串</p>
+<p>例如：<code>r&#39;[1‐9]\d{5}&#39;</code><br>和<code>r&#39;\d{3}‐\d{8}|\d{4}‐\d{7}&#39;</code></p>
+<p><strong>Re库主要函数：</strong><br><img src="https://img-blog.csdnimg.cn/20200418223047511.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center =500x200" style="zoom:50%;"></p>
+<p><strong>re.search：</strong>  在整个字符串中搜索匹配<br><img src="https://img-blog.csdnimg.cn/20200418223104156.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" style="zoom:50%;"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line">match = re.search(<span class="string">r'[1-9]\d&#123;5&#125;'</span>,<span class="string">'BIT 100081'</span>)</span><br><span class="line"><span class="keyword">if</span> match:</span><br><span class="line">  print(match.group(<span class="number">0</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment">#100081</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>re.match:</strong>   与re.search类似，但是是从<strong>字符串开始位置</strong>起匹配表达式，返回match对象<br><img src="https://img-blog.csdnimg.cn/20200418223128432.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center =500x200" style="zoom:50%;"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line">match = re.match(<span class="string">r'[1-9]\d&#123;5&#125;'</span>,<span class="string">'BIT 100081'</span>)</span><br><span class="line"><span class="keyword">if</span> match:</span><br><span class="line">  print(match.group(<span class="number">0</span>))</span><br><span class="line"><span class="comment">#报错，因为BIT未匹配到</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>re.findall:</strong><br><img src="https://img-blog.csdnimg.cn/20200418223147180.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center =500x200" style="zoom:50%;"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line">ls = re.findall(<span class="string">r'[1-9]\d&#123;5&#125;'</span>,<span class="string">'BIT100081 TSU10084'</span>)</span><br><span class="line">ls</span><br><span class="line"><span class="comment"># ['10081','10084']</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>re.split:</strong><br><img src="https://img-blog.csdnimg.cn/20200418223158785.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center =500x200" style="zoom:50%;"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line">re.split(<span class="string">r'[1-9]\d&#123;5&#125;'</span>,<span class="string">'BIT100081 TSU10084'</span>)</span><br><span class="line"><span class="comment">#['BIT','TSU','']</span></span><br><span class="line">re.split(<span class="string">r'[1-9]\d&#123;5&#125;'</span>,<span class="string">'BIT100081 TSU10084'</span>,maxsplit=<span class="number">1</span>)</span><br><span class="line"><span class="comment">#['BIT','TSU100084']</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>re.finditer:</strong><br><img src="https://img-blog.csdnimg.cn/20200418223212265.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" style="zoom:50%;"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">for</span> m <span class="keyword">in</span> re.finditer(<span class="string">r'[1-9]\d&#123;5&#125;'</span>,<span class="string">'BIT100081 TSU100084'</span>)</span><br><span class="line"><span class="comment"># 100081</span></span><br><span class="line"><span class="comment"># 100084</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>re.sub:</strong><br><img src="https://img-blog.csdnimg.cn/2020041822322519.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" style="zoom:50%;"></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line">re.sub(<span class="string">r'[1-9]\d&#123;5&#125;'</span>,<span class="string">':zipcode'</span>,<span class="string">"BIT100081 TSU100084"</span>)</span><br><span class="line"><span class="comment"># 'BIT:zipcode TSU:zipcode'</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>re库的面向对象方法：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rst = re.search(<span class="string">r'[1-9]\d&#123;5&#125;'</span>,<span class="string">"BIT 100081"</span>) <span class="comment">#对比——函数式：一次性操作</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pat = re.compile(<span class="string">r'[1-9]\d&#123;5&#125;'</span>)</span><br><span class="line">rst = pat.search(<span class="string">'BIT 100081'</span>)  <span class="comment">#面向对象用法</span></span><br></pre></td></tr></table></figure>
+<img src="https://img-blog.csdnimg.cn/2020041822324862.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" style="zoom:50%;">
+**re库的match对象：**
+
+<p>match对象是一次匹配的结果，包含匹配的很多信息</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">match = re.search(<span class="string">r'[1-9]\d&#123;5&#125;'</span>,<span class="string">'BIT 100081'</span>)</span><br><span class="line"><span class="keyword">if</span> match:</span><br><span class="line">  print(match.group(<span class="number">0</span>))</span><br><span class="line">type(match)</span><br><span class="line"><span class="comment"># &lt;class '_sre.SRE_Match'&gt;</span></span><br></pre></td></tr></table></figure>
+<img src="https://img-blog.csdnimg.cn/20200418223304921.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" style="zoom:50%;">
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line">m =re.search(<span class="string">r'[1-9]\d&#123;5&#125;'</span>,<span class="string">'BIT100081 TSU100084'</span>)</span><br><span class="line">m.string</span><br><span class="line"><span class="comment">#"BIT100081 TSU100084"</span></span><br><span class="line">m.pos</span><br><span class="line"><span class="comment"># 0</span></span><br><span class="line">m.endpos</span><br><span class="line"><span class="comment"># 19</span></span><br><span class="line">m.group(<span class="number">0</span>)</span><br><span class="line"><span class="comment"># '100081'</span></span><br><span class="line">m.start()</span><br><span class="line"><span class="comment"># 3</span></span><br><span class="line">m.end()</span><br><span class="line"><span class="comment"># 9</span></span><br><span class="line">m.span()</span><br><span class="line"><span class="comment"># (3,9)</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>re库的贪婪匹配和最小匹配：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 贪婪匹配——默认采用贪婪匹配，即输出匹配最长的子串</span></span><br><span class="line">match = re.search(<span class="string">r'PY.*N'</span>,<span class="string">'PYANBNCNDN'</span>) <span class="comment"># *代表对前一个字符,也就是'.'的无限次或0次扩展，而'.'为任意</span></span><br><span class="line">match.group(<span class="number">0</span>)</span><br><span class="line"><span class="comment"># 'PYANBNCNDN'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#最小匹配：加一个问号</span></span><br><span class="line">match = re.search(<span class="string">r'PY.*?N'</span>,<span class="string">'PYANBNCNDN'</span>)</span><br><span class="line">match.group(<span class="number">0</span>)</span><br></pre></td></tr></table></figure>
+<img src="https://img-blog.csdnimg.cn/2020041822333165.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" style="zoom:50%;">
+
+<p><strong>总结：</strong><br><img src="https://img-blog.csdnimg.cn/20200418223712255.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" style="zoom:50%;"></p>
+<p>参考：<br>b站视频：嵩天教授的Python网络爬虫与信息提取课程</p>
+
         </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://ericzikun.github.io/2020/04/18/%E7%88%AC%E8%99%AB-%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" data-id="ck95r7b15000kuft6f70yeyp8" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Eric kun"
+        },
+        "headline": "爬虫&amp;正则表达式基础",
+        "image": "https://ericzikun.github.iohttps://pic3.zhimg.com/80/v2-76456da23ec5e34df97d29549b8d1bc8_1440w.jpg",
+        "keywords": "文本处理 爬虫 正则表达式",
+        "genre": "技巧 文本处理",
+        "datePublished": "2020-04-18",
+        "dateCreated": "2020-04-18",
+        "dateModified": "2020-04-18",
+        "url": "https://ericzikun.github.io/2020/04/18/爬虫-正则表达式/",
+        "description": "爬虫流程：
+
+正则表达式
+
+正则表达式由字符和操作符组成
+常用操作符：
+
+举例：
+经典正则表达式：
+eg：
+Re库：
+re库可以采用raw string类型表示正则表达式，表示为： r&#39;text&#39;,  PS: raw string是不包含对转义符再次转义的字符串
+例如：r&#39;[1‐9]\d{5}&#39;和r&#39;\d{3}‐\d{8}|\d{4}‐\d{7}&#39;
+",
+        "wordCount": 363
+    }
+</script>
+
+</article>
+
+    <section id="comments">
     
+        
+    <!-- Valine -->
+    <div class="vcomments"></div>
 
 
-    </div></section>
-
+    
+    </section>
 
 
 
@@ -283,6 +443,19 @@ var _hmt = _hmt || [];
             
         </ul>
     </div>
+    
+        
+<nav id="article-nav">
+    
+    
+        <a href="/2020/04/11/Transformer-%E5%8E%9F%E7%90%86-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E6%80%BB%E7%BB%93-Tensorflow%E5%AE%98%E6%96%B9%E6%BA%90%E7%A0%81/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">Transformer 原理+源码分析总结(Tensorflow官方源码)</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
     
     <div class="widgets-container">
         
