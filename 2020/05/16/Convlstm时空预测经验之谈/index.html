@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+
+    
+
+    
+    <title>Convlstm时空预测经验之谈（本科毕设） | Eric’s blog</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="keywords" content="深度学习,Convlstm,时空预测,时序,Lstm,CNN" />
+    
+    <meta name="description" content="Convlstm实战&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; 毕设临近截止，故写一篇心得以供新手学习，理论在知乎上有很多介绍的不错的文章，这里强烈推荐微信公众号：AI蜗牛车，这位东南老哥写了时空预测系列文章，能够帮助了解时空领域模型的演变。&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; 我的本科毕设大概是这样的：先计">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Convlstm时空预测经验之谈（本科毕设）">
+<meta property="og:url" content="https://ericzikun.github.io/2020/05/16/Convlstm%E6%97%B6%E7%A9%BA%E9%A2%84%E6%B5%8B%E7%BB%8F%E9%AA%8C%E4%B9%8B%E8%B0%88/index.html">
+<meta property="og:site_name" content="Eric’s blog">
+<meta property="og:description" content="Convlstm实战&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; 毕设临近截止，故写一篇心得以供新手学习，理论在知乎上有很多介绍的不错的文章，这里强烈推荐微信公众号：AI蜗牛车，这位东南老哥写了时空预测系列文章，能够帮助了解时空领域模型的演变。&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; 我的本科毕设大概是这样的：先计">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200516124803395.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70">
+<meta property="article:published_time" content="2020-05-16T05:08:46.000Z">
+<meta property="article:modified_time" content="2020-05-16T05:23:10.535Z">
+<meta property="article:author" content="Eric kun">
+<meta property="article:tag" content="深度学习">
+<meta property="article:tag" content="Convlstm">
+<meta property="article:tag" content="时空预测">
+<meta property="article:tag" content="时序">
+<meta property="article:tag" content="Lstm">
+<meta property="article:tag" content="CNN">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/20200516124803395.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70">
+    
+
+    
+        <link rel="alternate" href="/" title="Eric’s blog" type="application/atom+xml" />
+    
+
+    
+        <link rel="icon" href="https://pic2.zhimg.com/80/v2-f19e0e0add10a40489cdb8df576a0f7e_qhd.jpg" />
+    
+
+    
+<link rel="stylesheet" href="/libs/font-awesome/css/font-awesome.min.css">
+
+    
+<link rel="stylesheet" href="/libs/titillium-web/styles.css">
+
+    
+<link rel="stylesheet" href="/libs/source-code-pro/styles.css">
+
+
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    
+<script src="/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+    
+        
+<link rel="stylesheet" href="/libs/lightgallery/css/lightgallery.min.css">
+
+    
+    
+        
+<link rel="stylesheet" href="/libs/justified-gallery/justifiedGallery.min.css">
+
+    
+    
+    
+        <script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?0d6b4455953d3e1c0917234dfebaa739";
+  var s = document.getElementsByTagName("script")[0];
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+    
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+<body>
+    <div id="wrap">
+        <header id="header">
+    <div id="header-outer" class="outer">
+        <div class="container">
+            <div class="container-inner">
+                <div id="header-title">
+                    <h1 class="logo-wrap">
+                        <a href="/" class="logo"></a>
+                    </h1>
+                    
+                </div>
+                <div id="header-inner" class="nav-container">
+                    <a id="main-nav-toggle" class="nav-icon fa fa-bars"></a>
+                    <div class="nav-container-inner">
+                        <ul id="main-nav">
+                            
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/">主页</a>
+                                </li>
+                            
+                                        <ul class="main-nav-list"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E5%8D%87%E5%AD%A6%E5%B0%B1%E4%B8%9A/">升学就业</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E5%8D%87%E5%AD%A6%E5%B0%B1%E4%B8%9A/%E4%BF%9D%E7%A0%94/">保研</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/Linux/">Linux</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8A%A5%E9%94%99/">报错</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%8F%90%E5%8D%87%E6%95%88%E7%8E%87/">提升效率</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86/">文本处理</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E5%B7%A7/%E8%AE%BA%E6%96%87%E6%8E%92%E7%89%88/">论文排版</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/">技术栈</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/Java/">Java</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/Python/">Python</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/React/">React</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/">机器学习</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E5%86%B3%E7%AD%96%E6%A0%91/">决策树</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%84%9F%E7%9F%A5%E6%9C%BA-KNN/">感知机&KNN</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%96%87%E6%9C%AC%E6%8A%BD%E5%8F%96/">文本抽取</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/">朴素贝叶斯</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92/">逻辑回归</a></li></ul></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a><ul class="main-nav-list-child"><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Convlstm/">Convlstm</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/TextCNN/">TextCNN</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Transformer/">Transformer</a></li><li class="main-nav-list-item"><a class="main-nav-list-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/%E6%A8%A1%E5%9E%8B%E5%8F%AF%E8%A7%86%E5%8C%96/">模型可视化</a></li></ul></li></ul>
+                                    
+                                <li class="main-nav-list-item" >
+                                    <a class="main-nav-list-link" href="/about/index.html">联系方式</a>
+                                </li>
+                            
+                        </ul>
+                        <nav id="sub-nav">
+                            <div id="search-form-wrap">
+
+    <form class="search-form">
+        <input type="text" class="ins-search-input search-form-input" placeholder="搜索" />
+        <button type="submit" class="search-form-submit"></button>
+    </form>
+    <div class="ins-search">
+    <div class="ins-search-mask"></div>
+    <div class="ins-search-container">
+        <div class="ins-input-wrapper">
+            <input type="text" class="ins-search-input" placeholder="想要查找什么..." />
+            <span class="ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+(function (window) {
+    var INSIGHT_CONFIG = {
+        TRANSLATION: {
+            POSTS: '文章',
+            PAGES: '页面',
+            CATEGORIES: '分类',
+            TAGS: '标签',
+            UNTITLED: '(未命名)',
+        },
+        ROOT_URL: '/',
+        CONTENT_URL: '/content.json',
+    };
+    window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+})(window);
+</script>
+
+<script src="/js/insight.js"></script>
+
+
+</div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+        <div class="container">
+            <div class="main-body container-inner">
+                <div class="main-body-inner">
+                    <section id="main">
+                        <div class="main-body-header">
+    <h1 class="header">
+    
+    <a class="page-title-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a><i class="icon fa fa-angle-right"></i><a class="page-title-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Convlstm/">Convlstm</a>
+    </h1>
+</div>
+
+                        <div class="main-body-content">
+                            <article id="post-Convlstm时空预测经验之谈" class="article article-single article-type-post" itemscope itemprop="blogPost">
+    <div class="article-inner">
+        
+            <header class="article-header">
+                
+    
+        <h1 class="article-title" itemprop="name">
+        Convlstm时空预测经验之谈（本科毕设）
+        </h1>
+    
+
+            </header>
+        
+        
+            <div class="article-meta">
+                <span id="busuanzi_container_page_pv" style='display:none' class="article-date">
+  <i class="icon-smile icon"></i> 阅读数：<span id="busuanzi_value_page_pv"></span>次
+</span>
+
+
+    <div class="article-date">
+      <i class="fa fa-calendar"></i>
+      <a href="/2020/05/16/Convlstm%E6%97%B6%E7%A9%BA%E9%A2%84%E6%B5%8B%E7%BB%8F%E9%AA%8C%E4%B9%8B%E8%B0%88/" class="article-date">
+         <time datetime="2020-05-16T05:08:46.000Z" itemprop="datePublished">2020-05-16</time>
+      </a>
+    </div>
+
+
+                
+
+                
+    <div class="article-tag">
+        <i class="fa fa-tag"></i>
+        <a class="tag-link" href="/tags/CNN/" rel="tag">CNN</a>, <a class="tag-link" href="/tags/Convlstm/" rel="tag">Convlstm</a>, <a class="tag-link" href="/tags/Lstm/" rel="tag">Lstm</a>, <a class="tag-link" href="/tags/%E6%97%B6%E5%BA%8F/" rel="tag">时序</a>, <a class="tag-link" href="/tags/%E6%97%B6%E7%A9%BA%E9%A2%84%E6%B5%8B/" rel="tag">时空预测</a>, <a class="tag-link" href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" rel="tag">深度学习</a>
+    </div>
+
+                
+
+                
+
+            </div>
+        
+        
+        <div class="article-entry" itemprop="articleBody">
+            <h2 id="Convlstm实战"><a href="#Convlstm实战" class="headerlink" title="Convlstm实战"></a>Convlstm实战</h2><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 毕设临近截止，故写一篇心得以供新手学习，理论在知乎上有很多介绍的不错的文章，这里强烈推荐微信公众号：AI蜗牛车，这位东南老哥写了时空预测系列文章，能够帮助了解时空领域模型的演变。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 我的本科毕设大概是这样的：先计算某个区域的风险，计算得到一段时间的风险矩阵，这里用的是自己的模型去计算的，数据如何生成，本文不做赘述，主要讲解如果通过每个时刻下的矩阵数据去预测未来的矩阵。</p>
+<h3 id="官方keras案例"><a href="#官方keras案例" class="headerlink" title="官方keras案例"></a>官方keras案例</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 关于Convlstm的实战非常少，基本上就集中在keras的官方案例（电影帧预测——视频预测）<a href="https://zhuanlan.zhihu.com/p/124106729" target="_blank" rel="noopener">来自知乎</a></p>
+<img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9waWMzLnpoaW1nLmNvbS84MC92Mi1jNzZhYzNkMmViMjI3YmJjYmU4MmM3ZjcyNTc3NzJmMl8xNDQwdy5qcGc?x-oss-process=image/format,png#pic_center#pic_center =300x400" style="zoom:50%;">
+官方模型代码：
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> keras.models <span class="keyword">import</span> Sequential</span><br><span class="line"><span class="keyword">from</span> keras.layers.convolutional <span class="keyword">import</span> Conv3D</span><br><span class="line"><span class="keyword">from</span> keras.layers.convolutional_recurrent <span class="keyword">import</span> ConvLSTM2D</span><br><span class="line"><span class="keyword">from</span> keras.layers.normalization <span class="keyword">import</span> BatchNormalization</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pylab <span class="keyword">as</span> plt</span><br><span class="line"> </span><br><span class="line">seq = Sequential()</span><br><span class="line">seq.add(ConvLSTM2D(filters=<span class="number">40</span>, kernel_size=(<span class="number">3</span>, <span class="number">3</span>),</span><br><span class="line">                   input_shape=(<span class="literal">None</span>, <span class="number">40</span>, <span class="number">40</span>, <span class="number">1</span>),</span><br><span class="line">                   padding=<span class="string">'same'</span>, return_sequences=<span class="literal">True</span>))</span><br><span class="line">seq.add(BatchNormalization())</span><br><span class="line"></span><br><span class="line">seq.add(ConvLSTM2D(filters=<span class="number">40</span>, kernel_size=(<span class="number">3</span>, <span class="number">3</span>),</span><br><span class="line">                   padding=<span class="string">'same'</span>, return_sequences=<span class="literal">True</span>))</span><br><span class="line">seq.add(BatchNormalization())</span><br><span class="line"></span><br><span class="line">seq.add(ConvLSTM2D(filters=<span class="number">40</span>, kernel_size=(<span class="number">3</span>, <span class="number">3</span>),</span><br><span class="line">                   padding=<span class="string">'same'</span>, return_sequences=<span class="literal">True</span>))</span><br><span class="line">seq.add(BatchNormalization())</span><br><span class="line"></span><br><span class="line">seq.add(ConvLSTM2D(filters=<span class="number">40</span>, kernel_size=(<span class="number">3</span>, <span class="number">3</span>),</span><br><span class="line">                   padding=<span class="string">'same'</span>, return_sequences=<span class="literal">True</span>))</span><br><span class="line">seq.add(BatchNormalization())</span><br><span class="line"></span><br><span class="line">seq.add(Conv3D(filters=<span class="number">1</span>, kernel_size=(<span class="number">3</span>, <span class="number">3</span>, <span class="number">3</span>),</span><br><span class="line">               activation=<span class="string">'sigmoid'</span>,</span><br><span class="line">               padding=<span class="string">'same'</span>, data_format=<span class="string">'channels_last'</span>))</span><br><span class="line">seq.compile(loss=<span class="string">'binary_crossentropy'</span>, optimizer=<span class="string">'adadelta'</span>)</span><br></pre></td></tr></table></figure>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 模型结构可以如官方一样：用前20个预测后20个，不过我由于数据量比较少，我把模型改造成了20个预测1个，在convlstm最后一个层的return_sequence参数改为flase、Con3d改2d即可，这里先解释一下官方模型结构的维度：<br><img src="https://img-blog.csdnimg.cn/20200516110841812.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt="keras官方结构"><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 看上去似乎很复杂，其实弄清楚后会发现不过如此，请耐心听我讲完：先从第一个Convlstm说起，输入的是(None, 40, 40, 1)，输出的维度（None，None，40，40，40），这里的输入维度其实是每个时刻下的输入，如下图：比如这里用20个预测后20个，那么整理的一个样本就是前20个矩阵，label（标签就是）后20个矩阵，每个矩阵维度为（40，40，1）最后的这个1为通道数，如果是图片，可能就是多通道了，这个看数据情况，那么整理的样本就应该是（样本个数,20，40，40，1），对应标签就是（样本个数，20，40，40，1）这样每个样本和标签才能一一对应，由于return_sequence为true，即每个时刻单元都有输出，也就是20个预测20个嘛，那么第一层的Convlstm输出的维度就是（None，None，40，40，40）这里第一个None是batchsize毫无疑问，第二个其实就是20，至于最后一个维度是40，和filter个数直接相关，（因为一个卷积核对样本做一次特征提取，40个就有40个特征提取）。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 接下来N层Convlstm均如此，最后为啥要接一个Conv3d，很好解释，因为你的label维度是（样本个数，20，40，40，1），这里的最后维度还得回归到1啊，所以Conv3d的filter这才设置为了1，以此类推，如果你的一个数据是三通道的图像，这里filter自然就是3了。<br><img src="https://img-blog.csdnimg.cn/20200516124803395.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt="Return_sequence=True 一对一"></p>
+<h3 id="模型改造"><a href="#模型改造" class="headerlink" title="模型改造"></a>模型改造</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 官方模型理解完了，再来讲讲我改造的模型变形，其实了解了return_sequence这个参数后，改造就顺理成章了，我在最后一个Convlstm这里将reurn_sequence改为false，那么就只在最后一个单元有输出了，第二个None维度就没了，然后再把Con3d改为2d即可得到我们想要的，这样就要求整理数据集的时候，样本和标签分别整理成这样：(样本数，20，40，40，1) 和（样本数，40，40，1），也就是20个预测1个。<br><img src="https://img-blog.csdnimg.cn/20200516112947563.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt="改造模型"><br><img src="https://img-blog.csdnimg.cn/20200516124415526.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt="Return_sequence=False 多对1"></p>
+<h3 id="模型经验及调参"><a href="#模型经验及调参" class="headerlink" title="模型经验及调参"></a>模型经验及调参</h3><p>先看看我的结果图吧，随便抽一张示意一下，预测的点相对比较准确，但是模糊度还没解决掉：<br><img src="https://img-blog.csdnimg.cn/20200516130659957.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt="预测结果"><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 整个模型看上去不算复杂，但是实际效果很差，有以下几个要稍微注意的地方：</p>
+<ul>
+<li>1.矩阵数据是否过于稀疏，如果0太多，建议先转成图片再做训练，否则效果会奇差无比，原因可能是求梯度的时候网络出了问题，直接崩了。</li>
+<li>2.如果输入是图片张量，需要提前做好归一化，我用的简单处理，直接元素除255.0，显示的时候再乘回来即可，可能有一丢丢颜色误差，但是不太影响。</li>
+<li>3.预测图片出现模糊大概有两个原因：<br>（1）网络结构不够优（继续调就完事了），往往这种情况下，得到的预测点也不会太准确。<br>（2）由于是多个时刻下的数据去预测一个，那么必然存在信息叠加和融合，这样导致的模糊是不可避免的，如果数据量很大，那么可以采用20帧预测20帧这样的结构，应该会有效减缓一点模糊程度。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 在模糊处理上面，我也想尝试改进，但是还没有找到比较好的方式，反卷积，l1正则也都尝试了，但是效果不佳，老师建议我在loss上动手脚。</li>
+</ul>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 模型调参的过程其实是最无聊也最艰辛的，无非就是改改层结构，多一层少一层，改一下filter个数，batchsize个数，时空预测这种图像的预测和别的领域有一点不同，文本的只要acc、f1-score上去了就行，所以可以用grid search来自动化调参，但是图像这个预测还必须得肉眼去看效果，否则结果真是千差万别，loss看上去已经很低了但是效果很差的情况比比皆是，这里的loss我做的时候有一些技巧在里面的，后面也可能还会再自定义loss看效果，整个调参过程确实是不断试错的过程，两个字：”炼丹”!</p>
+
+        </div>
+        <footer class="article-footer">
+            
+
+
+
+    <a data-url="https://ericzikun.github.io/2020/05/16/Convlstm%E6%97%B6%E7%A9%BA%E9%A2%84%E6%B5%8B%E7%BB%8F%E9%AA%8C%E4%B9%8B%E8%B0%88/" data-id="cka96wxky0001fnt6cndlcftd" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+<script>
+    (function ($) {
+        $('body').on('click', function() {
+            $('.article-share-box.on').removeClass('on');
+        }).on('click', '.article-share-link', function(e) {
+            e.stopPropagation();
+
+            var $this = $(this),
+                url = $this.attr('data-url'),
+                encodedUrl = encodeURIComponent(url),
+                id = 'article-share-box-' + $this.attr('data-id'),
+                offset = $this.offset(),
+                box;
+
+            if ($('#' + id).length) {
+                box = $('#' + id);
+
+                if (box.hasClass('on')){
+                    box.removeClass('on');
+                    return;
+                }
+            } else {
+                var html = [
+                    '<div id="' + id + '" class="article-share-box">',
+                        '<input class="article-share-input" value="' + url + '">',
+                        '<div class="article-share-links">',
+                            '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+                            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+                            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
+                            '<a href="https://plus.google.com/share?url=' + encodedUrl + '" class="article-share-google" target="_blank" title="Google+"></a>',
+                        '</div>',
+                    '</div>'
+                ].join('');
+
+              box = $(html);
+
+              $('body').append(box);
+            }
+
+            $('.article-share-box.on').hide();
+
+            box.css({
+                top: offset.top + 25,
+                left: offset.left
+            }).addClass('on');
+
+        }).on('click', '.article-share-box', function (e) {
+            e.stopPropagation();
+        }).on('click', '.article-share-box-input', function () {
+            $(this).select();
+        }).on('click', '.article-share-box-link', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
+        });
+    })(jQuery);
+</script>
+
+        </footer>
+    </div>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "author": {
+            "@type": "Person",
+            "name": "Eric kun"
+        },
+        "headline": "Convlstm时空预测经验之谈（本科毕设）",
+        "image": "https://ericzikun.github.iohttps://img-blog.csdnimg.cn/20200516124803395.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70",
+        "keywords": "深度学习 Convlstm 时空预测 时序 Lstm CNN",
+        "genre": "深度学习 Convlstm",
+        "datePublished": "2020-05-16",
+        "dateCreated": "2020-05-16",
+        "dateModified": "2020-05-16",
+        "url": "https://ericzikun.github.io/2020/05/16/Convlstm时空预测经验之谈/",
+        "description": "Convlstm实战&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 毕设临近截止，故写一篇心得以供新手学习，理论在知乎上有很多介绍的不错的文章，这里强烈推荐微信公众号：AI蜗牛车，这位东南老哥写了时空预测系列文章，能够帮助了解时空领域模型的演变。&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 我的本科毕设大概是这样的：先计",
+        "wordCount": 323
+    }
+</script>
+
+</article>
+
+    <section id="comments">
+    
+        
+    <!-- Valine -->
+    <div class="vcomments"></div>
+
+
+    
+    </section>
+
+
+
+                        </div>
+                    </section>
+                    <aside id="sidebar">
+    <a class="sidebar-toggle" title="Expand Sidebar"><i class="toggle icon"></i></a>
+    <div class="sidebar-top">
+        <p>关注我 :</p>
+        <ul class="social-links">
+            
+                
+                <li>
+                    <a class="social-tooltip" title="twitter" href="https://www.zhihu.com/people/feng-kun-33-65" target="_blank" rel="noopener">
+                        <i class="icon fa fa-twitter"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="facebook" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-facebook"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="stack-overflow" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-stack-overflow"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="github" href="https://github.com/ericzikun" target="_blank" rel="noopener">
+                        <i class="icon fa fa-github"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="weibo" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-weibo"></i>
+                    </a>
+                </li>
+                
+            
+                
+                <li>
+                    <a class="social-tooltip" title="rss" href="/" target="_blank" rel="noopener">
+                        <i class="icon fa fa-rss"></i>
+                    </a>
+                </li>
+                
+            
+        </ul>
+    </div>
+    
+        
+<nav id="article-nav">
+    
+    
+        <a href="/2020/05/16/React%E9%A1%B9%E7%9B%AE%E8%BF%85%E9%80%9F%E6%90%AD%E5%BB%BA-antd%E4%BC%A0%E6%96%87%E4%BB%B6-nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/" id="article-nav-older" class="article-nav-link-wrap">
+        <strong class="article-nav-caption">上一篇</strong>
+        <p class="article-nav-title">React项目迅速搭建+antd传文件+nginx反向代理</p>
+        <i class="icon fa fa-chevron-left" id="icon-chevron-left"></i>
+        </a>
+    
+</nav>
+
+    
+    <div class="widgets-container">
+        
+            
+                
+  <div class="widget-wrap widget-list">
+      <h3 class="widget-title"></h3>
+      <div class="widget">
+        <b>联系方式：847473488@qq.com<br/>
+        知乎：ERICK</b>
+          <!--这里添加你要写的内容-->
+      </div>
+  </div>
+
+            
+                
+    <div class="widget-wrap widget-float">
+        <h3 class="widget-title">标签云</h3>
+        <div class="widget tagcloud">
+            <a href="/tags/CNN/" style="font-size: 10px;">CNN</a> <a href="/tags/Convlstm/" style="font-size: 10px;">Convlstm</a> <a href="/tags/Imdb/" style="font-size: 10px;">Imdb</a> <a href="/tags/KNN/" style="font-size: 10px;">KNN</a> <a href="/tags/Keras/" style="font-size: 10px;">Keras</a> <a href="/tags/Linux/" style="font-size: 10px;">Linux</a> <a href="/tags/Lstm/" style="font-size: 10px;">Lstm</a> <a href="/tags/Mac/" style="font-size: 20px;">Mac</a> <a href="/tags/NLP/" style="font-size: 10px;">NLP</a> <a href="/tags/React/" style="font-size: 10px;">React</a> <a href="/tags/Tensorflow/" style="font-size: 10px;">Tensorflow</a> <a href="/tags/TextCNN/" style="font-size: 10px;">TextCNN</a> <a href="/tags/Textrank/" style="font-size: 10px;">Textrank</a> <a href="/tags/Transformer/" style="font-size: 10px;">Transformer</a> <a href="/tags/antd/" style="font-size: 10px;">antd</a> <a href="/tags/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/" style="font-size: 10px;">nginx反向代理</a> <a href="/tags/%E4%BF%9D%E7%A0%94/" style="font-size: 10px;">保研</a> <a href="/tags/%E5%85%B3%E9%94%AE%E8%AF%8D%E6%8A%BD%E5%8F%96/" style="font-size: 10px;">关键词抽取</a> <a href="/tags/%E5%86%B3%E7%AD%96%E6%A0%91/" style="font-size: 10px;">决策树</a> <a href="/tags/%E5%8D%87%E5%AD%A6%EF%BC%8C%E8%AF%BB%E7%A0%94/" style="font-size: 10px;">升学，读研</a> <a href="/tags/%E5%AD%A6%E6%9C%AF/" style="font-size: 16.67px;">学术</a> <a href="/tags/%E6%84%9F%E7%9F%A5%E6%9C%BA/" style="font-size: 10px;">感知机</a> <a href="/tags/%E6%8A%A5%E9%94%99/" style="font-size: 13.33px;">报错</a> <a href="/tags/%E6%95%88%E7%8E%87/" style="font-size: 20px;">效率</a> <a href="/tags/%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB/" style="font-size: 10px;">文本分类</a> <a href="/tags/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86/" style="font-size: 13.33px;">文本处理</a> <a href="/tags/%E6%97%B6%E5%BA%8F/" style="font-size: 10px;">时序</a> <a href="/tags/%E6%97%B6%E7%A9%BA%E9%A2%84%E6%B5%8B/" style="font-size: 10px;">时空预测</a> <a href="/tags/%E6%9C%B4%E7%B4%A0%E8%B4%9D%E5%8F%B6%E6%96%AF/" style="font-size: 10px;">朴素贝叶斯</a> <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" style="font-size: 10px;">机器学习</a> <a href="/tags/%E6%A0%BC%E5%BC%8F%E5%8C%96%E6%96%87%E6%9C%AC/" style="font-size: 10px;">格式化文本</a> <a href="/tags/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" style="font-size: 10px;">正则表达式</a> <a href="/tags/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/" style="font-size: 13.33px;">深度学习</a> <a href="/tags/%E6%BA%90%E7%A0%81/" style="font-size: 10px;">源码</a> <a href="/tags/%E7%88%AC%E8%99%AB/" style="font-size: 10px;">爬虫</a> <a href="/tags/%E7%BB%88%E7%AB%AF/" style="font-size: 10px;">终端</a> <a href="/tags/%E7%BB%8F%E9%AA%8C/" style="font-size: 10px;">经验</a> <a href="/tags/%E7%BB%9F%E8%AE%A1%E5%AD%A6%E4%B9%A0%E6%96%B9%E6%B3%95/" style="font-size: 16.67px;">统计学习方法</a> <a href="/tags/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/" style="font-size: 10px;">自然语言处理</a> <a href="/tags/%E8%AE%BA%E6%96%87%E6%8E%92%E7%89%88/" style="font-size: 10px;">论文排版</a> <a href="/tags/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92/" style="font-size: 10px;">逻辑回归</a> <a href="/tags/%E9%A2%84%E5%A4%84%E7%90%86/" style="font-size: 10px;">预处理</a>
+        </div>
+    </div>
+
+
+            
+                
+
+            
+                
+    <div class="widget-wrap">
+        <h3 class="widget-title">最新文章</h3>
+        <div class="widget">
+            <ul id="recent-post" class="">
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/05/16/Convlstm%E6%97%B6%E7%A9%BA%E9%A2%84%E6%B5%8B%E7%BB%8F%E9%AA%8C%E4%B9%8B%E8%B0%88/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://img-blog.csdnimg.cn/20200516124803395.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70)" alt="Convlstm时空预测经验之谈（本科毕设）" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Convlstm/">Convlstm</a></p>
+                            <p class="item-title"><a href="/2020/05/16/Convlstm%E6%97%B6%E7%A9%BA%E9%A2%84%E6%B5%8B%E7%BB%8F%E9%AA%8C%E4%B9%8B%E8%B0%88/" class="title">Convlstm时空预测经验之谈（本科毕设）</a></p>
+                            <p class="item-date"><time datetime="2020-05-16T05:08:46.000Z" itemprop="datePublished">2020-05-16</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/05/16/React%E9%A1%B9%E7%9B%AE%E8%BF%85%E9%80%9F%E6%90%AD%E5%BB%BA-antd%E4%BC%A0%E6%96%87%E4%BB%B6-nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3038962962,3196507324&fm=26&gp=0.jpg)" alt="React项目迅速搭建+antd传文件+nginx反向代理" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/">技术栈</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/React/">React</a></p>
+                            <p class="item-title"><a href="/2020/05/16/React%E9%A1%B9%E7%9B%AE%E8%BF%85%E9%80%9F%E6%90%AD%E5%BB%BA-antd%E4%BC%A0%E6%96%87%E4%BB%B6-nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/" class="title">React项目迅速搭建+antd传文件+nginx反向代理</a></p>
+                            <p class="item-date"><time datetime="2020-05-16T02:00:14.000Z" itemprop="datePublished">2020-05-16</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/18/%E7%88%AC%E8%99%AB-%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://ss0.bdstatic.com/70cFuHSh_Q1YnxGkpoWK1HF6hhy/it/u=810461507,1452878411&fm=26&gp=0.jpg)" alt="爬虫&amp;正则表达式基础" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/%E6%96%87%E6%9C%AC%E5%A4%84%E7%90%86/">文本处理</a></p>
+                            <p class="item-title"><a href="/2020/04/18/%E7%88%AC%E8%99%AB-%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/" class="title">爬虫&amp;正则表达式基础</a></p>
+                            <p class="item-date"><time datetime="2020-04-18T14:43:24.000Z" itemprop="datePublished">2020-04-18</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/11/Transformer-%E5%8E%9F%E7%90%86-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E6%80%BB%E7%BB%93-Tensorflow%E5%AE%98%E6%96%B9%E6%BA%90%E7%A0%81/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://img-blog.csdnimg.cn/20200411142658336.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center)" alt="Transformer 原理+源码分析总结(Tensorflow官方源码)" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/">深度学习</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/Transformer/">Transformer</a></p>
+                            <p class="item-title"><a href="/2020/04/11/Transformer-%E5%8E%9F%E7%90%86-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90%E6%80%BB%E7%BB%93-Tensorflow%E5%AE%98%E6%96%B9%E6%BA%90%E7%A0%81/" class="title">Transformer 原理+源码分析总结(Tensorflow官方源码)</a></p>
+                            <p class="item-date"><time datetime="2020-04-11T09:49:11.000Z" itemprop="datePublished">2020-04-11</time></p>
+                        </div>
+                    </li>
+                
+                    <li>
+                        
+                        <div class="item-thumbnail">
+                            <a href="/2020/04/10/%E7%BB%88%E7%AB%AF%E5%91%BD%E4%BB%A4%E5%8F%8AColab%E7%99%BD%E5%AB%96%E5%BF%85%E5%A4%87/" class="thumbnail">
+    
+    
+        <span style="background-image:url(https://img-blog.csdnimg.cn/20200410192110723.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70)" alt="终端命令及Colab白嫖必备" class="thumbnail-image"></span>
+    
+    
+</a>
+
+                        </div>
+                        
+                        <div class="item-inner">
+                            <p class="item-category"><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/">技巧</a><i class="icon fa fa-angle-right"></i><a class="article-category-link" href="/categories/%E6%8A%80%E5%B7%A7/Linux/">Linux</a></p>
+                            <p class="item-title"><a href="/2020/04/10/%E7%BB%88%E7%AB%AF%E5%91%BD%E4%BB%A4%E5%8F%8AColab%E7%99%BD%E5%AB%96%E5%BF%85%E5%A4%87/" class="title">终端命令及Colab白嫖必备</a></p>
+                            <p class="item-date"><time datetime="2020-04-10T15:24:35.000Z" itemprop="datePublished">2020-04-10</time></p>
+                        </div>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">归档</h3>
+        <div class="widget">
+            <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/05/">五月 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/04/">四月 2020</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2020/02/">二月 2020</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/12/">十二月 2019</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2019/11/">十一月 2019</a><span class="archive-list-count">4</span></li></ul>
+        </div>
+    </div>
+
+
+            
+                
+    <div class="widget-wrap widget-list">
+        <h3 class="widget-title">链接</h3>
+        <div class="widget">
+            <ul>
+                
+                    <li>
+                        <a href="http://hexo.io" target="_blank" rel="noopener">Hexo</a>
+                    </li>
+                
+                    <li>
+                        <a href="https://blog.csdn.net/popofzk" target="_blank" rel="noopener">CSDN</a>
+                    </li>
+                
+                    <li>
+                        <a href="https://www.zhihu.com/people/feng-kun-33-65" target="_blank" rel="noopener">知乎</a>
+                    </li>
+                
+            </ul>
+        </div>
+    </div>
+
+
+            
+        
+    </div>
+</aside>
+
+                </div>
+            </div>
+        </div>
+        <footer id="footer">
+    <div class="container">
+        <div class="container-inner">
+            <a id="back-to-top" href="javascript:;"><i class="icon fa fa-angle-up"></i></a>
+            <div class="credit">
+                <h1 class="logo-wrap">
+                    <a href="/" class="logo"></a>
+                </h1>
+                <p>&copy; 2020 Eric kun</p>
+                
+                <p>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>. Theme by <a href="https://github.com/ppoffice" target="_blank">PPOffice</a></p>
+                
+            </div>
+            <div class="parent">
+              <div class="child">
+                <span id="busuanzi_container_site_pv">
+                  访问量<span id="busuanzi_value_site_pv"></span>次
+                </span>
+                <span class="post-meta-divider">|</span>
+                <span id="busuanzi_container_site_uv" style='display:none'>
+                  访客数<span id="busuanzi_value_site_uv"></span>人
+                </span>
+                <script async="" src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+              </div>
+            </div>
+            <div class="footer-plugins">
+              
+    
+
+
+            </div>
+        </div>
+    </div>
+    <style>
+      .parent {
+        position: relative;
+      }
+      .child {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+      }
+    </style>  
+</footer>
+
+        
+    
+    <script src="//unpkg.com/valine"></script>
+    <script>
+        var GUEST = ['nick','mail','link'];
+        var meta = '';
+        meta = meta.split(',').filter(function (item) {
+            return GUEST.indexOf(item)>-1;
+        });
+        var avatarcdn = 'https://gravatar.loli.net/avatar/' == true;
+        new Valine({
+            el: '.vcomments',
+            notify: "",
+            verify: "",
+            appId: "tx6zs0UB1yRovubWAD3heyoM-gzGzoHsz",
+            appKey: "8SJzl4MBSSjcdEESUaALKRXk",
+            placeholder: "Just Do It",
+            avatar:"identicon",
+            recordIP:"",
+            visitor: ""
+        });
+    </script>
+
+
+
+
+
+    
+        
+<script src="/libs/lightgallery/js/lightgallery.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-thumbnail.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-pager.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-autoplay.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-fullscreen.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-zoom.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-hash.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-share.min.js"></script>
+
+        
+<script src="/libs/lightgallery/js/lg-video.min.js"></script>
+
+    
+    
+        
+<script src="/libs/justified-gallery/jquery.justifiedGallery.min.js"></script>
+
+    
+    
+        <script type="text/x-mathjax-config">
+            MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+        </script>
+        
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML.js"></script>
+
+    
+
+    
+
+
+
+<!-- Custom Scripts -->
+
+<script src="/js/main.js"></script>
+
+
+    </div>
+</body>
+</html>
