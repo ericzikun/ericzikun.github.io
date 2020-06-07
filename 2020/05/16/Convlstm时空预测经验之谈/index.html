@@ -21,7 +21,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/20200516124803395.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70">
 <meta property="article:published_time" content="2020-05-16T05:08:46.000Z">
-<meta property="article:modified_time" content="2020-06-07T08:52:30.584Z">
+<meta property="article:modified_time" content="2020-06-07T09:24:50.834Z">
 <meta property="article:author" content="Eric kun">
 <meta property="article:tag" content="深度学习">
 <meta property="article:tag" content="Convlstm">
@@ -240,8 +240,8 @@ var _hmt = _hmt || [];
 <img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9pbWdrci5jbi1iai51ZmlsZW9zLmNvbS9kNGM3ODA4Mi02MmI5LTRlNGMtYTg2Yi05M2YzNWIwMzdiZDkucG5n?x-oss-process=image/format,png#pic_center =600x400" style="zoom:50%;">
 
 
-<h3 id="模型经验及调参"><a href="#模型经验及调参" class="headerlink" title="模型经验及调参"></a>模型经验及调参</h3><p>&nbsp;&nbsp;&nbsp;先看看结果图吧，随便抽一张示意一下，预测的点相对比较准确，但是模糊度还没解决掉，毕竟只训练了十几分钟，有这个效果也还算可以了：</p>
-<p>![](<a href="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9pbWdrci5jbi1iai51ZmlsZW9zLmNvbS9kYjE4NjhkYy05Zjg0LTQ5ZWQtOTA5NS0zYmJhZjU2NjJhMTUucG5n?x-oss-process=image/format,png#pic_center" target="_blank" rel="noopener">https://imgconvert.csdnimg.cn/aHR0cHM6Ly9pbWdrci5jbi1iai51ZmlsZW9zLmNvbS9kYjE4NjhkYy05Zjg0LTQ5ZWQtOTA5NS0zYmJhZjU2NjJhMTUucG5n?x-oss-process=image/format,png#pic_center</a> =600x800)<br>&nbsp;&nbsp;&nbsp; 整个模型看上去不算复杂，但是实际效果比较差，有以下几个要稍微注意的地方：</p>
+<h3 id="模型经验及调参"><a href="#模型经验及调参" class="headerlink" title="模型经验及调参"></a>模型经验及调参</h3><p>&nbsp;&nbsp;&nbsp;先看看结果图吧，随便抽一张示意一下，预测的点相对比较准确，但是模糊度还没解决掉，毕竟只训练了十几分钟，有这个效果也还算可以了：<br><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9pbWdrci5jbi1iai51ZmlsZW9zLmNvbS9kYjE4NjhkYy05Zjg0LTQ5ZWQtOTA5NS0zYmJhZjU2NjJhMTUucG5n?x-oss-process=image/format,png#pic_center =600x800" style="zoom:50%;"></p>
+<p>&nbsp;&nbsp;&nbsp; 整个模型看上去不算复杂，但是实际效果比较差，有以下几个要稍微注意的地方：</p>
 <ul>
 <li>1.矩阵数据是否过于稀疏，如果0太多，建议先转成图片再做训练，否则效果会奇差无比，原因可能是求梯度的时候网络出了问题，直接崩了。</li>
 <li>2.如果输入是图片张量，需要提前做好归一化，我用的简单处理，直接元素除255.0，显示的时候再乘回来即可，可能有一丢丢颜色误差，但是不太影响。</li>
@@ -256,7 +256,7 @@ var _hmt = _hmt || [];
 
 
 
-    <a data-url="https://ericzikun.github.io/2020/05/16/Convlstm%E6%97%B6%E7%A9%BA%E9%A2%84%E6%B5%8B%E7%BB%8F%E9%AA%8C%E4%B9%8B%E8%B0%88/" data-id="ckb4u4no70002c3t6apnhc12b" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+    <a data-url="https://ericzikun.github.io/2020/05/16/Convlstm%E6%97%B6%E7%A9%BA%E9%A2%84%E6%B5%8B%E7%BB%8F%E9%AA%8C%E4%B9%8B%E8%B0%88/" data-id="ckb4wcp1600021vt69o63g57i" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
 <script>
     (function ($) {
         $('body').on('click', function() {
@@ -335,7 +335,7 @@ var _hmt = _hmt || [];
         "dateModified": "2020-06-07",
         "url": "https://ericzikun.github.io/2020/05/16/Convlstm时空预测经验之谈/",
         "description": "Convlstm新手实战&nbsp;&nbsp;&nbsp;毕设临近截止，故写一篇心得以供新手学习，理论在知乎上有很多介绍的不错的文章，这里强烈推荐微信公众号：AI蜗牛车，这位东南老哥写了时空预测系列文章，能够帮助了解时空领域模型的演变，同时也向他请教了一些训练技巧。&nbsp;&nbsp;&nbsp;我的本科毕设大概是这样的：先计算某个区域的风险，计算得到一段时间的风险矩阵，这里用的是自己的模型",
-        "wordCount": 608
+        "wordCount": 607
     }
 </script>
 

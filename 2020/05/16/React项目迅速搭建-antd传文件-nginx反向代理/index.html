@@ -21,7 +21,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://ss0.bdstatic.com/70cFvHSh_Q1YnxGkpoWK1HF6hhy/it/u=3038962962,3196507324&fm=26&gp=0.jpg">
 <meta property="article:published_time" content="2020-05-16T02:00:14.000Z">
-<meta property="article:modified_time" content="2020-06-07T02:36:11.460Z">
+<meta property="article:modified_time" content="2020-06-07T09:36:09.367Z">
 <meta property="article:author" content="Eric kun">
 <meta property="article:tag" content="React">
 <meta property="article:tag" content="antd">
@@ -254,8 +254,8 @@ var _hmt = _hmt || [];
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123;createProxyMiddleware&#125; = <span class="built_in">require</span>(<span class="string">'http-proxy-middleware'</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span> (<span class="params">app</span>) </span>&#123;</span><br><span class="line">    <span class="comment">// proxy第一个参数为要代理的路由</span></span><br><span class="line">    <span class="comment">// 第二参数中target为代理后的请求网址，changeOrigin是否改变请求头，其他参数请看官网</span></span><br><span class="line">    app.use(createProxyMiddleware(<span class="string">'/test'</span>, &#123;  </span><br><span class="line">      target: 'http://xxx.xx.xxx.xxx...', # 这里就是你要跨到的服务器接口地址</span><br><span class="line">      changeOrigin: <span class="literal">true</span></span><br><span class="line">  &#125;))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
 <li><p>这里修改了之后，记得重启服务后，跨域设置才能生效（<code>yarn start 或 npm start</code>），接着在upload中action位置写上接口后面的地址，不能写全部地址了，得写相对地址，否则会报跨域错误：<br>错误如下：<br><img src="https://img-blog.csdnimg.cn/20200516092446956.png" alt="跨域报错"></p>
 </li>
-<li><p>再就是关于前后端请求头的问题，比较麻烦，每个人遇到的情况都不一定相同，我是传一个xml/pdf文件到后端，接受一个response返回，header里面，我如果像postman那样写<code>&quot;Content-Type&quot;: &quot;multipart/form-data&quot;</code>反而传不过去（基础薄弱，原因不知），但是注释掉后，能正常把文件传到后端，一段时间后在浏览器network里面可以接收到response：<br><img src="https://img-blog.csdnimg.cn/2020051609303713.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt="response"></p>
-<h2 id="部署到服务器（win）"><a href="#部署到服务器（win）" class="headerlink" title="部署到服务器（win）"></a>部署到服务器（win）</h2><p>Nginx反向代理</p>
+<li><p>再就是关于前后端请求头的问题，比较麻烦，每个人遇到的情况都不一定相同，我是传一个xml/pdf文件到后端，接受一个response返回，header里面，我如果像postman那样写<code>&quot;Content-Type&quot;: &quot;multipart/form-data&quot;</code>反而传不过去，但是注释掉后，能正常把文件传到后端，一段时间后在浏览器network里面可以接收到response：<br><img src="https://img-blog.csdnimg.cn/2020051609303713.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt="response"></p>
+<h2 id="部署到win服务器"><a href="#部署到win服务器" class="headerlink" title="部署到win服务器"></a>部署到win服务器</h2><p>Nginx反向代理</p>
 <h5 id="安装、启动Nginx"><a href="#安装、启动Nginx" class="headerlink" title="安装、启动Nginx"></a>安装、启动Nginx</h5><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 我演示的是win服务器的部署，其他的可能略有区别，首先安装Nginx，直接去官网下载安装即可，win下启动cmd</p>
 <pre><code>(1)直接双击nginx.exe，双击后一个黑色的弹窗一闪而过
 (2)打开cmd命令窗口，切换到nginx解压目录下，输入命令 nginx.exe 或者 start nginx ，回车即可</code></pre><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 在服务器输入：<a href="http://localhost:80" target="_blank" rel="noopener">http://localhost:80</a> ，有Nginx界面则启动成成功。<br><img src="https://img-blog.csdnimg.cn/20200516093828642.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt="Nginx"></p>
@@ -275,10 +275,19 @@ nginx重启命令：nginx -s reload</code></pre><h5 id="总结："><a href="#总
 <ul>
 <li>1.安装并启用nginx服务</li>
 <li>2.在nginx.conf文件中,添加server配置,端口号改为自己想要设置的,然后热重载配置<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">	listen       80;</span><br><span class="line">	server_name  localhost;</span><br><span class="line">	location &#x2F; &#123;</span><br><span class="line">		root   C:\samart_cite_web;</span><br><span class="line">		index  index.html;</span><br><span class="line">		try_files $uri $uri&#x2F; &#x2F;index.html;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>3.安装Openssl</li>
+<li>3.安装Openssl<br>（ssh工具方便传文件，也可以用FileZilla（mac端）、filetransfer（win端））</li>
 <li>4.windows防火墙添加入站规则 将80端口或上述设置的端口添加进去</li>
+<li>5.踩坑：如果前后端在一个服务器上，但是端口不同，同样属于跨域，可以直接在接口地址action位置写全部的接口路径，但是要让后端在响应头里面加几句话允许跨域：<img src="https://imgkr.cn-bj.ufileos.com/bb7f2e5c-0d14-4472-aed8-12cffafb728f.png" style="zoom:50%;">
+
+</li>
 </ul>
-<p>参考博客：<br><a href="https://blog.csdn.net/wly_er/article/details/82348593" target="_blank" rel="noopener">https://blog.csdn.net/wly_er/article/details/82348593</a><br><a href="https://www.jb51.net/article/152781.htm" target="_blank" rel="noopener">https://www.jb51.net/article/152781.htm</a></p>
+<h2 id="部署到linux服务器"><a href="#部署到linux服务器" class="headerlink" title="部署到linux服务器"></a>部署到linux服务器</h2><p>相比于Win部署，大差不差！没有win上的防火墙那一步，相对省心一些！</p>
+<ul>
+<li>1.在服务器上安装linux版本的nginx</li>
+<li>2.在服务器上建立一个项目文件夹，例如：<code>/home/smartcite</code></li>
+<li>3.将本地React项目的build包传到linux下的<code>/home/smartcite</code>,</li>
+<li>4.修改linux服务器上的nignx配置：<br>找到default.conf文件，一般在<code>/etc/nginx/sites-available</code>里面，有的也可能在<code>/etc/nginx/conf.d</code>下<br>修改采用：vi default，修改里面对应的root地址(这个地址就是你的项目在linux服务器上的路径)<br>参考博客：<br><a href="https://blog.csdn.net/wly_er/article/details/82348593" target="_blank" rel="noopener">https://blog.csdn.net/wly_er/article/details/82348593</a><br><a href="https://www.jb51.net/article/152781.htm" target="_blank" rel="noopener">https://www.jb51.net/article/152781.htm</a></li>
+</ul>
 
         </div>
         <footer class="article-footer">
@@ -286,7 +295,7 @@ nginx重启命令：nginx -s reload</code></pre><h5 id="总结："><a href="#总
 
 
 
-    <a data-url="https://ericzikun.github.io/2020/05/16/React%E9%A1%B9%E7%9B%AE%E8%BF%85%E9%80%9F%E6%90%AD%E5%BB%BA-antd%E4%BC%A0%E6%96%87%E4%BB%B6-nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/" data-id="ckb4u4nob0008c3t639q11rs7" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
+    <a data-url="https://ericzikun.github.io/2020/05/16/React%E9%A1%B9%E7%9B%AE%E8%BF%85%E9%80%9F%E6%90%AD%E5%BB%BA-antd%E4%BC%A0%E6%96%87%E4%BB%B6-nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/" data-id="ckb4wcp1800051vt67pvcdxp9" class="article-share-link"><i class="fa fa-share"></i>分享到</a>
 <script>
     (function ($) {
         $('body').on('click', function() {
@@ -372,7 +381,7 @@ nginx重启命令：nginx -s reload</code></pre><h5 id="总结："><a href="#总
 安装cnpm:
     npm install -g cnpm --registry=https://registry.npm.taobao.org
 3、用yarn替代np",
-        "wordCount": 894
+        "wordCount": 901
     }
 </script>
 
