@@ -4,6 +4,41 @@
   
     
     <entry>
+      <title>面试复习1：【OOP+继承+接口】</title>
+      <link href="2021/05/28/%E9%9D%A2%E8%AF%95%E5%A4%8D%E4%B9%A01%EF%BC%9A%E3%80%90OOP-%E7%BB%A7%E6%89%BF-%E6%8E%A5%E5%8F%A3%E3%80%91/"/>
+      <url>2021/05/28/%E9%9D%A2%E8%AF%95%E5%A4%8D%E4%B9%A01%EF%BC%9A%E3%80%90OOP-%E7%BB%A7%E6%89%BF-%E6%8E%A5%E5%8F%A3%E3%80%91/</url>
+      
+        <content type="html"><![CDATA[<h1 id="OOP"><a href="#OOP" class="headerlink" title="OOP"></a>OOP</h1><h2 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h2><h3 id="继承的内容"><a href="#继承的内容" class="headerlink" title="继承的内容"></a>继承的内容</h3><ol><li>子类继承到父类的哪些东西？</li></ol><p>所有</p><ol start="2"><li>子类以及子类对象可以调用到继承的哪些属性和方法？</li></ol><p>要看 父类的属性、方法的具体==访问修饰符==：</p><table><thead><tr><th>访问修饰符</th><th>访问范围</th></tr></thead><tbody><tr><td>public</td><td>项目里</td></tr><tr><td>private</td><td>类里</td></tr><tr><td>protected</td><td>包下，不同包的子类</td></tr><tr><td>缺省</td><td>同包下</td></tr></tbody></table><p>那么对于子类来说，</p><p>同包下：</p><p>​    只有private不能调用</p><p>不同包下：</p><p>​    public，protected 可以调用</p><p>==protected== 受保护的，子类不能访问父类的私有字段。不过有时候希望限制<strong>父类中的某个方法只允许子类访问</strong>，或者<strong>希望子类的方法访问超类的某个字段</strong>。</p><h3 id="方法重写："><a href="#方法重写：" class="headerlink" title="方法重写："></a>方法重写：</h3><p>注解格式：除方法体之外与父类一致</p><h4 id="访问修饰符："><a href="#访问修饰符：" class="headerlink" title="访问修饰符："></a>访问修饰符：</h4><p>子类中重写的方法，与父类权限一致或者大于（因为子类继承，希望它有更强的扩展性，所以权限理应更大）</p><h4 id="返回值类型："><a href="#返回值类型：" class="headerlink" title="返回值类型："></a>返回值类型：</h4><p>与父类方法的返回值类型类/子类</p><h4 id="参数："><a href="#参数：" class="headerlink" title="参数："></a>参数：</h4><p>参数类型 不能修改</p><p>对于子类而言：子类及子类对象可以优先调用重写之后的</p><h4 id="重载："><a href="#重载：" class="headerlink" title="重载："></a>重载：</h4><p>方法名相同，参数不一致（子类 父类也可以实现重载，并不会归为一种类型）</p><h4 id="自动转型："><a href="#自动转型：" class="headerlink" title="自动转型："></a>自动转型：</h4><p>强制转型：int i = (int)1.2;<br>        A a = new B();<br>        A 是 B 的 父类——&gt; 祖先<br>        向上转型 之后 还会优先调用重写的方法吗？<br>            会</p><p>子类对像  向上 -&gt; 父类类型 ——&gt;向下转回子类类型 【可以】<br>父类对象 –&gt; 向下转型 子类类型 （==对象 无中生有== 子类可能有一些特别的属性方法 父类没有）【不可以】</p><p>==注意==：子类向上转型后，只能调用父类有的方法，并且是调的子类覆盖重写的，而不能调用子类独立的方法；子类独有的方法在父类中根本没有定义，所以父类无法找到子类独有的方法。</p><p>任务：一个类实例化的加载过程：</p><p>顺序：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1.加载静态成员&#x2F;代码块：</span><br><span class="line"></span><br><span class="line">先递归地加载父类的静态成员&#x2F;代码块(Object的最先)；再依次加载到本类的静态成员。</span><br><span class="line">同一个类里的静态成员&#x2F;代码块，按写代码的顺序加载。</span><br><span class="line">如果其间调用静态方法，则调用时会先运行静态方法，再继续加载。同一个类里调用静态方法时，可以不理会写代码的顺序。</span><br><span class="line">调用父类的静态成员，可以像调用自己的一样；但调用其子类的静态成员，必须使用“子类名.成员名”来调用。</span><br></pre></td></tr></table></figure><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">2.加载非静态成员&#x2F;普通代码块，初始化构造方法：（实例块在创建对象时才会被加载。而静态成员在不创建对象时可以加载）</span><br><span class="line"></span><br><span class="line">先递归地加载父类的非静态成员&#x2F;代码块(Object的最先)，非静态成员和代码块按代码出现顺序加载，并在加载完非静态成员后初始化构造方法；再依次加载到本类的非静态成员，并初始化构造方法，默认为无参构造，当然也可以指定父类初始化构造方法，和本类初始化构造方法。在子类构造方法中用super(参数列表);可以指定初始化父类构造方法，默认不写super(参数列表)为初始化父类无参构造方法。</span><br><span class="line">同一个类里的非静态成员&#x2F;普通代码块，按写代码的顺序加载。同一个类里调用方法时，可以不理会写代码的顺序。</span><br><span class="line">但调用属性时，必须注意加载顺序。一般编译就会不通过。</span><br><span class="line">调用父类的非静态成员(private 除外)，也可以像调用自己的一样。</span><br></pre></td></tr></table></figure><p>问题：静态代码块只加载一次，静态方法先于静态代码块？<br>这里要看情况，我这里样例是 由于声明成员变量时调用到了静态方法 所以静态方法优先于静态代码块 但实际上这两者本没有优先区别</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Base</span></span>&#123;</span><br><span class="line">     <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> a = <span class="number">10</span>;</span><br><span class="line">     <span class="keyword">public</span> <span class="keyword">int</span> b = <span class="number">20</span>;</span><br><span class="line">     <span class="keyword">static</span></span><br><span class="line">     &#123;</span><br><span class="line">         System.out.println(<span class="string">"Static Init Base "</span> + a);</span><br><span class="line">         <span class="comment">//System.out.println("Null Init " + b);</span></span><br><span class="line">     &#125;</span><br><span class="line">     <span class="function"><span class="keyword">public</span> <span class="title">Base</span><span class="params">()</span></span></span><br><span class="line"><span class="function">     </span>&#123;</span><br><span class="line">         System.out.println(<span class="string">"Init Base "</span> + <span class="keyword">this</span>.b);</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span><br><span class="line"> <span class="comment">/**</span></span><br><span class="line"><span class="comment">  *一级子类和基类包含的内容一样</span></span><br><span class="line"><span class="comment"> **/</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SuperClass</span> <span class="keyword">extends</span> <span class="title">Base</span></span>&#123;</span><br><span class="line">  <span class="comment">//静态变量、静态块执行顺序，按书写先后顺序</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> a1 = getSuperStaticNumber();</span><br><span class="line">     <span class="keyword">public</span> <span class="keyword">int</span> b1 = getSuperInstanceNumber();</span><br><span class="line">     <span class="function"><span class="keyword">public</span> <span class="title">SuperClass</span><span class="params">()</span></span></span><br><span class="line"><span class="function">     </span>&#123;</span><br><span class="line">         System.out.println(<span class="string">"Init SuperClass"</span> + <span class="keyword">this</span>.b1);</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="keyword">static</span></span><br><span class="line">     &#123;</span><br><span class="line">         System.out.println(<span class="string">"Static Init SuperClass"</span> + a1);</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">getSuperStaticNumber</span><span class="params">()</span></span></span><br><span class="line"><span class="function">     </span>&#123;</span><br><span class="line">         System.out.println(<span class="string">"Static member init"</span>);</span><br><span class="line">         <span class="keyword">return</span> <span class="number">100</span>;</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getSuperInstanceNumber</span><span class="params">()</span></span></span><br><span class="line"><span class="function">     </span>&#123;</span><br><span class="line">         System.out.println(<span class="string">"Instance member init"</span>);</span><br><span class="line">         <span class="keyword">return</span> <span class="number">200</span>;</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span><br><span class="line"> <span class="comment">/**</span></span><br><span class="line"><span class="comment">  *二级子类为测试该代码的驱动类</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Sub</span> <span class="keyword">extends</span> <span class="title">SuperClass</span></span>&#123;</span><br><span class="line">     <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> a2 = getStaticNumber();</span><br><span class="line">     <span class="keyword">public</span> <span class="keyword">int</span> b2 = getInstanceNumber();</span><br><span class="line">     <span class="function"><span class="keyword">public</span> <span class="title">Sub</span><span class="params">()</span></span></span><br><span class="line"><span class="function">     </span>&#123;</span><br><span class="line">         System.out.println(<span class="string">"Init SubClass "</span> + <span class="keyword">this</span>.b2);</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">getStaticNumber</span><span class="params">()</span></span></span><br><span class="line"><span class="function">     </span>&#123;</span><br><span class="line">         System.out.println(<span class="string">"Static member init Sub"</span>);</span><br><span class="line">         <span class="keyword">return</span> <span class="number">1000</span>;</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getInstanceNumber</span><span class="params">()</span></span></span><br><span class="line"><span class="function">     </span>&#123;</span><br><span class="line">         System.out.println(<span class="string">"Instance member init Sub"</span>);</span><br><span class="line">         <span class="keyword">return</span> <span class="number">2000</span>;</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="keyword">static</span></span><br><span class="line">     &#123;</span><br><span class="line">         System.out.println(<span class="string">"Static Init "</span> + a2);</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="comment">/**</span></span><br><span class="line"><span class="comment">      * 程序入口,main</span></span><br><span class="line"><span class="comment">      * </span></span><br><span class="line"><span class="comment">      * */</span></span><br><span class="line">     <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String args[])</span></span></span><br><span class="line"><span class="function">     </span>&#123;</span><br><span class="line">         <span class="keyword">new</span> Sub();</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure><p>输出结果：<br><img src="https://img-blog.csdnimg.cn/20210527153502546.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>几个面试常见问题：</p><ul><li>请解释hashCode()和equals()方法有什么联系？<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Java对象的eqauls方法和hashCode方法是这样规定的：</span><br><span class="line"></span><br><span class="line">➀相等（相同）的对象必须具有相等的哈希码（或者散列码）。</span><br><span class="line"></span><br><span class="line">➁如果两个对象的hashCode相同，它们并不一定相同。</span><br></pre></td></tr></table></figure></li><li>若对一个类不重写，它的equals()方法是如何比较的？<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">地址</span><br></pre></td></tr></table></figure></li><li>请说明Java中的方法覆盖(Overriding)和方法重载(Overloading)是什么意思？<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Java中的方法重载发生在同一个类里面两个或者是多个方法的方法名相同但是参数不同的情况。</span><br><span class="line">与此相对，方法覆盖是说子类重新定义了父类的方法。</span><br><span class="line">方法覆盖必须有相同的方法名，参数列表和返回类型。覆盖者可能不会限制它所覆盖的方法的访问。</span><br></pre></td></tr></table></figure></li><li>请判断，两个对象值相同(x.equals(y) == true)，但却可有不同的hash code，该说法是否正确，为什么？<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">不对，如果两个对象x和y满足x.equals(y) &#x3D;&#x3D; true，它们的哈希码（hash code）应当相同。</span><br><span class="line">Java对于eqauls方法和hashCode方法是这样规定的：</span><br><span class="line">(1)如果两个对象相同（equals方法返回true），那么它们的hashCode值一定要相同；</span><br><span class="line">(2)如果两个对象的hashCode相同，它们并不一定相同。</span><br><span class="line">当然，你未必要按照要求去做，但是如果你违背了上述原则就会发现在使用容器时，相同的对象可以出现在Set集合中，同时增加新元素的效率会大大下降</span><br><span class="line">（对于使用哈希存储的系统，如果哈希码频繁的冲突将会造成存取性能急剧下降）</span><br></pre></td></tr></table></figure></li><li>请判断当一个对象被当作参数传递给一个方法后，此方法可改变这个对象的属性，并可返回变化后的结果，那么这里到底是值传递还是引用传递?<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">是值传递。Java 编程语言只有值传递参数。</span><br><span class="line">当一个对象实例作为一个参数被传递到方法中时，参数的值就是对该对象的引用。</span><br><span class="line">对象的内容可以在被调用的方法中改变，但对象的引用是永远不会改变的。</span><br></pre></td></tr></table></figure>==Java是值传递== 就算传的是对象 也是传的对象地址<br><a href="https://www.zhihu.com/question/31203609/answer/164430457" target="_blank" rel="noopener">https://www.zhihu.com/question/31203609/answer/164430457</a><h2 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h2></li></ul><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 由于Java不支持多继承，而有可能某个类或对象要使用分别在几个类或对象里面的方法或属性，现有的单继承机制就不能满足要求。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 与继承相比，接口有更高的灵活性，因为接口中没有任何实现代码。当一个类实现了接口以后，该类要==实现接口里面所有的方法和属性==，并且接口里面的属性在默认状态下面都是public static,所有方法默认情况下是public.一个类可以实现多个接口。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 面试准备 </category>
+          
+          <category> Java基础 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> java </tag>
+            
+            <tag> 面试 </tag>
+            
+            <tag> OOP </tag>
+            
+            <tag> 继承 </tag>
+            
+            <tag> 接口 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>Docker 集成多容器镜像实 践:Jdk8,py37,Mysql,es,采用Dockfile+docker-compose编排</title>
       <link href="2021/01/29/Docker-%E9%9B%86%E6%88%90%E5%A4%9A%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E5%AE%9E-%E8%B7%B5-Jdk8-py37-Mysql-es-%E9%87%87%E7%94%A8Dockfile-docker-compose%E7%BC%96%E6%8E%92/"/>
       <url>2021/01/29/Docker-%E9%9B%86%E6%88%90%E5%A4%9A%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E5%AE%9E-%E8%B7%B5-Jdk8-py37-Mysql-es-%E9%87%87%E7%94%A8Dockfile-docker-compose%E7%BC%96%E6%8E%92/</url>
@@ -15,7 +50,7 @@
           
           <category> 技术栈 </category>
           
-          <category> Dockerµ </category>
+          <category> Docker </category>
           
       </categories>
       
@@ -847,27 +882,6 @@
     
     
     <entry>
-      <title>我的第一篇博客文章</title>
-      <link href="2020/04/07/python/"/>
-      <url>2020/04/07/python/</url>
-      
-        <content type="html"><![CDATA[]]></content>
-      
-      
-      <categories>
-          
-          <category> 技术栈 </category>
-          
-          <category> Python </category>
-          
-      </categories>
-      
-      
-    </entry>
-    
-    
-    
-    <entry>
       <title>React</title>
       <link href="2020/04/07/React/"/>
       <url>2020/04/07/React/</url>
@@ -880,6 +894,27 @@
           <category> 技术栈 </category>
           
           <category> React </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>我的第一篇博客文章</title>
+      <link href="2020/04/07/python/"/>
+      <url>2020/04/07/python/</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+      
+      <categories>
+          
+          <category> 技术栈 </category>
+          
+          <category> Python </category>
           
       </categories>
       
