@@ -1,0 +1,365 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>面试复习3：【多线程】 | EricKun</title><meta name="keywords" content="Java,面试,多线程,并发"><meta name="author" content="Eric kun"><meta name="copyright" content="Eric kun"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="@TOC 并发与并行 并发:指两个或多个事件在同一个时间段内发生。  并行:指两个或多个事件在同一时刻发生(同时发生)。   注意辨析宏观与微观的理解  在操作系统中，安装了多个程序，并发指的是在一段时间内宏观上有多个程序同时运行，这在单 CPU 系统中，每 一时刻只能有一道程序执行，即微观上这些程序是分时的交替运行，只不过是给人的感觉是同时运行，那是因为分 时交替运行的时间是非常短的。 而在多个">
+<meta property="og:type" content="article">
+<meta property="og:title" content="面试复习3：【多线程】">
+<meta property="og:url" content="https://ericzikun.github.io/2021/06/11/%E9%9D%A2%E8%AF%95%E5%A4%8D%E4%B9%A03-%E5%A4%9A%E7%BA%BF%E7%A8%8B/index.html">
+<meta property="og:site_name" content="EricKun">
+<meta property="og:description" content="@TOC 并发与并行 并发:指两个或多个事件在同一个时间段内发生。  并行:指两个或多个事件在同一时刻发生(同时发生)。   注意辨析宏观与微观的理解  在操作系统中，安装了多个程序，并发指的是在一段时间内宏观上有多个程序同时运行，这在单 CPU 系统中，每 一时刻只能有一道程序执行，即微观上这些程序是分时的交替运行，只不过是给人的感觉是同时运行，那是因为分 时交替运行的时间是非常短的。 而在多个">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20210611110948775.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70">
+<meta property="article:published_time" content="2021-06-11T03:11:09.000Z">
+<meta property="article:modified_time" content="2021-06-11T07:07:53.728Z">
+<meta property="article:author" content="Eric kun">
+<meta property="article:tag" content="Java">
+<meta property="article:tag" content="面试">
+<meta property="article:tag" content="多线程">
+<meta property="article:tag" content="并发">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/20210611110948775.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70"><link rel="shortcut icon" href="https://pic2.zhimg.com/80/v2-f19e0e0add10a40489cdb8df576a0f7e_qhd.jpg"><link rel="canonical" href="https://ericzikun.github.io/2021/06/11/%E9%9D%A2%E8%AF%95%E5%A4%8D%E4%B9%A03-%E5%A4%9A%E7%BA%BF%E7%A8%8B/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?0d6b4455953d3e1c0917234dfebaa739";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  hexoversion: '4.2.1',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: true,
+  postUpdate: '2021-06-11 15:07:53'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {
+  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }
+})()</script><meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="EricKun" type="application/atom+xml">
+</head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/null" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">41</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">83</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">33</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div></div></div></div><div id="body-wrap"><div id="web_bg"></div><div id="sidebar"><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#并发与并行"><span class="toc-text">并发与并行</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#线程与进程"><span class="toc-text">线程与进程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#线程调度"><span class="toc-text">线程调度:</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#分时调度"><span class="toc-text">分时调度</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#抢占式调度"><span class="toc-text">抢占式调度</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Java实现线程的三个方法："><span class="toc-text">Java实现线程的三个方法：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Thread-类"><span class="toc-text">Thread 类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Runnable接口"><span class="toc-text">Runnable接口</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Callable接口"><span class="toc-text">Callable接口</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#线程状态："><span class="toc-text">线程状态：</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#线程安全"><span class="toc-text">线程安全</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#同步代码块、锁"><span class="toc-text">同步代码块、锁</span></a></li></ol></li></ol></li></ol></div></div></div><header class="post-bg" id="page-header" style="background-image: url(https://img-blog.csdnimg.cn/20210611110948775.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">EricKun</a></span><span id="menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div></div><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">面试复习3：【多线程】</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-06-11T03:11:09.000Z" title="发表于 2021-06-11 11:11:09">2021-06-11</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-06-11T07:07:53.728Z" title="更新于 2021-06-11 15:07:53">2021-06-11</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87/">面试准备</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87/Java%E5%9F%BA%E7%A1%80/">Java基础</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>@<a href="目录">TOC</a></p>
+<h1 id="并发与并行"><a href="#并发与并行" class="headerlink" title="并发与并行"></a>并发与并行</h1><ul>
+<li><p>并发:指两个或多个事件在同一个时间段内发生。</p>
+</li>
+<li><p>并行:指两个或多个事件在同一时刻发生(同时发生)。</p>
+</li>
+</ul>
+<p>注意辨析宏观与微观的理解</p>
+<p><img src="https://img-blog.csdnimg.cn/20210611124507184.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt="&lt;img src=&quot;多线程笔记.assets/image-20210605152309555.png&quot; alt=&quot;image-20210605152309555&quot; style=&quot;zoom:50%;&quot; /&gt;"></p>
+<p>在操作系统中，安装了多个程序，并发指的是在一段时间内宏观上有<strong>多个程序</strong>同时运行，这在单 CPU 系统中，每 一时刻只能有一道程序执行，即微观上这些程序是分时的交替运行，只不过是给人的感觉是同时运行，那是因为分 时交替运行的时间是非常短的。</p>
+<p>而在多个 CPU 系统中，则这些可以并发执行的程序便可以分配到多个处理器上(CPU)，实现多任务并行执行， 即利用每个处理器来处理一个可以并发执行的程序，这样多个程序便可以同时执行。目前电脑市场上说的多核 CPU，便是多核处理器，核越多，并行处理的程序越多，能大大的提高电脑运行的效率。</p>
+<blockquote>
+<p>注意:单核处理器的计算机肯定是不能并行的处理多个任务的，只能是多个任务在单个CPU上并发运行。同理,线程也是一样的，从宏观角度上理解线程是并行运行的，但是从微观角度上分析却是串行运行的，即一个 线程一个线程的去运行，当系统只有一个CPU时，线程会以某种顺序执行多个线程，我们把这种情况称之为线程调度。</p>
+</blockquote>
+<h1 id="线程与进程"><a href="#线程与进程" class="headerlink" title="线程与进程"></a>线程与进程</h1><ul>
+<li><p>进程:是指一个内存中运行的应用程序（比如打开一个软件 至少占用1个进程），每个进程都有一个独立的内存空间，一个应用程序可以同时运行多个进程;进程也是程序的一次执行过程，是系统运行程序的基本单位;系统运行一个程序即是一个进程从创建、运行到消亡的过程。</p>
+</li>
+<li><p>线程:线程是进程中的一个执行单元，负责当前进程中程序的执行，一个进程中至少有一个线程。一个进程中是可以有多个线程的，这个应用程序也可以称之为多线程程序。</p>
+</li>
+</ul>
+<p><strong>简而言之:一个程序运行后至少有一个进程，一个进程中可以包含多个线程</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">线程：CPU 可执行的最小任务单元 </span><br><span class="line"></span><br><span class="line">八核CPU -	八核16线程  </span><br><span class="line">单核 单线程 CPU </span><br><span class="line"></span><br><span class="line">线程 让程序节省时间，提高效率</span><br><span class="line">多线程的CPU 可以看作可以并行运算的机器 </span><br><span class="line"></span><br><span class="line">单线程 - - 交替运行  不能节省时间提高效率</span><br><span class="line">	 --	同时运行的效果 </span><br><span class="line">	CPU 运算速度特别快 </span><br><span class="line">	在两个线程之间实现快速切换执行 </span><br><span class="line"></span><br><span class="line">进程：线程的老大 -- 程序运行</span><br></pre></td></tr></table></figure>
+
+<h1 id="线程调度"><a href="#线程调度" class="headerlink" title="线程调度:"></a>线程调度:</h1><h2 id="分时调度"><a href="#分时调度" class="headerlink" title="分时调度"></a>分时调度</h2><p>所有线程轮流使用 CPU 的使用权，平均分配每个线程占用 CPU 的时间。</p>
+<h2 id="抢占式调度"><a href="#抢占式调度" class="headerlink" title="抢占式调度"></a>抢占式调度</h2><p>优先让优先级高的线程使用 CPU，如果线程的优先级相同，那么会随机选择一个(线程随机性)，Java使用的为 <strong>抢占式调度</strong>。</p>
+<ul>
+<li><p>设置线程的优先级</p>
+</li>
+<li><p>抢占式调度详解</p>
+<p>大部分操作系统都支持多进程并发运行，现在的操作系统几乎都支持同时运行多个程序。比如:现在我们一边使用编辑器，一边使用腾讯会议软件，同时还开着qq、微信、IDEA等软件。此时，这些程序是 在同时运行，”<strong>感觉这些软件好像在同一时刻运行着“</strong>。</p>
+<p>实际上，CPU(中央处理器)使用抢占式调度模式在多个线程间进行着<strong>高速的切换</strong>。对于CPU的一个核而言，某个时刻，只能执行一个线程，而 CPU的在多个线程间切换速度相对我们的感觉要快，看上去就是在同一时刻运行。 其实，多线程程序并不能提高程序的运行速度，但能够提高程序运行效率，<strong>让CPU的使用率更高</strong>。</p>
+</li>
+</ul>
+<h1 id="Java实现线程的三个方法："><a href="#Java实现线程的三个方法：" class="headerlink" title="Java实现线程的三个方法："></a>Java实现线程的三个方法：</h1><h2 id="Thread-类"><a href="#Thread-类" class="headerlink" title="Thread 类"></a>Thread 类</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1、创建一个类 继承 Thread </span><br><span class="line">2、重写run方法</span><br><span class="line">3、此类创建对象调用 start()方法</span><br><span class="line">	每个线程对象都只能启动一次</span><br></pre></td></tr></table></figure>
+
+<h2 id="Runnable接口"><a href="#Runnable接口" class="headerlink" title="Runnable接口"></a>Runnable接口</h2><pre><code>1、创建一个类  implements Runnable接口 
+2、重写run方法
+3、此类创建对象 交给Thread类对象调用 start()方法
+4、此类创建对象 交给线程池 调用 start()方法
+    每个线程对象都可以被Thread类对象重复启动     
+    更轻量 方便 </code></pre><h2 id="Callable接口"><a href="#Callable接口" class="headerlink" title="Callable接口"></a>Callable接口</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1、	创建一个类  implements Callable接口 </span><br><span class="line">2、重写call方法</span><br><span class="line">3、此类创建对象 交给线程池 调用 start()方法</span><br><span class="line">	可以带有返回值</span><br></pre></td></tr></table></figure>
+<p>三个方法之间的区别，优缺点：</p>
+<table>
+<thead>
+<tr>
+<th>&lt;!– 特点</th>
+<th>Thread</th>
+<th>Runnable</th>
+<th>Callable</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>优点</td>
+<td>方便实现，代码简单</td>
+<td>每个线程对象都可以被Thread类对象重复启动。<br/>实现接口，线程类就还能继承其它类，线程之间资源共享方便，不用加static进行修饰</td>
+<td>实现接口，线程类就还能继承其它类,线程之间资源共享方便，不用加static进行修饰,线程可以有返回值,线程可以抛出异常</td>
+</tr>
+<tr>
+<td>缺点</td>
+<td>每个线程对象都只能启动一次 <br/>必须重写run方法run，方法不能有返回值，run方法不能抛出异常</td>
+<td>必须重写run方法,run方法不能有返回值,run方法不能抛出异常</td>
+<td>线程创建比较麻烦，代码比较复杂 –&gt;</td>
+</tr>
+</tbody></table>
+<!-- ![在这里插入图片描述](https://img-blog.csdnimg.cn/20210611150520309.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70) -->
+<h1 id="线程状态："><a href="#线程状态：" class="headerlink" title="线程状态："></a>线程状态：</h1><p>一共有T1、T2、T3三个时间段：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">启动 	T1</span><br><span class="line">	</span><br><span class="line">		运行 </span><br><span class="line">		等待	消耗小	T2</span><br><span class="line">		计时等待</span><br><span class="line">		</span><br><span class="line">终止 T3</span><br></pre></td></tr></table></figure>
+
+<p>线程池：–  减少 T1 T3 所占的时间和资源<br><img src="https://img-blog.csdnimg.cn/2021061113283062.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h1 id="线程安全"><a href="#线程安全" class="headerlink" title="线程安全"></a>线程安全</h1><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 如果有多个线程在同时运行，而这些线程可能会同时运行这段代码。程序每次运行结果和单线程运行的结果是一样的，而且其他的变量的值也和<strong>预期</strong>的是一样的，就是<strong>线程安全的</strong>。<br>这里以小球绘制为例：<br>背景：给画板添加点击事件，点击一次画板屏幕则创建一个小球线程<br>不加锁的情况下：<br>面板绘制主函数：<br>给画板添加点击事件ballLiten</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BallUI</span> <span class="keyword">extends</span> <span class="title">JFrame</span></span>&#123;</span><br><span class="line"></span><br><span class="line">	BallUI()&#123;</span><br><span class="line">		setTitle(<span class="string">"运动小球"</span>);</span><br><span class="line">		setSize(<span class="number">600</span>,<span class="number">600</span>);</span><br><span class="line">		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);</span><br><span class="line">		setVisible(<span class="keyword">true</span>);</span><br><span class="line">		Graphics g = getGraphics();<span class="comment">// 获取画笔对象</span></span><br><span class="line">		BallListener ballLiten =<span class="keyword">new</span> BallListener(g);</span><br><span class="line">		addMouseListener(ballLiten);</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">new</span> BallUI();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>重写点击方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BallListener</span> <span class="keyword">implements</span> <span class="title">MouseListener</span></span>&#123;</span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * 	点击一次 创建一个球 运动</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	Graphics g;</span><br><span class="line"></span><br><span class="line">	BallListener(Graphics g)&#123;</span><br><span class="line">		<span class="keyword">this</span>.g = g;</span><br><span class="line">	&#125;</span><br><span class="line">	Random random = <span class="keyword">new</span> Random();</span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">mouseClicked</span><span class="params">(MouseEvent e)</span> </span>&#123;</span><br><span class="line">		Color color = <span class="keyword">new</span> Color(random.nextInt(Integer.MAX_VALUE/<span class="number">200</span>));</span><br><span class="line">		DrawBallThread dbt = <span class="keyword">new</span> DrawBallThread(g, e.getX(), e.getY(), <span class="number">30</span>,color);</span><br><span class="line">		dbt.num=<span class="number">0</span>;</span><br><span class="line">		Thread t = <span class="keyword">new</span> Thread(dbt);</span><br><span class="line">		t.start();</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>绘制运动的小球线程类(不加锁)：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * implements Runnable	每个线程 实际运行的内容是独立的</span></span><br><span class="line"><span class="comment"> * 	成员属性是共享的</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> Administrator</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DrawBallThread</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">	Graphics g;<span class="comment">// 保证可见</span></span><br><span class="line">	<span class="keyword">int</span> x = <span class="number">300</span>;</span><br><span class="line">	<span class="keyword">int</span> y = <span class="number">300</span>;</span><br><span class="line">	<span class="keyword">int</span> size = <span class="number">50</span>;</span><br><span class="line">	Color color = Color.RED;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">DrawBallThread</span><span class="params">(Graphics g, <span class="keyword">int</span> x, <span class="keyword">int</span> y, <span class="keyword">int</span> size, Color color)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.g = g;</span><br><span class="line">		<span class="keyword">this</span>.x = x;</span><br><span class="line">		<span class="keyword">this</span>.y = y;</span><br><span class="line">		<span class="keyword">this</span>.size = size;</span><br><span class="line">		<span class="keyword">this</span>.color = color;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">int</span> num;</span><br><span class="line">	<span class="keyword">int</span> speedX=<span class="number">5</span>;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">int</span> copynum = num;</span><br><span class="line"><span class="comment">//		Random ran = new Random();</span></span><br><span class="line">		<span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">			<span class="comment">//-------------------------不加锁的情况下--------------------</span></span><br><span class="line">			<span class="comment">//g.setColor(new Color(238,238,238)); //灰色 先画背景 相当于清屏</span></span><br><span class="line">			<span class="comment">//g.fillOval(x, y, size, size);</span></span><br><span class="line">			<span class="keyword">if</span> (copynum ** <span class="number">0</span>) &#123;</span><br><span class="line">				<span class="keyword">if</span>(x&lt;<span class="number">0</span>||x&gt;<span class="number">500</span>) &#123;</span><br><span class="line">					speedX =-speedX;</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">if</span>(y&lt;<span class="number">0</span>||y&gt;<span class="number">500</span>) &#123;</span><br><span class="line">					speedX =-speedX;</span><br><span class="line">				&#125;</span><br><span class="line">				x += speedX;</span><br><span class="line">				y += speedX;</span><br><span class="line">			&#125;</span><br><span class="line">			g.setColor(color);</span><br><span class="line">			g.fillOval(x, y, size, size);</span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				Thread.sleep(<span class="number">30</span>);</span><br><span class="line">			&#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">				<span class="comment">// TODO Auto-generated catch block</span></span><br><span class="line">				e.printStackTrace();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p> <img src="https://img-blog.csdnimg.cn/20210611135324644.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br><strong>分析</strong>：<br>由图可见，在线程执行的方法中由于每个点击事件触发的线程拿到的都是同一个Graphics g对象，在一个线程启动后不久，另外点击而新开的线程拿到的仍然是同一个Graphics g对象，这里的Graphics g对象属于共享变量，它的color属性也是在不断变化的！从而导致各个线程之间的球颜色混乱！如果要解决此问题，则要将线程执行方法中的<strong>Graphics g对象这个共享变量加锁，保证它在当前线程运行结束的情况下才可被其他线程所调用</strong>，如下为加锁情况：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * implements Runnable	每个线程 实际运行的内容是独立的</span></span><br><span class="line"><span class="comment"> * 	成员属性是共享的</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> Administrator</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DrawBallThread</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">	Graphics g;<span class="comment">// 保证可见</span></span><br><span class="line">	<span class="keyword">int</span> x = <span class="number">300</span>;</span><br><span class="line">	<span class="keyword">int</span> y = <span class="number">300</span>;</span><br><span class="line">	<span class="keyword">int</span> size = <span class="number">50</span>;</span><br><span class="line">	Color color = Color.RED;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">DrawBallThread</span><span class="params">(Graphics g, <span class="keyword">int</span> x, <span class="keyword">int</span> y, <span class="keyword">int</span> size, Color color)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.g = g;</span><br><span class="line">		<span class="keyword">this</span>.x = x;</span><br><span class="line">		<span class="keyword">this</span>.y = y;</span><br><span class="line">		<span class="keyword">this</span>.size = size;</span><br><span class="line">		<span class="keyword">this</span>.color = color;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">int</span> num;</span><br><span class="line">	<span class="keyword">int</span> speedX=<span class="number">5</span>;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">int</span> copynum = num;</span><br><span class="line"><span class="comment">//		Random ran = new Random();</span></span><br><span class="line">		<span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">			<span class="comment">//-------------------------加锁的情况下-------------------- synchronized (g) &#123;</span></span><br><span class="line"><span class="comment">//				g.setColor(new Color(238,238,238)); //灰色 先画背景 相当于清屏</span></span><br><span class="line"><span class="comment">//				g.fillOval(x, y, size, size);</span></span><br><span class="line"><span class="comment">//			&#125;</span></span><br><span class="line">			<span class="keyword">if</span> (copynum ** <span class="number">0</span>) &#123;</span><br><span class="line">				<span class="keyword">if</span>(x&lt;<span class="number">0</span>||x&gt;<span class="number">500</span>) &#123;</span><br><span class="line">					speedX =-speedX;</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">if</span>(y&lt;<span class="number">0</span>||y&gt;<span class="number">500</span>) &#123;</span><br><span class="line">					speedX =-speedX;</span><br><span class="line">				&#125;</span><br><span class="line">				x += speedX;</span><br><span class="line">				y += speedX;</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			<span class="keyword">synchronized</span> (g) &#123;</span><br><span class="line"><span class="comment">//				g.setColor(Color.white);</span></span><br><span class="line"><span class="comment">//				g.fillRect(0, 0, 500, 500);</span></span><br><span class="line"></span><br><span class="line">				g.setColor(color);</span><br><span class="line"><span class="comment">//				for (int i = 0; i &lt; 300; i++) &#123;</span></span><br><span class="line"><span class="comment">//					g.fillOval(x, y, size, size);</span></span><br><span class="line"><span class="comment">//				&#125;</span></span><br><span class="line">				g.fillOval(x, y, size, size);</span><br><span class="line"></span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				Thread.sleep(<span class="number">30</span>);</span><br><span class="line">			&#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">				<span class="comment">// TODO Auto-generated catch block</span></span><br><span class="line">				e.printStackTrace();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/20210611135114185.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>小结：<br>线程安全问题都是由全局变量及静态变量引起的。若每个线程中对全局变量、静态变量<strong>只有读操作，而无写</strong>操作，一般来说，这个全局变量是<strong>线程安全</strong>的;若有<strong>多个线程同时执行写</strong>操作，一般都需要考虑<strong>线程同步</strong>， 否则的话就可能影响线程安全。</p>
+<h3 id="同步代码块、锁"><a href="#同步代码块、锁" class="headerlink" title="同步代码块、锁"></a>同步代码块、锁</h3><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 前面先引出了小球的案例，已对锁有了初步了解，现在详细介绍一下同步代码块、锁：<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 当我们使用多个线程访问同一资源的时候，且多个线程中对资源有写的操作，就容易出现线程安全问题。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 要解决上述多线程并发访问一个资源的安全性问题，Java中提供了同步机制 (synchronized)来解决。</p>
+<p><strong>同步代码块</strong>: synchronized 关键字可以用于方法中的某个区块中，表示只对这个区块的资源实行互斥访问。<br>格式：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">synchronized</span>(同步锁)&#123; 需要同步操作的代码</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>同步锁: 对象的同步锁只是一个概念,可以想象为在对象上<strong>标记了一个锁</strong>。</p>
+<ol>
+<li><strong>锁对象</strong> 可以是任意类型。</li>
+<li>多个线程对象 要使用同一把锁。<blockquote>
+<p>注意:在任何时候,最多允许一个线程拥有同步锁,谁拿到锁就进入代码块,其他的线程只能在外等着 (BLOCKED)。</p>
+</blockquote>
+</li>
+</ol>
+<p><strong>同步方法</strong>: 使用synchronized修饰的方法,就叫做同步方法,保证A线程执行该方法的时候,其他线程只能在方法外<br>等着。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">method</span><span class="params">()</span></span>&#123; 可能会产生线程安全问题的代码</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>Lock锁</strong>：<code>java.util.concurrent.locks.Lock</code>机制提供了比synchronized代码块和synchronized方法更广泛的锁定操作,<br>同步代码块/同步方法具有的功能Lock都有,除此之外更强大,更体现面向对象。 Lock锁也称同步锁，加锁与释放锁方法化了，如下:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">lock</span><span class="params">()</span> :加同步锁。 </span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">unlock</span><span class="params">()</span> :释放同步锁。</span></span><br></pre></td></tr></table></figure>
+<p>举例：<br>在线程执行方法的前后<strong>执行锁对象的lock、unlock</strong>方法达到加锁和释放锁的目的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Ticket</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123; <span class="keyword">private</span> <span class="keyword">int</span> ticket = <span class="number">100</span>;</span><br><span class="line">Lock lock = <span class="keyword">new</span> ReentrantLock(); <span class="comment">/*</span></span><br><span class="line"><span class="comment">* 执行卖票操作</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123; <span class="comment">//每个窗口卖票的操作 //窗口 永远开启 while(true)&#123;</span></span><br><span class="line">lock.lock(); </span><br><span class="line"><span class="keyword">if</span>(ticket&gt;<span class="number">0</span>)&#123;<span class="comment">//有票 可以卖</span></span><br><span class="line"><span class="comment">//出票操作 //使用sleep模拟一下出票时间 try &#123;</span></span><br><span class="line">Thread.sleep(<span class="number">50</span>);</span><br><span class="line">&#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line"><span class="comment">// TODO Auto‐generated catch block</span></span><br><span class="line">e.printStackTrace(); &#125;</span><br><span class="line"><span class="comment">//获取当前线程对象的名字</span></span><br><span class="line">String name = Thread.currentThread().getName(); </span><br><span class="line">System.out.println(name+<span class="string">"正在卖:"</span>+ticket‐‐);</span><br><span class="line">&#125;</span><br><span class="line">lock.unlock(); </span><br><span class="line">&#125;</span><br><span class="line">&#125; &#125;</span><br></pre></td></tr></table></figure>
+
+<p>几个安全相关的概念普及：</p>
+<p><strong>原子性</strong>：即一个操作或者多个操作，要么全部执行并且执行的过程不会被任何因素打断，要么就都不执行。原子性就像数据库里面的事务一样，他们是一个团队，同生共死。</p>
+<p><strong>可见性</strong>：可见性是指当多个线程访问同一个变量时，一个线程修改了这个变量的值，其他线程能够立即看得到修改的值。<strong>常采用volatile</strong>去修饰变量，能够保证各个线程的一致可见性，也就是当一个线程修改了变量值后，别的线程能够看到</p>
+<p><strong>有序性</strong>：即程序执行的顺序按照代码的先后顺序执行。</p>
+<pre><code>num=1;  -- 1 num++  2 num++  数据安全不能保证 
+
+volatile    -- 一致可见性 不能保证线程数据安全
+
+synchronized -- 重量级锁 性能优秀 -- 不方便 -- 实现锁机制 --  保证原子性 
+
+final 
+
+原子操作：载入 堆中共享变量  写回变量  lock unlock 
+
+    保证数据原子性的操作：
+        一个个来
+    文件操作：
+        读 写 
+    所有线程 只读 -- 共享 
+    线程 一个读   一个写 -- 必须实现 锁 排队 
+    所有线程  写 写 - 必须实现 锁        
+
+JUC     
+ArrayList -- 增删查改 -- 原子操作的是：增删改 
+Redis -- 单线程 
+
+方法 ：
+分别对哪些资源对象进行加锁 
+    方法中使用的变量 
+    方法所在类的对象 </code></pre><p>​<br>​<br>​<br>​<br>​<br>​<br>​<br>​<br>​<br>​    </p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Eric kun</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://ericzikun.github.io/2021/06/11/%E9%9D%A2%E8%AF%95%E5%A4%8D%E4%B9%A03-%E5%A4%9A%E7%BA%BF%E7%A8%8B/">https://ericzikun.github.io/2021/06/11/%E9%9D%A2%E8%AF%95%E5%A4%8D%E4%B9%A03-%E5%A4%9A%E7%BA%BF%E7%A8%8B/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://ericzikun.github.io" target="_blank">EricKun</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Java/">Java</a><a class="post-meta__tags" href="/tags/%E9%9D%A2%E8%AF%95/">面试</a><a class="post-meta__tags" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a><a class="post-meta__tags" href="/tags/%E5%B9%B6%E5%8F%91/">并发</a></div><div class="post_share"><div class="social-share" data-image="https://img-blog.csdnimg.cn/20210611110948775.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> 打赏<div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/alipay.png" target="_blank"><img class="post-qr-code-img" src="/img/alipay.png"/></a><div class="post-qr-code-desc"></div></li></ul></div></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2021/06/08/%E9%9D%A2%E8%AF%95%E5%A4%8D%E4%B9%A02%EF%BC%9A%E3%80%90%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80%EF%BC%9A%E4%BA%8C%E8%BF%9B%E5%88%B6+%E5%AD%97%E8%8A%82+%E7%A7%BB%E4%BD%8D%E8%BF%90%E7%AE%97%E3%80%91/"><img class="next-cover" src="https://img-blog.csdnimg.cn/20210611110948775.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">面试复习2：【计算机基础：二进制+字节+移位运算】</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2020/08/15/Java核心技术读书笔记4-5章/" title="Java核心技术读书笔记ch4"><img class="cover" src="https://img-blog.csdnimg.cn/2020100121102228.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-08-15</div><div class="title">Java核心技术读书笔记ch4</div></div></a></div><div><a href="/2020/10/01/elasticsearch-下-1/" title="elasticsearch(下)"><img class="cover" src="https://img-blog.csdnimg.cn/20200902210811692.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-10-01</div><div class="title">elasticsearch(下)</div></div></a></div><div><a href="/2020/08/15/Java核心技术笔记ch5/" title="Java核心技术笔记ch5"><img class="cover" src="https://img-blog.csdnimg.cn/2020100121102228.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-08-15</div><div class="title">Java核心技术笔记ch5</div></div></a></div><div><a href="/2020/09/02/初探ElasticSearch-JD商城仿站实战/" title="初探ElasticSearch+JD商城仿站实战(上)"><img class="cover" src="https://pic2.zhimg.com/v2-785a0602d22a14f03f34629876440b99_1440w.jpg?source=172ae18b"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-02</div><div class="title">初探ElasticSearch+JD商城仿站实战(上)</div></div></a></div><div><a href="/2020/09/02/elasticsearch-中/" title="elasticsearch(中)"><img class="cover" src="https://img-blog.csdnimg.cn/20200902210811692.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70#pic_center"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2020-09-02</div><div class="title">elasticsearch(中)</div></div></a></div><div><a href="/2021/05/28/面试复习1：【OOP-继承-接口】/" title="面试复习1：【OOP+继承+接口】"><img class="cover" src="https://img-blog.csdnimg.cn/20210528182634536.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-05-28</div><div class="title">面试复习1：【OOP+继承+接口】</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div></div></div></article></main><footer id="footer" style="background: #000000"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By Eric kun</div><div class="framework-info"><span>框架 </span><a href="https://hexo.io" target="_blank" rel="noopener">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener">Butterfly</a></div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a href="https://github.com/wzpan/hexo-generator-search" target="_blank" rel="noopener" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    loader: {
+      source: {
+        '[tex]/amsCd': '[tex]/amscd'
+      }
+    },
+    tex: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]],
+      tags: 'ams'
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, ''],
+        addClass: [200,() => {
+          document.querySelectorAll('mjx-container:not([display=\'true\']').forEach( node => {
+            const target = node.parentNode
+            if (!target.classList.contains('has-jax')) {
+              target.classList.add('mathjax-overflow')
+            }
+          })
+        }, '', false]
+      }
+    }
+  }
+  
+  var script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typeset()
+}</script><script>function loadValine () {
+  function initValine () {
+    const initData = {
+      el: '#vcomment',
+      appId: 'tx6zs0UB1yRovubWAD3heyoM-gzGzoHsz',
+      appKey: '8SJzl4MBSSjcdEESUaALKRXk',
+      placeholder: 'Just do it!',
+      avatar: 'monsterid',
+      meta: 'nick,mail,link'.split(','),
+      pageSize: '10',
+      lang: 'zh-CN',
+      recordIP: false,
+      serverURLs: '',
+      emojiCDN: '',
+      emojiMaps: "",
+      enableQQ: false,
+      path: window.location.pathname,
+    }
+
+    if (true) { 
+      initData.requiredFields= ('nick,mail'.split(','))
+    }
+
+    const valine = new Valine(initData)
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else $.getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js', initValine)
+}
+
+if ('Valine' === 'Valine' || !false) {
+  if (false) btf.loadComment(document.querySelector('#vcomment'),loadValine)
+  else setTimeout(() => loadValine(), 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></div></body></html>
