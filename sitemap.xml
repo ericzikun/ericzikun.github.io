@@ -2,13 +2,6 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://ericzikun.github.io/2021/06/13/%E9%9D%A2%E8%AF%95%E5%A4%8D%E4%B9%A04-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%AD%E7%9A%84%E5%8F%AF%E8%A7%81%E6%80%A7/</loc>
-    
-    <lastmod>2021-06-13</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>https://ericzikun.github.io/2021/05/28/%E9%9D%A2%E8%AF%95%E5%A4%8D%E4%B9%A01%EF%BC%9A%E3%80%90OOP-%E7%BB%A7%E6%89%BF-%E6%8E%A5%E5%8F%A3%E3%80%91/</loc>
     
     <lastmod>2021-06-13</lastmod>
@@ -24,6 +17,13 @@
   
   <url>
     <loc>https://ericzikun.github.io/2021/06/11/%E9%9D%A2%E8%AF%95%E5%A4%8D%E4%B9%A03-%E5%A4%9A%E7%BA%BF%E7%A8%8B/</loc>
+    
+    <lastmod>2021-06-13</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://ericzikun.github.io/2021/06/13/%E9%9D%A2%E8%AF%95%E5%A4%8D%E4%B9%A04-%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%B8%AD%E7%9A%84%E5%8F%AF%E8%A7%81%E6%80%A7/</loc>
     
     <lastmod>2021-06-13</lastmod>
     
@@ -1133,21 +1133,21 @@
   </url>
   
   <url>
-    <loc>https://ericzikun.github.io/categories/%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87/</loc>
+    <loc>https://ericzikun.github.io/categories/%E6%B7%B1%E5%85%A5/</loc>
     <lastmod>2021-06-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>https://ericzikun.github.io/categories/%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87/Java%E5%9F%BA%E7%A1%80/</loc>
+    <loc>https://ericzikun.github.io/categories/%E6%B7%B1%E5%85%A5/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/</loc>
     <lastmod>2021-06-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
-    <loc>https://ericzikun.github.io/categories/%E9%9D%A2%E8%AF%95%E5%87%86%E5%A4%87/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9F%BA%E7%A1%80/</loc>
+    <loc>https://ericzikun.github.io/categories/%E6%B7%B1%E5%85%A5/Java%E5%9F%BA%E7%A1%80/</loc>
     <lastmod>2021-06-13</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
