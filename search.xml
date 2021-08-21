@@ -4,6 +4,39 @@
   
     
     <entry>
+      <title>一文搞懂云计算精髓MapReduce</title>
+      <link href="2021/08/05/deep10-%E4%B8%80%E6%96%87%E6%90%9E%E6%87%82%E4%BA%91%E8%AE%A1%E7%AE%97%E7%B2%BE%E9%AB%93MapReduce/"/>
+      <url>2021/08/05/deep10-%E4%B8%80%E6%96%87%E6%90%9E%E6%87%82%E4%BA%91%E8%AE%A1%E7%AE%97%E7%B2%BE%E9%AB%93MapReduce/</url>
+      
+        <content type="html"><![CDATA[<h1 id="MapReduce-简介"><a href="#MapReduce-简介" class="headerlink" title="MapReduce 简介"></a>MapReduce 简介</h1><p>核心思想：“分而治之”<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MapReduce思想在生活中处处可见。或多或少都曾接触过这种思想。MapReduce的思想核心 是“分而治之”，适用于大量复杂的任务处理场景(大规模数据处理场景)。</p><ul><li>Map负责——<strong>分</strong>，把复杂的任务分解为若干个“简单的任务”来并行处理。可以进行拆分的 前提是这些小任务可以并行计算，彼此间几乎没有<strong>依赖关系。</strong></li><li>Reduce负责——<strong>合</strong>，对map阶段的结果进行全局汇总。 MapReduce运行在yarn集群</li></ul><p>有两个阶段：</p><ol><li>ResourceManager</li><li>NodeManager</li></ol><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 这两个阶段合起来正是MapReduce思想的体现。后面再细说这两个阶段。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MapReduce的执行流程用下面这张图一目了然：<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 简而言之：首先将一个文件分成n片小文件，对每个小部分做map处理，最后再reduce汇总计算结果到一起<br><img src="https://img-blog.csdnimg.cn/5e3af54cd8bd441b83d6973bada83f0f.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70"  style="zoom:50%;" /></p><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 其中的Reduce操作这里画了两个，可能是在汇总计算操作时对不同类型的数据做汇总处理。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 还有一个比较形象的语言解释MapReduce: 我们要数图书馆中的所有书。你数1号书架，我数2号书架。这就是“Map”。我们人越多，数书<br>就更快。 现在我们到一起，把所有人的统计数加在一起。这就是“Reduce”。</p><h1 id="MapReduce-设计构思"><a href="#MapReduce-设计构思" class="headerlink" title="MapReduce 设计构思"></a>MapReduce 设计构思</h1><p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MapReduce是一个分布式运算程序的编程框架，核心功能是将用户编写的业务逻辑代码和自带默认组件整合成一个完整的分布式运算程序，并发运行在Hadoop集群上。<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MapReduce设计并提供了统一的计算框架，为程序员隐藏了绝大多数系统层面的处理细节。 为程序员提供一个抽象和高层的编程接口和框架。程序员<strong>仅需要关心其应用层的具体计算问题</strong>，仅需编写少量的处理应用本身计算问题的程序代码。如何具体完成这个并行计算任务所相关的诸多系统层细节被隐藏起来,交给计算框架去处理:<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Map和Reduce为程序员提供了一个清晰的操作接口抽象描述。MapReduce中定义了如下的Map 和Reduce两个抽象的编程接口，由用户去编程实现.Map和Reduce,MapReduce处理的数据类型是&lt;key,value&gt;键值对。</p><p>Map: (k1; v1) → [(k2; v2)]<br>Reduce: (k2; [v2]) → [(k3; v3)]</p><p>这里以wordcount来举例：</p><img src="https://img-blog.csdnimg.cn/e869575151bc4750a0b9c66664dd4158.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70"  style="zoom:50%;" /><p>一个完整的mapreduce程序在分布式运行时有三类实例进程:</p><ol><li>MRAppMaster 负责整个程序的过程调度及状态协调 </li><li>MapTask 负责map阶段的整个数据处理流程</li><li>ReduceTask 负责reduce阶段的整个数据处理流程</li></ol><img src="https://img-blog.csdnimg.cn/b44ab181fd084ebe9fe72ebb01f75140.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70"  style="zoom:50%;" /><p>总结：记住两点：必须由ResourceManager来接受计算任务并资源分配，由App Master来执行具体任务</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 深入 </category>
+          
+          <category> 云计算 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 云计算 </tag>
+            
+            <tag> MapReduce </tag>
+            
+            <tag> hadoop </tag>
+            
+            <tag> 分布式 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>弄懂服务端、客户端【手写一个socket聊天室】</title>
       <link href="2021/08/02/deep9-%E5%BC%84%E6%87%82%E6%9C%8D%E5%8A%A1%E7%AB%AF%E3%80%81%E5%AE%A2%E6%88%B7%E7%AB%AF%E3%80%90%E6%89%8B%E5%86%99%E4%B8%80%E4%B8%AAsocket%E8%81%8A%E5%A4%A9%E5%AE%A4%E3%80%91/"/>
       <url>2021/08/02/deep9-%E5%BC%84%E6%87%82%E6%9C%8D%E5%8A%A1%E7%AB%AF%E3%80%81%E5%AE%A2%E6%88%B7%E7%AB%AF%E3%80%90%E6%89%8B%E5%86%99%E4%B8%80%E4%B8%AAsocket%E8%81%8A%E5%A4%A9%E5%AE%A4%E3%80%91/</url>
