@@ -1,0 +1,289 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MySQL如何通过索引找到一条真实的数据？ | EricKun</title><meta name="keywords" content="MySQL,B+树,索引,InnoDB,MyISAM"><meta name="author" content="Eric kun"><meta name="copyright" content="Eric kun"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="MySQL如何通过索引找到一条真实的数据Mylsan和 InnoDB常见区别事务方面noDB支持事务, MyISAM不支持事务。这是 MySQL将默认存储引擎从 MyISAM变成 innoDB的重要原因之 外键方面nnoDB支持外键,而 MyISAM不支持。对一个包含外键的 innoDB表转为 MYISAM会失败。 索引层面innoDB是聚集(聚簇)索引, MyISAM是非聚集(非聚簇)索引。后面">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL如何通过索引找到一条真实的数据？">
+<meta property="og:url" content="https://ericzikun.github.io/2022/01/27/deep15-MySQL%E5%A6%82%E4%BD%95%E9%80%9A%E8%BF%87%E7%B4%A2%E5%BC%95%E6%89%BE%E5%88%B0%E4%B8%80%E6%9D%A1%E7%9C%9F%E5%AE%9E%E7%9A%84%E6%95%B0%E6%8D%AE/index.html">
+<meta property="og:site_name" content="EricKun">
+<meta property="og:description" content="MySQL如何通过索引找到一条真实的数据Mylsan和 InnoDB常见区别事务方面noDB支持事务, MyISAM不支持事务。这是 MySQL将默认存储引擎从 MyISAM变成 innoDB的重要原因之 外键方面nnoDB支持外键,而 MyISAM不支持。对一个包含外键的 innoDB表转为 MYISAM会失败。 索引层面innoDB是聚集(聚簇)索引, MyISAM是非聚集(非聚簇)索引。后面">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/9cf035b3883946a5ae135935a6137ee2.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="article:published_time" content="2022-01-27T15:10:58.000Z">
+<meta property="article:modified_time" content="2022-01-27T15:16:27.276Z">
+<meta property="article:author" content="Eric kun">
+<meta property="article:tag" content="MySQL">
+<meta property="article:tag" content="B+树">
+<meta property="article:tag" content="索引">
+<meta property="article:tag" content="InnoDB">
+<meta property="article:tag" content="MyISAM">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/9cf035b3883946a5ae135935a6137ee2.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16"><link rel="shortcut icon" href="https://pic2.zhimg.com/80/v2-f19e0e0add10a40489cdb8df576a0f7e_qhd.jpg"><link rel="canonical" href="https://ericzikun.github.io/2022/01/27/deep15-MySQL%E5%A6%82%E4%BD%95%E9%80%9A%E8%BF%87%E7%B4%A2%E5%BC%95%E6%89%BE%E5%88%B0%E4%B8%80%E6%9D%A1%E7%9C%9F%E5%AE%9E%E7%9A%84%E6%95%B0%E6%8D%AE/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?0d6b4455953d3e1c0917234dfebaa739";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  hexoversion: '4.2.1',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: true,
+  postUpdate: '2022-01-27 23:16:27'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {
+  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }
+})()</script><meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="EricKun" type="application/atom+xml">
+</head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/null" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">58</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">110</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">36</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div></div></div></div><div id="body-wrap"><div id="web_bg"></div><div id="sidebar"><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#MySQL如何通过索引找到一条真实的数据"><span class="toc-text">MySQL如何通过索引找到一条真实的数据</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Mylsan和-InnoDB常见区别"><span class="toc-text">Mylsan和 InnoDB常见区别</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#事务方面"><span class="toc-text">事务方面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#外键方面"><span class="toc-text">外键方面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#索引层面"><span class="toc-text">索引层面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#锁粒度方面"><span class="toc-text">锁粒度方面</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#硬盘存储结构"><span class="toc-text">硬盘存储结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#聚簇索引-和非聚簇索引"><span class="toc-text">聚簇索引 和非聚簇索引</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#聚簇索引-InnoDB"><span class="toc-text">聚簇索引( InnoDB)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#非聚簇索引-MyISAM"><span class="toc-text">非聚簇索引( MyISAM)</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MyISAM索引查询数据过程"><span class="toc-text">MyISAM索引查询数据过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#InnoDB索引结构"><span class="toc-text">InnoDB索引结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#对比MyISAM和InnoDB"><span class="toc-text">对比MyISAM和InnoDB</span></a></li></ol></li></ol></div></div></div><header class="post-bg" id="page-header" style="background-image: url(https://img-blog.csdnimg.cn/9cf035b3883946a5ae135935a6137ee2.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">EricKun</a></span><span id="menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div></div><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">MySQL如何通过索引找到一条真实的数据？</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-01-27T15:10:58.000Z" title="发表于 2022-01-27 23:10:58">2022-01-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-01-27T15:16:27.276Z" title="更新于 2022-01-27 23:16:27">2022-01-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%B7%B1%E5%85%A5/">深入</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%B7%B1%E5%85%A5/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h1 id="MySQL如何通过索引找到一条真实的数据"><a href="#MySQL如何通过索引找到一条真实的数据" class="headerlink" title="MySQL如何通过索引找到一条真实的数据"></a>MySQL如何通过索引找到一条真实的数据</h1><h2 id="Mylsan和-InnoDB常见区别"><a href="#Mylsan和-InnoDB常见区别" class="headerlink" title="Mylsan和 InnoDB常见区别"></a>Mylsan和 InnoDB常见区别</h2><h3 id="事务方面"><a href="#事务方面" class="headerlink" title="事务方面"></a>事务方面</h3><p>noDB支持事务, MyISAM不支持事务。这是 MySQL将默认存储引擎从 MyISAM变成 innoDB的重要原因之</p>
+<h3 id="外键方面"><a href="#外键方面" class="headerlink" title="外键方面"></a>外键方面</h3><p>nnoDB支持外键,而 MyISAM不支持。对一个包含外键的 innoDB表转为 MYISAM会失败。</p>
+<h3 id="索引层面"><a href="#索引层面" class="headerlink" title="索引层面"></a>索引层面</h3><p>innoDB是<strong>聚集(聚簇)索引</strong>, MyISAM是非聚集(非聚簇)索引。后面会重点讲解这两种索引的区别<br>MyISAM支持 FULLTEXT类型的<strong>全文索引,</strong><br>innoDB不支持 FULLTEXT类型的全文索引,但是 innoDB可以使用 sphinx插件支持全文索引,并且效果更好。</p>
+<h3 id="锁粒度方面"><a href="#锁粒度方面" class="headerlink" title="锁粒度方面"></a>锁粒度方面</h3><p>innoDB最小的锁粒度是行锁, MyISAM最小的锁粒度是表锁。<br>一个更新语句会锁住整张表,导致其他查询和更新都会被阻塞,因此并发访问受限</p>
+<p>这也是MySQL将默认存储引擎从MyISAM变成InnoDB的重要原因之一。</p>
+<h3 id="硬盘存储结构"><a href="#硬盘存储结构" class="headerlink" title="硬盘存储结构"></a>硬盘存储结构</h3><p>MyISAM在磁盘上存储成三个文件。第一个文件的名字以表的名字开始，扩展名指出文件类型。</p>
+<ul>
+<li>frm文件存储表的定义</li>
+<li>数据文件的扩展名为.MND( MYData)</li>
+<li>素引文件的扩展名是,MYr( MYIndex)</li>
+</ul>
+<p>Innodb存储引擎存储数据库数据，一共有两个文件（没有专门保存数据的文件）：</p>
+<ul>
+<li>frm文件存储表的定义</li>
+<li>Ibd文件：数据和索引存储文件。数据以主键进行聚集存储，把真正的数据保存在叶子节点中。</li>
+</ul>
+<h3 id="聚簇索引-和非聚簇索引"><a href="#聚簇索引-和非聚簇索引" class="headerlink" title="聚簇索引 和非聚簇索引"></a>聚簇索引 和非聚簇索引</h3><h4 id="聚簇索引-InnoDB"><a href="#聚簇索引-InnoDB" class="headerlink" title="聚簇索引( InnoDB)"></a>聚簇索引( InnoDB)</h4><p>将<strong>数据存储</strong>与<strong>素引</strong>放到了一块,索引结构的<strong>叶子节点保存了数据</strong>（B+ tree）<br>表数据按照索引的顺序来存储的,也就是说索引项的顺序与表中记录的物理顺序一致。<br>InnoDB中,在聚簇索引之上创建的索引称之为辅助索引,像复合索引、前缀索引、唯一索引等等。</p>
+<ul>
+<li>聚簇索引默认是主键</li>
+<li>如果表中没有定义主键, InnoDB会选择一个<strong>唯一的非空索引代替</strong>。【唯一非空索引】</li>
+<li>如果没有这样的索引, InnoDB会在内部生成一个名为GEN_ CLUST INDEX的隐式的聚簇索引。</li>
+</ul>
+<h4 id="非聚簇索引-MyISAM"><a href="#非聚簇索引-MyISAM" class="headerlink" title="非聚簇索引( MyISAM)"></a>非聚簇索引( MyISAM)</h4><p>将数据与索引分开存储,表数据存储顺序与索引顺序无关。</p>
+<h2 id="MyISAM索引查询数据过程"><a href="#MyISAM索引查询数据过程" class="headerlink" title="MyISAM索引查询数据过程"></a>MyISAM索引查询数据过程</h2><p><img src="https://img-blog.csdnimg.cn/8b845237939f4e40bc068520efd7c781.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<p>该图的左边是索引文件，右边是数据文件。</p>
+<p>索引文件和数据文件是分开存储的。</p>
+<p>之前提到过，索引是B+ tree存储的，左图的非叶子节点就是主键id，叶子结点存储的除了id外，还有每一行数据的物理存储地址，通过B+ tree找到id对应的地址，再通过右边的地址映射找到数据。</p>
+<h2 id="InnoDB索引结构"><a href="#InnoDB索引结构" class="headerlink" title="InnoDB索引结构"></a>InnoDB索引结构</h2><p><img src="https://img-blog.csdnimg.cn/9cf035b3883946a5ae135935a6137ee2.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<p> 对于InnoDB来说，它的索引和数据是存储到同一个文件里面去的，</p>
+<ul>
+<li>左图叫聚簇索引：InnoDB中以主键id为索引key</li>
+<li>右图是辅助索引：别的字段为索引</li>
+</ul>
+<p>InnoDB同样是B+ tree，而这里和MyISAM引擎不同的是，叶子节点储存的不再是物理地址，而是真实的数据！</p>
+<p>比如找id为15的数据，通过左图的B+ tree找到它对应的叶子结点，直接就把它整行的数据都拿出来了，不用再去找物理地址了！【和MyISAM区分开】</p>
+<p>右图：辅助索引的叶子节点存储的是辅助索引key和它对应的id主键，而不是整行的数据！所以如果要如果user_name这个辅助索引找整行的数据，比如找user_name = Eric的整行数据，先要通过右图辅助索引找到它对应的id，然后再通过左图的聚簇索引找到它对应的叶子节点，从而才能拿到整行的数据！</p>
+<p>这样就解释了，为什么 select的时候，尽量使用<strong>覆盖索引</strong>，也就是和后面检索条件中的索引尽可能一致或者是查它id，这样一次查到，而不用再去左图聚簇索引中查了！</p>
+<h2 id="对比MyISAM和InnoDB"><a href="#对比MyISAM和InnoDB" class="headerlink" title="对比MyISAM和InnoDB"></a>对比MyISAM和InnoDB</h2><ul>
+<li><p>MyISAM：无论是主键索引还是普通索引，查找数据的流程都是一样的，都会先去B+ tree找到对应叶子节点，再去物理地址取数据。【<strong>先找地址，再通过地址找数据</strong>】</p>
+</li>
+<li><p>InnDB，查找数据的流程分为两种类型</p>
+<ul>
+<li>聚簇索引：通过主键id能够直接取出全部数据（叶子节点中存放真实数据）</li>
+<li>辅助索引：通过索引找到对应id，再通过聚簇索引的B+ tree找到真实数据，要找两次！</li>
+</ul>
+</li>
+<li><p>InnoDB在<strong>聚簇索引</strong>的查询过程中比MyISAM快一些；InnoDB辅助索引的查询过程在一定程度上比MyISAM慢一些</p>
+</li>
+</ul>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Eric kun</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://ericzikun.github.io/2022/01/27/deep15-MySQL%E5%A6%82%E4%BD%95%E9%80%9A%E8%BF%87%E7%B4%A2%E5%BC%95%E6%89%BE%E5%88%B0%E4%B8%80%E6%9D%A1%E7%9C%9F%E5%AE%9E%E7%9A%84%E6%95%B0%E6%8D%AE/">https://ericzikun.github.io/2022/01/27/deep15-MySQL%E5%A6%82%E4%BD%95%E9%80%9A%E8%BF%87%E7%B4%A2%E5%BC%95%E6%89%BE%E5%88%B0%E4%B8%80%E6%9D%A1%E7%9C%9F%E5%AE%9E%E7%9A%84%E6%95%B0%E6%8D%AE/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://ericzikun.github.io" target="_blank">EricKun</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/MySQL/">MySQL</a><a class="post-meta__tags" href="/tags/B-%E6%A0%91/">B+树</a><a class="post-meta__tags" href="/tags/%E7%B4%A2%E5%BC%95/">索引</a><a class="post-meta__tags" href="/tags/InnoDB/">InnoDB</a><a class="post-meta__tags" href="/tags/MyISAM/">MyISAM</a></div><div class="post_share"><div class="social-share" data-image="https://img-blog.csdnimg.cn/9cf035b3883946a5ae135935a6137ee2.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> 打赏<div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/alipay.png" target="_blank"><img class="post-qr-code-img" src="/img/alipay.png"/></a><div class="post-qr-code-desc"></div></li></ul></div></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/01/27/deep14-MySQL%E5%BA%95%E5%B1%82%E9%87%87%E7%94%A8B-tree%E7%9A%84%E5%8E%9F%E5%9B%A0/"><img class="prev-cover" src="https://img-blog.csdnimg.cn/3e8f3c6e346942e2a52b2ca4a35a1647.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">MySQL底层采用B+ tree的原因剖析【哈希、平衡二叉、B树为啥不行？】</div></div></a></div><div class="next-post pull-right"><a href="/2021/11/28/deep13-%E7%B3%BB%E7%BB%9F%E6%A2%B3%E7%90%86Java-lambda-Stream-%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B/"><img class="next-cover" src="https://img-blog.csdnimg.cn/fc7644b506234c1e9e16e7c4a413569c.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">还不了解lambda？还再用迭代遍历操作集合？赶紧上Stream流！</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/01/27/deep14-MySQL底层采用B-tree的原因/" title="MySQL底层采用B+ tree的原因剖析【哈希、平衡二叉、B树为啥不行？】"><img class="cover" src="https://img-blog.csdnimg.cn/3e8f3c6e346942e2a52b2ca4a35a1647.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-27</div><div class="title">MySQL底层采用B+ tree的原因剖析【哈希、平衡二叉、B树为啥不行？】</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div></div></div></article></main><footer id="footer" style="background: #000000"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By Eric kun</div><div class="framework-info"><span>框架 </span><a href="https://hexo.io" target="_blank" rel="noopener">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener">Butterfly</a></div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a href="https://github.com/wzpan/hexo-generator-search" target="_blank" rel="noopener" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    loader: {
+      source: {
+        '[tex]/amsCd': '[tex]/amscd'
+      }
+    },
+    tex: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]],
+      tags: 'ams'
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, ''],
+        addClass: [200,() => {
+          document.querySelectorAll('mjx-container:not([display=\'true\']').forEach( node => {
+            const target = node.parentNode
+            if (!target.classList.contains('has-jax')) {
+              target.classList.add('mathjax-overflow')
+            }
+          })
+        }, '', false]
+      }
+    }
+  }
+  
+  var script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typeset()
+}</script><script>function loadValine () {
+  function initValine () {
+    const initData = {
+      el: '#vcomment',
+      appId: 'tx6zs0UB1yRovubWAD3heyoM-gzGzoHsz',
+      appKey: '8SJzl4MBSSjcdEESUaALKRXk',
+      placeholder: 'Just do it!',
+      avatar: 'monsterid',
+      meta: 'nick,mail,link'.split(','),
+      pageSize: '10',
+      lang: 'zh-CN',
+      recordIP: false,
+      serverURLs: '',
+      emojiCDN: '',
+      emojiMaps: "",
+      enableQQ: false,
+      path: window.location.pathname,
+    }
+
+    if (true) { 
+      initData.requiredFields= ('nick,mail'.split(','))
+    }
+
+    const valine = new Valine(initData)
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else $.getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js', initValine)
+}
+
+if ('Valine' === 'Valine' || !false) {
+  if (false) btf.loadComment(document.querySelector('#vcomment'),loadValine)
+  else setTimeout(() => loadValine(), 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></div></body></html>
