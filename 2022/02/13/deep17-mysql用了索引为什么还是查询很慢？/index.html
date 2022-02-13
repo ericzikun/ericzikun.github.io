@@ -1,0 +1,292 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MySQL用了索引为什么还是查询很慢？查询速度和什么因素有关？ | EricKun</title><meta name="keywords" content="MySQL,InnoDB,sql优化,查询速度,OLAP,OLTP"><meta name="author" content="Eric kun"><meta name="copyright" content="Eric kun"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="前言近几个月在华为实习的过程中，有个场景下取数，对于一个sn号的查询竟然长达几分钟的时间，批量查几十个sn时，则需要一二十分钟的sql查询时间，故专门对这个问题进行一些整理和思考。首先，这个数据库是存在HIVE上，经过和一些前辈交流后，了解到企业中的数据库主要分为两大种：OLTP（on-line transaction processing）事务型、OLAP（On-Line Analytical">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL用了索引为什么还是查询很慢？查询速度和什么因素有关？">
+<meta property="og:url" content="https://ericzikun.github.io/2022/02/13/deep17-mysql%E7%94%A8%E4%BA%86%E7%B4%A2%E5%BC%95%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%98%E6%98%AF%E6%9F%A5%E8%AF%A2%E5%BE%88%E6%85%A2%EF%BC%9F/index.html">
+<meta property="og:site_name" content="EricKun">
+<meta property="og:description" content="前言近几个月在华为实习的过程中，有个场景下取数，对于一个sn号的查询竟然长达几分钟的时间，批量查几十个sn时，则需要一二十分钟的sql查询时间，故专门对这个问题进行一些整理和思考。首先，这个数据库是存在HIVE上，经过和一些前辈交流后，了解到企业中的数据库主要分为两大种：OLTP（on-line transaction processing）事务型、OLAP（On-Line Analytical">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/b00afa5810134e7da7773d258828dc5d.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="article:published_time" content="2022-02-13T07:43:33.000Z">
+<meta property="article:modified_time" content="2022-02-13T07:45:36.935Z">
+<meta property="article:author" content="Eric kun">
+<meta property="article:tag" content="MySQL">
+<meta property="article:tag" content="InnoDB">
+<meta property="article:tag" content="sql优化">
+<meta property="article:tag" content="查询速度">
+<meta property="article:tag" content="OLAP">
+<meta property="article:tag" content="OLTP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/b00afa5810134e7da7773d258828dc5d.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16"><link rel="shortcut icon" href="https://pic2.zhimg.com/80/v2-f19e0e0add10a40489cdb8df576a0f7e_qhd.jpg"><link rel="canonical" href="https://ericzikun.github.io/2022/02/13/deep17-mysql%E7%94%A8%E4%BA%86%E7%B4%A2%E5%BC%95%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%98%E6%98%AF%E6%9F%A5%E8%AF%A2%E5%BE%88%E6%85%A2%EF%BC%9F/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?0d6b4455953d3e1c0917234dfebaa739";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  hexoversion: '4.2.1',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: true,
+  postUpdate: '2022-02-13 15:45:36'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {
+  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }
+})()</script><meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="EricKun" type="application/atom+xml">
+</head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/null" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">60</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">116</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">36</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div></div></div></div><div id="body-wrap"><div id="web_bg"></div><div id="sidebar"><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#查询速度影响因素"><span class="toc-text">查询速度影响因素</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#举例"><span class="toc-text">举例</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#情况1："><span class="toc-text">情况1：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#情况2："><span class="toc-text">情况2：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#情况3："><span class="toc-text">情况3：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#情况4："><span class="toc-text">情况4：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#情况5："><span class="toc-text">情况5：</span></a></li></ol></li></ol></div></div></div><header class="post-bg" id="page-header" style="background-image: url(https://img-blog.csdnimg.cn/b00afa5810134e7da7773d258828dc5d.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">EricKun</a></span><span id="menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div></div><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">MySQL用了索引为什么还是查询很慢？查询速度和什么因素有关？</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-02-13T07:43:33.000Z" title="发表于 2022-02-13 15:43:33">2022-02-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-02-13T07:45:36.935Z" title="更新于 2022-02-13 15:45:36">2022-02-13</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%B7%B1%E5%85%A5/">深入</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%B7%B1%E5%85%A5/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>近几个月在华为实习的过程中，有个场景下取数，对于一个sn号的查询竟然长达几分钟的时间，批量查几十个sn时，则需要一二十分钟的sql查询时间，故专门对这个问题进行一些整理和思考。<br>首先，这个数据库是存在HIVE上，经过和一些前辈交流后，了解到企业中的数据库主要分为两大种：OLTP（on-line transaction processing）事务型、OLAP（On-Line Analytical Processing）分析型。</p>
+<ul>
+<li>OLTP是传统的关系型数据库的主要应用，主要是基本的、日常的事务处理，例如银行交易。</li>
+<li>OLAP是数据仓库系统的主要应用，支持复杂的分析操作，侧重决策支持，并且提供直观易懂的查询结果。 </li>
+</ul>
+<ol>
+<li>那么，事务型数据库OLTP主要以小的事务以及小的查询为主，评估其系统的时候，一般看其每秒执行的Transaction以及Execute SQL的数量。在这样的系统中，单个数据库每秒处理的Transaction往往超过几百个，或者是几千个，Select 语句的执行量每秒几千甚至几万个。OLTP系统最容易出现瓶颈的地方就是CPU与磁盘子系统。</li>
+<li>OLAP，也叫联机分析处理（Online Analytical Processing）系统，有的时候也叫DSS决策支持系统，就是我们说的数据仓库。在这样的系统中，语句的执行量不是考核标准，因为一条语句的执行时间可能会非常长，读取的数据也非常多。所以，在这样的系统中，考核的标准往往是磁盘子系统的吞吐量（带宽），如能达到多少MB/s的流量。磁盘子系统的吞吐量则往往取决于磁盘的个数，这个时候，Cache基本是没有效果的，数据库的读写类型基本上是db file scattered read与direct path read/write。应尽量采用个数比较多的磁盘以及比较大的带宽，如4Gb的光纤接口。<br>在OLAP系统中，常使用分区技术、并行技术。</li>
+</ol>
+<h1 id="查询速度影响因素"><a href="#查询速度影响因素" class="headerlink" title="查询速度影响因素"></a>查询速度影响因素</h1><p>回到正题，为什么我用了索引，查询速度还是很慢？到底会出现什么问题，以及如何去解决？本文来探究一二。</p>
+<p>先给出结论：MySQL用到了索引和执行时间的长短没有必然关系，确定查询执行效率的是 “<strong>扫描行数</strong>”与“<strong>回表次数</strong>”。 </p>
+<ul>
+<li>扫描行数</li>
+<li>回表次数</li>
+</ul>
+<p>在实际的sql优化过程中，也是尽量去优化这两块影响因素。</p>
+<h1 id="举例"><a href="#举例" class="headerlink" title="举例"></a>举例</h1><p>举例说明：<br> <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">CREATE</span> <span class="keyword">TABLE</span> t</span><br><span class="line"><span class="keyword">id</span> <span class="built_in">int</span>(<span class="number">11</span>)<span class="keyword">NOT</span> <span class="literal">NULL</span></span><br><span class="line">a <span class="built_in">varchar</span>(<span class="number">64</span>)<span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">b <span class="built_in">int</span>(<span class="number">11</span>)<span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">PRIMARY <span class="keyword">KEY</span> (<span class="keyword">id</span>)</span><br><span class="line"><span class="keyword">KEY</span> a(a) <span class="keyword">ENGINE</span>-<span class="keyword">InnoDB</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">Query</span> OK, O <span class="keyword">rows</span> affected(<span class="number">0.02</span> sec)</span><br></pre></td></tr></table></figure><br>先建一个表，InnoDB必须有一个主键索引，这里给id为主键，其次有a、b两个字段，再给a字段（姓名字段）一个普通索引，目前就有了主键索引和a索引树结构，如下图所示：</p>
+<p> <img src="https://img-blog.csdnimg.cn/b00afa5810134e7da7773d258828dc5d.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<blockquote>
+<p>这里再回顾一下，InnoDB默认有主键索引，存储的是主键id1、2、3…，它是采用B+ tree的聚簇索引，所有的数据都存放在叶子结点中，而普通索引a的数据只包含对应的id，没有整行数据，所以如果通过普通索引找到了某个id，需要select别的字段，则还需要回表找主键索引中的整行数据取值！</p>
+</blockquote>
+<blockquote>
+<p>慢查询:<br>sq中慢查询阈值为ong_ query time=10s<br>当sq执行后大于10s就会被记录到慢sq志<br>般建议缩小到1s，一般来说当并发系统中某一条sql查询时间大于1s了，对整体系统的性能影响就会比较大了。</p>
+</blockquote>
+<h2 id="情况1："><a href="#情况1：" class="headerlink" title="情况1："></a>情况1：</h2><p>select * from t #全表扫描<br><img src="https://img-blog.csdnimg.cn/e21558f2aa7a49b787b25de97d3f242e.png" alt="在这里插入图片描述"></p>
+<p>其中，type=ALL表示扫描所有行，速度是最慢的，从头到尾扫描。</p>
+<h2 id="情况2："><a href="#情况2：" class="headerlink" title="情况2："></a>情况2：</h2><p>select * from where id = 2 #主键索引快速过滤<br><img src="https://img-blog.csdnimg.cn/b49d907f292a4237b0546dfbc6983191.png" alt="在这里插入图片描述"><br>根据主键id索引进行查询，这时采用了key也就是索引，速度是最快的，也不用回表</p>
+<h2 id="情况3："><a href="#情况3：" class="headerlink" title="情况3："></a>情况3：</h2><p>select a from t #索引覆盖，无需回表<br><img src="https://img-blog.csdnimg.cn/a5bac585102b40c897df3d3857684666.png" alt="在这里插入图片描述"><br>采用了索引覆盖，查询速度也是很快的，因为也不用回表，采用了索引为a，取的也是a字段，也是一步到位。</p>
+<blockquote>
+<p>在MySQL大分页的过程中也用到了索引覆盖的方式进行了优化</p>
+</blockquote>
+<h2 id="情况4："><a href="#情况4：" class="headerlink" title="情况4："></a>情况4：</h2><p>select * from t where id&gt;0 #基于id扫描全表，且产生大量回表，速度慢<br> <img src="https://img-blog.csdnimg.cn/a8c3b2516da84b6d9ff825cd2f52840a.png" alt="在这里插入图片描述"></p>
+<p>用*或者多个字段可能要全表扫描。<br>一般来说查询的数据量要是全表的25%以内，数据库才会判断有走索引的价值，这里不能光看key中有primary就认为走了索引就很快，而还要看row中扫描了多少行，这种情况下row中的行数就等于表的总行数，查询的速度并不快，是全表扫描！</p>
+<h2 id="情况5："><a href="#情况5：" class="headerlink" title="情况5："></a>情况5：</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">create index t on(a, b)</span><br><span class="line">假设t表有1亿人,其中600万姓“张”</span><br><span class="line"></span><br><span class="line">select* from t <span class="built_in">where</span> a=张三 and b=23</span><br><span class="line">索引选择性就很好</span><br><span class="line"></span><br><span class="line">select from t <span class="built_in">where</span> a like 5k%<span class="string">' and b =23</span></span><br><span class="line"><span class="string">索引选择性较差,但仍会用到索引</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>作为联合索引，根据前面博客提到的最左前缀法则，我们必须在where中按照联合索引的顺序来查，在左索引基础上查右索引，所以第一句sql是比较快的，直接可以在联合索引树中找到张三这个人；而第二句由于使用了模糊查询，如果姓张的人超过了总数的10%、15%，MySQL就会认为这样的选择性太差，就不会给使用索引了！（没有使用索引的价值！）而转去走全表扫描了。这里的设计是1亿人中有600万人姓“张”，所以虽然索引选择性相对较差，但是MySQL认为还是可以用索引。<br>MySQL5.6之后做的优化：index condition pushdown，优化了回表数量级</p>
+<ul>
+<li>mysq5.6以前,基于左侧列对600万张回表筛选23岁数据,速度比较慢</li>
+<li>mysq5.6以后,基于联合索引左侧列a筛选“张”再去筛选“23岁”,再讲符<br>合条件的id回表提取,回表数量大幅度减少<br>这种新特性称为” index condition pushdown”</li>
+</ul>
+<p>几种调优方式：</p>
+<ol>
+<li>增加多种不同规格索引提高索引选择性(5~6组)</li>
+<li>空间换时间,定时任务增加时报、日报、约报等中间结果</li>
+<li>边缘运算数据压缩:物联网惯用伎俩<br>4硬件调优:增大 innodb buffer pool多利用内存,减少硬盘回表<blockquote>
+<p>解释：<br>2.每一个小时 每一分钟去做计算，做汇总，而不是全量汇总，这样数据量就小很多了<br>3.边缘运算：比如几百万的基站给服务器去每秒上传数据，那么服务器的压力肯定是很大的，如果过往一个小时内数据没有任何异常，则可以用一个表达式把一个小时的数据状态记录压缩成一条记录，实现数据的压缩，再向上上报一次，压力大大降低<br>4.从硬件角度优化，增大内存！</p>
+</blockquote>
+</li>
+</ol>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Eric kun</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://ericzikun.github.io/2022/02/13/deep17-mysql%E7%94%A8%E4%BA%86%E7%B4%A2%E5%BC%95%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%98%E6%98%AF%E6%9F%A5%E8%AF%A2%E5%BE%88%E6%85%A2%EF%BC%9F/">https://ericzikun.github.io/2022/02/13/deep17-mysql%E7%94%A8%E4%BA%86%E7%B4%A2%E5%BC%95%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%98%E6%98%AF%E6%9F%A5%E8%AF%A2%E5%BE%88%E6%85%A2%EF%BC%9F/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://ericzikun.github.io" target="_blank">EricKun</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/MySQL/">MySQL</a><a class="post-meta__tags" href="/tags/InnoDB/">InnoDB</a><a class="post-meta__tags" href="/tags/sql%E4%BC%98%E5%8C%96/">sql优化</a><a class="post-meta__tags" href="/tags/%E6%9F%A5%E8%AF%A2%E9%80%9F%E5%BA%A6/">查询速度</a><a class="post-meta__tags" href="/tags/OLAP/">OLAP</a><a class="post-meta__tags" href="/tags/OLTP/">OLTP</a></div><div class="post_share"><div class="social-share" data-image="https://img-blog.csdnimg.cn/b00afa5810134e7da7773d258828dc5d.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> 打赏<div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/alipay.png" target="_blank"><img class="post-qr-code-img" src="/img/alipay.png"/></a><div class="post-qr-code-desc"></div></li></ul></div></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2022/02/07/deep16-MySQL-%E8%AF%BB%E5%B7%B2%E6%8F%90%E4%BA%A4%E5%92%8C%E5%8F%AF%E9%87%8D%E5%A4%8D%E8%AF%BB%E7%BA%A7%E5%88%AB%E4%B8%8B-MVCC%E5%B9%B6%E5%8F%91%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/"><img class="next-cover" src="https://img-blog.csdnimg.cn/e546b3e4b7614607a94298dfa44912fd.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">初探MySQL 读已提交和可重复读级别下 MVCC并发版本控制实现原理</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/01/27/deep15-MySQL如何通过索引找到一条真实的数据/" title="MySQL如何通过索引找到一条真实的数据？"><img class="cover" src="https://img-blog.csdnimg.cn/9cf035b3883946a5ae135935a6137ee2.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-27</div><div class="title">MySQL如何通过索引找到一条真实的数据？</div></div></a></div><div><a href="/2022/02/07/deep16-MySQL-读已提交和可重复读级别下-MVCC并发版本控制实现原理/" title="初探MySQL 读已提交和可重复读级别下 MVCC并发版本控制实现原理"><img class="cover" src="https://img-blog.csdnimg.cn/e546b3e4b7614607a94298dfa44912fd.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-02-07</div><div class="title">初探MySQL 读已提交和可重复读级别下 MVCC并发版本控制实现原理</div></div></a></div><div><a href="/2022/01/27/deep14-MySQL底层采用B-tree的原因/" title="MySQL底层采用B+ tree的原因剖析【哈希、平衡二叉、B树为啥不行？】"><img class="cover" src="https://img-blog.csdnimg.cn/3e8f3c6e346942e2a52b2ca4a35a1647.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-27</div><div class="title">MySQL底层采用B+ tree的原因剖析【哈希、平衡二叉、B树为啥不行？】</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div></div></div></article></main><footer id="footer" style="background: #000000"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By Eric kun</div><div class="framework-info"><span>框架 </span><a href="https://hexo.io" target="_blank" rel="noopener">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener">Butterfly</a></div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a href="https://github.com/wzpan/hexo-generator-search" target="_blank" rel="noopener" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    loader: {
+      source: {
+        '[tex]/amsCd': '[tex]/amscd'
+      }
+    },
+    tex: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]],
+      tags: 'ams'
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, ''],
+        addClass: [200,() => {
+          document.querySelectorAll('mjx-container:not([display=\'true\']').forEach( node => {
+            const target = node.parentNode
+            if (!target.classList.contains('has-jax')) {
+              target.classList.add('mathjax-overflow')
+            }
+          })
+        }, '', false]
+      }
+    }
+  }
+  
+  var script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typeset()
+}</script><script>function loadValine () {
+  function initValine () {
+    const initData = {
+      el: '#vcomment',
+      appId: 'tx6zs0UB1yRovubWAD3heyoM-gzGzoHsz',
+      appKey: '8SJzl4MBSSjcdEESUaALKRXk',
+      placeholder: 'Just do it!',
+      avatar: 'monsterid',
+      meta: 'nick,mail,link'.split(','),
+      pageSize: '10',
+      lang: 'zh-CN',
+      recordIP: false,
+      serverURLs: '',
+      emojiCDN: '',
+      emojiMaps: "",
+      enableQQ: false,
+      path: window.location.pathname,
+    }
+
+    if (true) { 
+      initData.requiredFields= ('nick,mail'.split(','))
+    }
+
+    const valine = new Valine(initData)
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else $.getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js', initValine)
+}
+
+if ('Valine' === 'Valine' || !false) {
+  if (false) btf.loadComment(document.querySelector('#vcomment'),loadValine)
+  else setTimeout(() => loadValine(), 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></div></body></html>
