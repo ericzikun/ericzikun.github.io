@@ -1,0 +1,318 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>布隆过滤器【1970年由布隆提出；Redis缓存穿透解决方案】 | EricKun</title><meta name="keywords" content="Redis,布隆过滤器,缓存穿透"><meta name="author" content="Eric kun"><meta name="copyright" content="Eric kun"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="什么是布隆过滤器布隆过滤器（Bloom Filter），是1970年，由一个叫布隆的小伙子提出的，距今已经五十年了。 它实际上是一个很长的二进制向量和一系列随机映射函数，二进制大家应该都清楚，存储的数据不是0就是1，默认是0。 主要用于判断一个元素是否在一个集合中，0代表不存在某个数据，1代表存在某个数据。 布隆过滤器用途 解决Redis缓存穿透   举例：在爬虫时，对爬虫网址进行过滤，已经存在布">
+<meta property="og:type" content="article">
+<meta property="og:title" content="布隆过滤器【1970年由布隆提出；Redis缓存穿透解决方案】">
+<meta property="og:url" content="https://ericzikun.github.io/2022/02/14/deep18-%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E3%80%901970%E5%B9%B4%E7%94%B1%E5%B8%83%E9%9A%86%E6%8F%90%E5%87%BA%EF%BC%9BRedis%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E3%80%91/index.html">
+<meta property="og:site_name" content="EricKun">
+<meta property="og:description" content="什么是布隆过滤器布隆过滤器（Bloom Filter），是1970年，由一个叫布隆的小伙子提出的，距今已经五十年了。 它实际上是一个很长的二进制向量和一系列随机映射函数，二进制大家应该都清楚，存储的数据不是0就是1，默认是0。 主要用于判断一个元素是否在一个集合中，0代表不存在某个数据，1代表存在某个数据。 布隆过滤器用途 解决Redis缓存穿透   举例：在爬虫时，对爬虫网址进行过滤，已经存在布">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/215960170bbf4f779149909e57969050.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="article:published_time" content="2022-02-14T01:52:06.000Z">
+<meta property="article:modified_time" content="2022-02-14T01:57:51.674Z">
+<meta property="article:author" content="Eric kun">
+<meta property="article:tag" content="Redis">
+<meta property="article:tag" content="布隆过滤器">
+<meta property="article:tag" content="缓存穿透">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/215960170bbf4f779149909e57969050.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16"><link rel="shortcut icon" href="https://pic2.zhimg.com/80/v2-f19e0e0add10a40489cdb8df576a0f7e_qhd.jpg"><link rel="canonical" href="https://ericzikun.github.io/2022/02/14/deep18-%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E3%80%901970%E5%B9%B4%E7%94%B1%E5%B8%83%E9%9A%86%E6%8F%90%E5%87%BA%EF%BC%9BRedis%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E3%80%91/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?0d6b4455953d3e1c0917234dfebaa739";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  hexoversion: '4.2.1',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: true,
+  postUpdate: '2022-02-14 09:57:51'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {
+  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }
+})()</script><meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="EricKun" type="application/atom+xml">
+</head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/null" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">62</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">120</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">36</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div></div></div></div><div id="body-wrap"><div id="web_bg"></div><div id="sidebar"><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#什么是布隆过滤器"><span class="toc-text">什么是布隆过滤器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#布隆过滤器用途"><span class="toc-text">布隆过滤器用途</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#布隆过滤器原理"><span class="toc-text">布隆过滤器原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#查询过程"><span class="toc-text">查询过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#删除过程"><span class="toc-text">删除过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#布隆过滤器的优缺点"><span class="toc-text">布隆过滤器的优缺点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#优点"><span class="toc-text">优点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#缺点"><span class="toc-text">缺点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#深入分析代码"><span class="toc-text">深入分析代码</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#参数"><span class="toc-text">参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#调整fpp误判率"><span class="toc-text">调整fpp误判率</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#情景总结"><span class="toc-text">情景总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Redis缓存穿透解决方案：布隆过滤器"><span class="toc-text">Redis缓存穿透解决方案：布隆过滤器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#白名单"><span class="toc-text">白名单</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#黑名单"><span class="toc-text">黑名单</span></a></li></ol></li></ol></div></div></div><header class="post-bg" id="page-header" style="background-image: url(https://img-blog.csdnimg.cn/215960170bbf4f779149909e57969050.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">EricKun</a></span><span id="menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div></div><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">布隆过滤器【1970年由布隆提出；Redis缓存穿透解决方案】</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-02-14T01:52:06.000Z" title="发表于 2022-02-14 09:52:06">2022-02-14</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-02-14T01:57:51.674Z" title="更新于 2022-02-14 09:57:51">2022-02-14</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%B7%B1%E5%85%A5/">深入</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%B7%B1%E5%85%A5/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h2 id="什么是布隆过滤器"><a href="#什么是布隆过滤器" class="headerlink" title="什么是布隆过滤器"></a>什么是布隆过滤器</h2><p>布隆过滤器（Bloom Filter），是1970年，由一个叫布隆的小伙子提出的，距今已经五十年了。</p>
+<p>它实际上是一个很长的二进制向量和一系列随机映射函数，二进制大家应该都清楚，存储的数据不是0就是1，默认是0。</p>
+<p>主要用于判断一个元素是否在一个集合中，0代表不存在某个数据，1代表存在某个数据。<br><img src="https://img-blog.csdnimg.cn/215960170bbf4f779149909e57969050.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<h2 id="布隆过滤器用途"><a href="#布隆过滤器用途" class="headerlink" title="布隆过滤器用途"></a>布隆过滤器用途</h2><ul>
+<li><p>解决Redis缓存穿透 </p>
+</li>
+<li><p>举例：在爬虫时，对爬虫网址进行过滤，已经存在布隆中的网址，不再爬取。</p>
+</li>
+<li><p>举例：垃圾邮件过滤，对每一个发送邮件的地址进行判断是否在布隆的黑名单中，如果在就判断为垃圾邮件。</p>
+</li>
+</ul>
+<h2 id="布隆过滤器原理"><a href="#布隆过滤器原理" class="headerlink" title="布隆过滤器原理"></a>布隆过滤器原理</h2><p>存入过程<br>布隆过滤器上面说了，就是一个二进制数据的集合。当一个数据加入这个集合时，经历如下洗礼（这里有缺点，下面会讲）：</p>
+<ol>
+<li>通过K个哈希函数计算该数据，返回K个计算出的hash值</li>
+<li>这些K个hash值映射到对应的K个二进制的数组下标</li>
+<li>将K个下标对应的二进制数据改成1。</li>
+</ol>
+<p>例如，第一个哈希函数返回x，第二个第三个哈希函数返回y与z，那么： X、Y、Z对应的二进制改成1。<br><img src="https://img-blog.csdnimg.cn/ccb185430544403ab921a5275cee4918.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<h2 id="查询过程"><a href="#查询过程" class="headerlink" title="查询过程"></a>查询过程</h2><p>布隆过滤器主要作用就是查询一个数据，在不在这个二进制的集合中，查询过程如下：</p>
+<ol>
+<li><p>通过K个哈希函数计算该数据，对应计算出的K个hash值</p>
+</li>
+<li><p>通过hash值找到对应的二进制的数组下标</p>
+</li>
+<li><p>判断：如果存在一处位置的二进制数据是0，那么该数据不存在。如果都是1，该数据存在集合中。（这里有缺点，下面会讲）</p>
+</li>
+</ol>
+<h2 id="删除过程"><a href="#删除过程" class="headerlink" title="删除过程"></a>删除过程</h2><p>一般不能删除布隆过滤器里的数据，这是一个缺点之一，我们下面会分析。</p>
+<h2 id="布隆过滤器的优缺点"><a href="#布隆过滤器的优缺点" class="headerlink" title="布隆过滤器的优缺点"></a>布隆过滤器的优缺点</h2><h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><p>由于存储的是二进制数据，所以占用的空间很小</p>
+<p>它的插入和查询速度是非常快的，时间复杂度是O（K），可以联想一下HashMap的过程</p>
+<p>保密性很好，因为本身不存储任何原始数据，只有二进制数据</p>
+<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><p>这就要回到我们上面所说的那些缺点了。</p>
+<p>添加数据是通过计算数据的hash值，那么很有可能存在这种情况：两个不同的数据计算得到相同的hash值。<br><img src="https://img-blog.csdnimg.cn/5263f8a6caba46a2b780cc5c270ca85d.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<blockquote>
+<p>例如图中的“你好”和“hello”，假如最终算出hash值相同，那么他们会将同一个下标的二进制数据改为1。这个时候，你就不知道下标为2的二进制，到底是代表“你好”还是“hello”。</p>
+</blockquote>
+<p>由此得出如下缺点：</p>
+<ol>
+<li><p>存在误判<br>假如上面的图没有存”hello”，只存了”你好”，那么用”hello”来查询的时候，会判断”hello”存在集合中。<br>因为“你好”和“hello”的hash值是相同的，通过相同的hash值，找到的二进制数据也是一样的，都是1。</p>
+</li>
+<li><p>删除困难<br>还是用上面的举例，因为“你好”和“hello”的hash值相同，对应的数组下标也是一样的。<br>这时候想去删除“你好”，连“hello”都一起删了。（0代表有这个数据，1代表没有这个数据）</p>
+</li>
+</ol>
+<p>实现布隆过滤器<br>有很多种实现方式，其中一种就是Guava提供的实现方式。</p>
+<ol>
+<li>引入Guava pom配置 </li>
+</ol>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;dependency&gt;</span><br><span class="line">  &lt;groupId&gt;com.google.guava&lt;/groupId&gt;</span><br><span class="line">  &lt;artifactId&gt;guava&lt;/artifactId&gt;</span><br><span class="line">  &lt;version&gt;29.0-jre&lt;/version&gt;</span><br><span class="line">&lt;/dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.google.common.hash.BloomFilter;</span><br><span class="line"><span class="keyword">import</span> com.google.common.hash.Funnels;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BloomFilterCase</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 预计要插入多少数据</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">int</span> size = <span class="number">1000000</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 期望的误判率</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">double</span> fpp = <span class="number">0.01</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 布隆过滤器</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> BloomFilter&lt;Integer&gt; bloomFilter = BloomFilter.create(Funnels.integerFunnel(), size, fpp);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 插入10万样本数据</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; size; i++) &#123;</span><br><span class="line">      bloomFilter.put(i);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 用另外十万测试数据，测试误判率</span></span><br><span class="line">    <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = size; i &lt; size + <span class="number">100000</span>; i++) &#123;</span><br><span class="line">      <span class="keyword">if</span> (bloomFilter.mightContain(i)) &#123;</span><br><span class="line">        count++;</span><br><span class="line">        System.out.println(i + <span class="string">"误判了"</span>);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    System.out.println(<span class="string">"总共的误判数:"</span> + count);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="https://img-blog.csdnimg.cn/7983195b95a0427387443fb2d3b66ae0.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<h2 id="深入分析代码"><a href="#深入分析代码" class="headerlink" title="深入分析代码"></a>深入分析代码</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@VisibleForTesting</span></span><br><span class="line">  <span class="keyword">static</span> &lt;T&gt; <span class="function">BloomFilter&lt;T&gt; <span class="title">create</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">      Funnel&lt;? <span class="keyword">super</span> T&gt; funnel, <span class="keyword">long</span> expectedInsertions, <span class="keyword">double</span> fpp, Strategy strategy)</span> </span>&#123;</span><br><span class="line">    。。。。</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h3><ul>
+<li>funnel：数据类型(一般是调用Funnels工具类中的)</li>
+<li>expectedInsertions：期望插入的值的个数</li>
+<li>fpp：误判率(默认值为0.03)</li>
+<li>strategy：哈希算法</li>
+</ul>
+<h3 id="调整fpp误判率"><a href="#调整fpp误判率" class="headerlink" title="调整fpp误判率"></a>调整fpp误判率</h3><p>情景一：fpp = 0.01</p>
+<ul>
+<li>误判个数：947<br><img src="https://img-blog.csdnimg.cn/11bcaf53dfeb4145aec70d3d786ae394.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></li>
+<li>占内存大小：9585058位数<br><img src="https://img-blog.csdnimg.cn/8173ae884909482ba4263d974888df7d.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><h2 id="情景总结"><a href="#情景总结" class="headerlink" title="情景总结"></a>情景总结</h2></li>
+<li>误判率可以通过fpp参数进行调节</li>
+<li>fpp越小，需要的内存空间就越大：0.01需要900多万位数，0.03需要700多万位数。</li>
+<li>fpp越小，集合添加数据时，就需要更多的hash函数运算更多的hash值，去存储到对应的数组下标里。（忘了去看上面的布隆过滤存入数据的过程）</li>
+</ul>
+<h2 id="Redis缓存穿透解决方案：布隆过滤器"><a href="#Redis缓存穿透解决方案：布隆过滤器" class="headerlink" title="Redis缓存穿透解决方案：布隆过滤器"></a>Redis缓存穿透解决方案：布隆过滤器</h2><p>首先，布孔过滤器类似于一个白名单、黑名单，主要元素就是判断元素存不存在一个过滤器中，核心在此。</p>
+<p><img src="https://img-blog.csdnimg.cn/c1fa52df01bf41e99ecccc5884f1f9d6.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<h3 id="白名单"><a href="#白名单" class="headerlink" title="白名单"></a>白名单</h3><p>场景：<br>前端发送一个查询请求，通过参数key，首先通过布隆过滤器，如果不存在过滤器（白名单）中，就会被过滤器给拦截，然后直接返回这个空数据给前端；如果key存在于过滤器中，就会往下执行正常的查Redis、mysql的流程；<br>这里有个流程4：如果mysql中查询不到这个key，说明什么？说明key在白名单中，单数MySQL查不到，也就是说布隆过滤器误判了！那么这个4路线就是打算把这个误判给删除，以防止下次重复同样的请求，但是由于布隆过滤器哈希碰撞导致删除很难（容易误伤），所以这个线路4是实际走不通的！<br>注意</p>
+<ol>
+<li>整体来说，由于我们前面说到布隆过滤器的误判概率是比较小的，所以直接打到MySQL的概率也就小，这种情况不用过于担心！</li>
+<li>所有合法参数key都要放到布隆过滤器、Redis中。</li>
+</ol>
+<h3 id="黑名单"><a href="#黑名单" class="headerlink" title="黑名单"></a>黑名单</h3><p><img src="https://img-blog.csdnimg.cn/83675d075f644ef09d157031b5847517.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>场景:某视频网站推送视频给用户<br>布隆过滤器作用:当黑名单使用。<br>要求:已经推送过的视频,不在推送给用户<br>流程:当推送给用户一批视频时,先判断这些视频是否存在过滤器里,如果存在就不推送给用户,不存在就推送给用户,同时将推送过的视频存入过滤器黑名单里。防止下次重复推送。</p>
+<p>代码：<br>用户实体类:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Data</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">User</span> <span class="keyword">implements</span> <span class="title">Serializable</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> String maYunPhone = <span class="string">"18890019390"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Long id;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> String userName;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">private</span> Integer age;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 解决缓存穿透—白名单</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RedissonBloomFilter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 构造Redisson</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">static</span> RedissonClient redisson = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> RBloomFilter&lt;String&gt; bloomFilter = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">      Config config = <span class="keyword">new</span> Config();</span><br><span class="line">      config.useSingleServer().setAddress(<span class="string">"redis://127.0.0.1:6379"</span>);</span><br><span class="line"></span><br><span class="line">      <span class="comment">//构造Redisson</span></span><br><span class="line">      redisson = Redisson.create(config);</span><br><span class="line">      <span class="comment">//构造布隆过滤器</span></span><br><span class="line">      bloomFilter = redisson.getBloomFilter(<span class="string">"userIdFilter"</span>);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 将查询数据放入Redis缓存和布隆过滤器里</span></span><br><span class="line">      initData(redisson, bloomFilter);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    User user = getUserById(<span class="number">2L</span>);</span><br><span class="line">    System.out.println(<span class="string">"user对象为："</span> + JSON.toJSONString(user));</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">initData</span><span class="params">(RedissonClient redisson, RBloomFilter&lt;String&gt; bloomFilter)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">      <span class="comment">//初始化布隆过滤器：预计元素为100000000L,误差率为3%</span></span><br><span class="line">      bloomFilter.tryInit(<span class="number">100000000L</span>,<span class="number">0.01</span>);</span><br><span class="line"></span><br><span class="line">      <span class="comment">//将id为1的数据，插入到布隆过滤器中</span></span><br><span class="line">      bloomFilter.add(<span class="string">"1"</span>);</span><br><span class="line">      bloomFilter.add(<span class="string">"2"</span>);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 将id为1对应的user数据，插入到Redis缓存中</span></span><br><span class="line">      redisson.getBucket(<span class="string">"1"</span>).set(<span class="string">"&#123;id:1, userName:'张三', age:18&#125;"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> User <span class="title">getUserById</span><span class="params">(Long id)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">null</span> == id) &#123;</span><br><span class="line">          <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      String idKey = id.toString();</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 开始模拟缓存穿透</span></span><br><span class="line">      <span class="comment">// 前端查询请求key</span></span><br><span class="line">      <span class="keyword">if</span> (bloomFilter.contains(idKey)) &#123;</span><br><span class="line"></span><br><span class="line">          <span class="comment">// 通过了过滤器白名单校验，去Redis里查询真正的数据</span></span><br><span class="line">          RBucket&lt;Object&gt; bucket = redisson.getBucket(idKey);</span><br><span class="line">          Object object = bucket.get();</span><br><span class="line"></span><br><span class="line">          <span class="comment">// 如果Redis有数据，直接返回该数据</span></span><br><span class="line">          <span class="keyword">if</span> (<span class="keyword">null</span> != object) &#123;</span><br><span class="line">              System.out.println(<span class="string">"从Redis里面查询出来的"</span>);</span><br><span class="line">              String userStr = object.toString();</span><br><span class="line">              <span class="keyword">return</span> JSON.parseObject(userStr, User<span class="class">.<span class="keyword">class</span>)</span>;</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">          <span class="comment">// 如果Redis为空，去查询数据库</span></span><br><span class="line">          User user = selectByDb(idKey);</span><br><span class="line">          <span class="keyword">if</span> (<span class="keyword">null</span> == user) &#123;</span><br><span class="line">              <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">          &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">              <span class="comment">// 将数据重新刷进缓存</span></span><br><span class="line">              redisson.getBucket(id.toString()).set(JSON.toJSONString(user));</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">return</span> user;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> User <span class="title">selectByDb</span><span class="params">(String id)</span> </span>&#123;</span><br><span class="line">      System.out.println(<span class="string">"从MySQL里面查询出来的"</span>);</span><br><span class="line">      User user = <span class="keyword">new</span> User();</span><br><span class="line">      user.setId(<span class="number">1L</span>);</span><br><span class="line">      user.setUserName(<span class="string">"张三"</span>);</span><br><span class="line">      user.setAge(<span class="number">18</span>);</span><br><span class="line">      <span class="keyword">return</span> user;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>部分转载于：<br><a href="https://www.cnblogs.com/itlaoge/p/14219693.html" target="_blank" rel="noopener">https://www.cnblogs.com/itlaoge/p/14219693.html</a></p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Eric kun</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://ericzikun.github.io/2022/02/14/deep18-%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E3%80%901970%E5%B9%B4%E7%94%B1%E5%B8%83%E9%9A%86%E6%8F%90%E5%87%BA%EF%BC%9BRedis%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E3%80%91/">https://ericzikun.github.io/2022/02/14/deep18-%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8%E3%80%901970%E5%B9%B4%E7%94%B1%E5%B8%83%E9%9A%86%E6%8F%90%E5%87%BA%EF%BC%9BRedis%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E3%80%91/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://ericzikun.github.io" target="_blank">EricKun</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Redis/">Redis</a><a class="post-meta__tags" href="/tags/%E5%B8%83%E9%9A%86%E8%BF%87%E6%BB%A4%E5%99%A8/">布隆过滤器</a><a class="post-meta__tags" href="/tags/%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F/">缓存穿透</a></div><div class="post_share"><div class="social-share" data-image="https://img-blog.csdnimg.cn/215960170bbf4f779149909e57969050.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> 打赏<div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/alipay.png" target="_blank"><img class="post-qr-code-img" src="/img/alipay.png"/></a><div class="post-qr-code-desc"></div></li></ul></div></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2022/02/14/deep19-Redis%E7%BC%93%E5%AD%98%E7%A9%BF%E9%80%8F-%E5%87%BB%E7%A9%BF-%E9%9B%AA%E5%B4%A9/"><img class="prev-cover" src="https://img-blog.csdnimg.cn/0378bf2a880f45c8b84d9019b13ca178.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Redis缓存穿透 击穿 雪崩</div></div></a></div><div class="next-post pull-right"><a href="/2022/02/13/deep17-MySQL%E7%94%A8%E4%BA%86%E7%B4%A2%E5%BC%95%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%98%E6%98%AF%E6%9F%A5%E8%AF%A2%E5%BE%88%E6%85%A2%EF%BC%9F/"><img class="next-cover" src="https://img-blog.csdnimg.cn/b00afa5810134e7da7773d258828dc5d.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">MySQL用了索引为什么还是查询很慢？查询速度和什么因素有关？</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/02/14/deep19-Redis缓存穿透-击穿-雪崩/" title="Redis缓存穿透 击穿 雪崩"><img class="cover" src="https://img-blog.csdnimg.cn/0378bf2a880f45c8b84d9019b13ca178.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-02-14</div><div class="title">Redis缓存穿透 击穿 雪崩</div></div></a></div><div><a href="/2021/01/04/Redis学习笔记/" title="【Springboot】Redis学习笔记"><img class="cover" src="https://img-blog.csdnimg.cn/20210124140426860.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-01-04</div><div class="title">【Springboot】Redis学习笔记</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div></div></div></article></main><footer id="footer" style="background: #000000"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By Eric kun</div><div class="framework-info"><span>框架 </span><a href="https://hexo.io" target="_blank" rel="noopener">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener">Butterfly</a></div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a href="https://github.com/wzpan/hexo-generator-search" target="_blank" rel="noopener" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    loader: {
+      source: {
+        '[tex]/amsCd': '[tex]/amscd'
+      }
+    },
+    tex: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]],
+      tags: 'ams'
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, ''],
+        addClass: [200,() => {
+          document.querySelectorAll('mjx-container:not([display=\'true\']').forEach( node => {
+            const target = node.parentNode
+            if (!target.classList.contains('has-jax')) {
+              target.classList.add('mathjax-overflow')
+            }
+          })
+        }, '', false]
+      }
+    }
+  }
+  
+  var script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typeset()
+}</script><script>function loadValine () {
+  function initValine () {
+    const initData = {
+      el: '#vcomment',
+      appId: 'tx6zs0UB1yRovubWAD3heyoM-gzGzoHsz',
+      appKey: '8SJzl4MBSSjcdEESUaALKRXk',
+      placeholder: 'Just do it!',
+      avatar: 'monsterid',
+      meta: 'nick,mail,link'.split(','),
+      pageSize: '10',
+      lang: 'zh-CN',
+      recordIP: false,
+      serverURLs: '',
+      emojiCDN: '',
+      emojiMaps: "",
+      enableQQ: false,
+      path: window.location.pathname,
+    }
+
+    if (true) { 
+      initData.requiredFields= ('nick,mail'.split(','))
+    }
+
+    const valine = new Valine(initData)
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else $.getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js', initValine)
+}
+
+if ('Valine' === 'Valine' || !false) {
+  if (false) btf.loadComment(document.querySelector('#vcomment'),loadValine)
+  else setTimeout(() => loadValine(), 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></div></body></html>
