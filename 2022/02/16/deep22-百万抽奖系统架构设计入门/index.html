@@ -1,0 +1,277 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>百万抽奖系统架构设计入门 | EricKun</title><meta name="keywords" content="Redis,负载均衡,架构,MQ,单点风险,读写分离,流量控制"><meta name="author" content="Eric kun"><meta name="copyright" content="Eric kun"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="前言从宏观架构层面去考虑一个抽奖系统的设计，在不涉及过多中间件的情况下，最朴素的想法其实就是一个抽奖服务器（tomcat 或者Springboot搭建）、一个通知服务器、MySQL数据库，可以完成用户抽奖到被通知是否抽到奖的过程。 V1：Base设计那么这个最简单的demo系统涉及到的问题就比较明显了：  单点问题：抽奖和通知服务器都是单点的，有单点风险，可以增加多个节点 负载均衡：如果增多节点，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="百万抽奖系统架构设计入门">
+<meta property="og:url" content="https://ericzikun.github.io/2022/02/16/deep22-%E7%99%BE%E4%B8%87%E6%8A%BD%E5%A5%96%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:site_name" content="EricKun">
+<meta property="og:description" content="前言从宏观架构层面去考虑一个抽奖系统的设计，在不涉及过多中间件的情况下，最朴素的想法其实就是一个抽奖服务器（tomcat 或者Springboot搭建）、一个通知服务器、MySQL数据库，可以完成用户抽奖到被通知是否抽到奖的过程。 V1：Base设计那么这个最简单的demo系统涉及到的问题就比较明显了：  单点问题：抽奖和通知服务器都是单点的，有单点风险，可以增加多个节点 负载均衡：如果增多节点，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/f0074fc20a114846a801083eea4ea770.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="article:published_time" content="2022-02-16T08:15:44.000Z">
+<meta property="article:modified_time" content="2022-02-16T08:18:42.476Z">
+<meta property="article:author" content="Eric kun">
+<meta property="article:tag" content="Redis">
+<meta property="article:tag" content="负载均衡">
+<meta property="article:tag" content="架构">
+<meta property="article:tag" content="MQ">
+<meta property="article:tag" content="单点风险">
+<meta property="article:tag" content="读写分离">
+<meta property="article:tag" content="流量控制">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/f0074fc20a114846a801083eea4ea770.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16"><link rel="shortcut icon" href="https://pic2.zhimg.com/80/v2-f19e0e0add10a40489cdb8df576a0f7e_qhd.jpg"><link rel="canonical" href="https://ericzikun.github.io/2022/02/16/deep22-%E7%99%BE%E4%B8%87%E6%8A%BD%E5%A5%96%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%85%A5%E9%97%A8/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//hm.baidu.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><script>var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?0d6b4455953d3e1c0917234dfebaa739";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  hexoversion: '4.2.1',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: true,
+  postUpdate: '2022-02-16 16:18:42'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {
+  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }
+})()</script><meta name="generator" content="Hexo 4.2.1"><link rel="alternate" href="/atom.xml" title="EricKun" type="application/atom+xml">
+</head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/null" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">65</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">132</div></a></div></div><div class="mobile_data_item is-center">     <div class="mobile_data_link"><a href="/categories/"><div class="headline">分类</div><div class="length_num">38</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div></div></div></div><div id="body-wrap"><div id="web_bg"></div><div id="sidebar"><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#V1：Base设计"><span class="toc-text">V1：Base设计</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#V2：考虑单点风险"><span class="toc-text">V2：考虑单点风险</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#V3：考虑流量大"><span class="toc-text">V3：考虑流量大</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#流量大之限流"><span class="toc-text">流量大之限流</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#限流"><span class="toc-text">限流</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#防攻击（ip限制）"><span class="toc-text">防攻击（ip限制）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#拒绝无用流量"><span class="toc-text">拒绝无用流量</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#节点线程数优化之压测"><span class="toc-text">节点线程数优化之压测</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#V4：Mysql优化之读写分离"><span class="toc-text">V4：Mysql优化之读写分离</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#V5：抽奖通知异步化"><span class="toc-text">V5：抽奖通知异步化</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#几个思想"><span class="toc-text">几个思想</span></a></li></ol></div></div></div><header class="post-bg" id="page-header" style="background-image: url(https://img-blog.csdnimg.cn/f0074fc20a114846a801083eea4ea770.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">EricKun</a></span><span id="menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间线</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div></div><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">百万抽奖系统架构设计入门</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-02-16T08:15:44.000Z" title="发表于 2022-02-16 16:15:44">2022-02-16</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-02-16T08:18:42.476Z" title="更新于 2022-02-16 16:18:42">2022-02-16</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%B7%B1%E5%85%A5/">深入</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%B7%B1%E5%85%A5/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/">系统设计</a></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>从宏观架构层面去考虑一个抽奖系统的设计，在不涉及过多中间件的情况下，最朴素的想法其实就是一个抽奖服务器（tomcat 或者Springboot搭建）、一个通知服务器、MySQL数据库，可以完成用户抽奖到被通知是否抽到奖的过程。</p>
+<h1 id="V1：Base设计"><a href="#V1：Base设计" class="headerlink" title="V1：Base设计"></a>V1：Base设计</h1><p><img src="https://img-blog.csdnimg.cn/add3658444884e3e9fa9ba5c1e06264e.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>那么这个最简单的demo系统涉及到的问题就比较明显了：</p>
+<ul>
+<li>单点问题：抽奖和通知服务器都是单点的，有单点风险，可以增加多个节点</li>
+<li>负载均衡：如果增多节点，会涉及负载均衡问题（节点之间的访问规则，如果去降低服务器的访问压力），负载均衡可以用nginx，可以用轮询、一致性哈希、最近最少访问轮询算法</li>
+</ul>
+<p>下面增加多个节点，并使用nginx实现负载均衡。</p>
+<h1 id="V2：考虑单点风险"><a href="#V2：考虑单点风险" class="headerlink" title="V2：考虑单点风险"></a>V2：考虑单点风险</h1><p><img src="https://img-blog.csdnimg.cn/bed8bb2fbbea40078339d04d9adf6dcb.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>从而将V1版本的单点服务器进化成了集群，提高了高可用（a节点挂了，b节点还能访问），从而避免了<strong>单点风险</strong>。</p>
+<h1 id="V3：考虑流量大"><a href="#V3：考虑流量大" class="headerlink" title="V3：考虑流量大"></a>V3：考虑流量大</h1><p>对于一个百万级、千万级的抽奖系统，流量必然非常大，如何进行考虑呢？当然，最暴力的方式就是无限的去横向扩展服务器（增大节点数，增大到十几万太服务器节点），但是这也不是无限制的，完全不现实，如何可以尽可能的用较少的硬件成本去解决问题呢？</p>
+<h2 id="流量大之限流"><a href="#流量大之限流" class="headerlink" title="流量大之限流"></a>流量大之限流</h2><p><img src="https://img-blog.csdnimg.cn/cd6f9f3676474b58b63c6d3778d52e6c.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<h3 id="限流"><a href="#限流" class="headerlink" title="限流"></a>限流</h3><p>如果流量非常大，应该去<strong>考虑限流</strong>，可以通过网关层面（gateway/sentinel）做限流，比如集群能承受最大压力为10万QPS（每秒查询率，Queries-per-second），就需要限流到8万QPS，并且一些恶意用户会去刷脚本，攻击服务器，这时候不仅要限流操作。</p>
+<h3 id="防攻击（ip限制）"><a href="#防攻击（ip限制）" class="headerlink" title="防攻击（ip限制）"></a>防攻击（ip限制）</h3><p>还需要<strong>防攻击操作</strong>（ip限制），比如某个恶意用户1秒钟发送了很多抽奖请求，认定他为恶意用户，从而拉黑ip（ip限制可以再网关层面或者负载均衡层面去处理）。</p>
+<h3 id="拒绝无用流量"><a href="#拒绝无用流量" class="headerlink" title="拒绝无用流量"></a>拒绝无用流量</h3><p>还需要去拒绝没必要的流量，比如有总共50万人抢1万个红包，前面1万个红包已经抢完了，后面的流量就要直接拒绝，而不是任由他来请求我们的服务器，这里需要知道什么时候奖抽完了，对应的就是一个抽奖状态，可以用中间件来做（Redis或者Zookeeper）</p>
+<p>在负载均衡层面去访问Redis，如果已经抽完了，那么就直接拒绝后面的流量，就不用分发给具体服务器，直接返回给用户了。</p>
+<p>如果用zookeeper，可以创建一个节点，在负载均衡或者网关层面去监听zookeeper节点，一旦抽奖结束后，就会更新zookeeper节点状态，进而在网关或者负载均衡层面不再分发流量了，直接拒绝。<br><img src="https://img-blog.csdnimg.cn/6df91e8d47b84cf7a684b5a18c2200c2.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>前端优化：<br>也可以把后续用户的按钮置灰色，让用户不能抽奖了，告知已经抽完了。</p>
+<h1 id="节点线程数优化之压测"><a href="#节点线程数优化之压测" class="headerlink" title="节点线程数优化之压测"></a>节点线程数优化之压测</h1><p>tomcat容器相当于是会启动一个线程去执行，那么线程数如何设置呢？如果设置的线程数太少，就无法利用好CPU资源，造成资源浪费，也处理不了请求，线程数太多，也会对服务器造成压力，极端情况下导致宕机，所以需要对tomcat容器进行压测（一般线程数在200-500之间，具体情况需要测试），看服务器的硬件配置，使得tomcat线程数怎么设置比较好</p>
+<h1 id="V4：Mysql优化之读写分离"><a href="#V4：Mysql优化之读写分离" class="headerlink" title="V4：Mysql优化之读写分离"></a>V4：Mysql优化之读写分离</h1><p>前面的基础之上，服务器既要往MySQL写中奖记录，又要读中数据，压力是很大的，而且写的过程中又会加写锁，导致效率低下，所以就要用到读写分离，可以直接用Redis代替MySQL数据库，做抽奖逻辑的操作，因为Redis基于内存，速度非常快，如果怕Redis顶不住，还可以给Redis配置集群，那如果说非要用mysql持久化数据咋办呢？很简单，在抽奖完全结束后，将Redis中的数据同步到MySQL中去即可，从而避免了在流量高峰的时候去操作MySQL，这样会有效率问题<br><img src="https://img-blog.csdnimg.cn/8e39b535c6544a90a811510404946778.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<h1 id="V5：抽奖通知异步化"><a href="#V5：抽奖通知异步化" class="headerlink" title="V5：抽奖通知异步化"></a>V5：抽奖通知异步化</h1><p>对于发送给用户的通知消息，并不追求实时性，而是可以等到抽奖结束之后再一起通知，所以可以将通知服务优化成异步，不用浪费整个系统资源。</p>
+<p>解耦：<br>可以把中奖通知服务通过MQ解耦，就是把中奖信息同步到MQ中，在下图的MQ上方相当于生产消费模型中的<strong>生产者</strong>（计算出哪些用户抽到奖了），下半部分就是<strong>消费者</strong>，可以按照自定义的速度去消费MQ完成异步通知，同时也可以把中奖记录写到MySQL里面，完成了<strong>MQ的削峰填谷</strong>。<br><img src="https://img-blog.csdnimg.cn/f0074fc20a114846a801083eea4ea770.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<h1 id="几个思想"><a href="#几个思想" class="headerlink" title="几个思想"></a>几个思想</h1><ul>
+<li><p>微服务化，单一职责，防止服务雪崩<br>比如，有支付系统，订单系统，物流系统，客服系统，每个系统都微服务化，职责很单一，独立部署，订单系统崩了不会影响其他系统。</p>
+</li>
+<li><p>URL动态加密<br>对请求参数加密，防止刷脚本发url请求，以及参数的合法性验证，防止黑客做类似Redis缓存穿透之类的操作</p>
+</li>
+<li><p>利用CDN资源静态化<br>图片加载很浪费时间，可以把图谱放到离我们很近的服务器上静态化，缓存到CDN，可以对原服务器做到保护；如果不做的话，所有请求直接就打到了服务器上，服务器返回这些图片资源，网络io请求会很大，一直占用带宽，造成网络拥堵。</p>
+</li>
+<li><p>前端控制：抽奖按钮置灰</p>
+</li>
+<li><p>限流：前端限流，禁止一直点；后端限流，熔断</p>
+</li>
+<li><p>数据预热，提前缓存到Redis中</p>
+</li>
+<li><p>削峰填谷：MQ</p>
+</li>
+</ul>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Eric kun</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://ericzikun.github.io/2022/02/16/deep22-%E7%99%BE%E4%B8%87%E6%8A%BD%E5%A5%96%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%85%A5%E9%97%A8/">https://ericzikun.github.io/2022/02/16/deep22-%E7%99%BE%E4%B8%87%E6%8A%BD%E5%A5%96%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%85%A5%E9%97%A8/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://ericzikun.github.io" target="_blank">EricKun</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Redis/">Redis</a><a class="post-meta__tags" href="/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/">负载均衡</a><a class="post-meta__tags" href="/tags/%E6%9E%B6%E6%9E%84/">架构</a><a class="post-meta__tags" href="/tags/MQ/">MQ</a><a class="post-meta__tags" href="/tags/%E5%8D%95%E7%82%B9%E9%A3%8E%E9%99%A9/">单点风险</a><a class="post-meta__tags" href="/tags/%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB/">读写分离</a><a class="post-meta__tags" href="/tags/%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6/">流量控制</a></div><div class="post_share"><div class="social-share" data-image="https://img-blog.csdnimg.cn/f0074fc20a114846a801083eea4ea770.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i> 打赏<div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="/img/alipay.png" target="_blank"><img class="post-qr-code-img" src="/img/alipay.png"/></a><div class="post-qr-code-desc"></div></li></ul></div></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2022/02/14/deep21-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AE%97%E6%B3%95%E4%B9%8B%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%8E%AF/"><img class="next-cover" src="https://img-blog.csdnimg.cn/48ea734428b84de484fd399cea12cd30.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">负载均衡算法之一致性哈希环</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/01/04/Redis学习笔记/" title="【Springboot】Redis学习笔记"><img class="cover" src="https://img-blog.csdnimg.cn/20210124140426860.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-01-04</div><div class="title">【Springboot】Redis学习笔记</div></div></a></div><div><a href="/2022/02/14/deep18-布隆过滤器【1970年由布隆提出；Redis缓存穿透解决方案】/" title="布隆过滤器【1970年由布隆提出；Redis缓存穿透解决方案】"><img class="cover" src="https://img-blog.csdnimg.cn/215960170bbf4f779149909e57969050.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-02-14</div><div class="title">布隆过滤器【1970年由布隆提出；Redis缓存穿透解决方案】</div></div></a></div><div><a href="/2022/02/14/deep19-Redis缓存穿透-击穿-雪崩/" title="Redis缓存穿透 击穿 雪崩"><img class="cover" src="https://img-blog.csdnimg.cn/0378bf2a880f45c8b84d9019b13ca178.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-02-14</div><div class="title">Redis缓存穿透 击穿 雪崩</div></div></a></div><div><a href="/2022/02/14/deep20-初探负载均衡算法【随机、轮询、加权随机、加权轮询、平滑加权轮询】/" title="初探负载均衡算法【随机、轮询、加权随机、加权轮询、平滑加权轮询】"><img class="cover" src="https://img-blog.csdnimg.cn/ef0ad6da9f024864adf6a9a8385af5f8.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-02-14</div><div class="title">初探负载均衡算法【随机、轮询、加权随机、加权轮询、平滑加权轮询】</div></div></a></div><div><a href="/2022/02/14/deep21-负载均衡算法之一致性哈希环/" title="负载均衡算法之一致性哈希环"><img class="cover" src="https://img-blog.csdnimg.cn/48ea734428b84de484fd399cea12cd30.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-02-14</div><div class="title">负载均衡算法之一致性哈希环</div></div></a></div></div></div><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div></div></div></article></main><footer id="footer" style="background: #000000"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By Eric kun</div><div class="framework-info"><span>框架 </span><a href="https://hexo.io" target="_blank" rel="noopener">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener">Butterfly</a></div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a href="https://github.com/wzpan/hexo-generator-search" target="_blank" rel="noopener" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script>if (!window.MathJax) {
+  window.MathJax = {
+    loader: {
+      source: {
+        '[tex]/amsCd': '[tex]/amscd'
+      }
+    },
+    tex: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"]],
+      tags: 'ams'
+    },
+    options: {
+      renderActions: {
+        findScript: [10, doc => {
+          for (const node of document.querySelectorAll('script[type^="math/tex"]')) {
+            const display = !!node.type.match(/; *mode=display/)
+            const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display)
+            const text = document.createTextNode('')
+            node.parentNode.replaceChild(text, node)
+            math.start = {node: text, delim: '', n: 0}
+            math.end = {node: text, delim: '', n: 0}
+            doc.math.push(math)
+          }
+        }, ''],
+        addClass: [200,() => {
+          document.querySelectorAll('mjx-container:not([display=\'true\']').forEach( node => {
+            const target = node.parentNode
+            if (!target.classList.contains('has-jax')) {
+              target.classList.add('mathjax-overflow')
+            }
+          })
+        }, '', false]
+      }
+    }
+  }
+  
+  var script = document.createElement('script')
+  script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
+  script.id = 'MathJax-script'
+  script.async = true
+  document.head.appendChild(script)
+} else {
+  MathJax.startup.document.state(0)
+  MathJax.texReset()
+  MathJax.typeset()
+}</script><script>function loadValine () {
+  function initValine () {
+    const initData = {
+      el: '#vcomment',
+      appId: 'tx6zs0UB1yRovubWAD3heyoM-gzGzoHsz',
+      appKey: '8SJzl4MBSSjcdEESUaALKRXk',
+      placeholder: 'Just do it!',
+      avatar: 'monsterid',
+      meta: 'nick,mail,link'.split(','),
+      pageSize: '10',
+      lang: 'zh-CN',
+      recordIP: false,
+      serverURLs: '',
+      emojiCDN: '',
+      emojiMaps: "",
+      enableQQ: false,
+      path: window.location.pathname,
+    }
+
+    if (true) { 
+      initData.requiredFields= ('nick,mail'.split(','))
+    }
+
+    const valine = new Valine(initData)
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else $.getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js', initValine)
+}
+
+if ('Valine' === 'Valine' || !false) {
+  if (false) btf.loadComment(document.querySelector('#vcomment'),loadValine)
+  else setTimeout(() => loadValine(), 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></div></body></html>

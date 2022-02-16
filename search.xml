@@ -4,6 +4,45 @@
   
     
     <entry>
+      <title>百万抽奖系统架构设计入门</title>
+      <link href="2022/02/16/deep22-%E7%99%BE%E4%B8%87%E6%8A%BD%E5%A5%96%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%85%A5%E9%97%A8/"/>
+      <url>2022/02/16/deep22-%E7%99%BE%E4%B8%87%E6%8A%BD%E5%A5%96%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%85%A5%E9%97%A8/</url>
+      
+        <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>从宏观架构层面去考虑一个抽奖系统的设计，在不涉及过多中间件的情况下，最朴素的想法其实就是一个抽奖服务器（tomcat 或者Springboot搭建）、一个通知服务器、MySQL数据库，可以完成用户抽奖到被通知是否抽到奖的过程。</p><h1 id="V1：Base设计"><a href="#V1：Base设计" class="headerlink" title="V1：Base设计"></a>V1：Base设计</h1><p><img src="https://img-blog.csdnimg.cn/add3658444884e3e9fa9ba5c1e06264e.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>那么这个最简单的demo系统涉及到的问题就比较明显了：</p><ul><li>单点问题：抽奖和通知服务器都是单点的，有单点风险，可以增加多个节点</li><li>负载均衡：如果增多节点，会涉及负载均衡问题（节点之间的访问规则，如果去降低服务器的访问压力），负载均衡可以用nginx，可以用轮询、一致性哈希、最近最少访问轮询算法</li></ul><p>下面增加多个节点，并使用nginx实现负载均衡。</p><h1 id="V2：考虑单点风险"><a href="#V2：考虑单点风险" class="headerlink" title="V2：考虑单点风险"></a>V2：考虑单点风险</h1><p><img src="https://img-blog.csdnimg.cn/bed8bb2fbbea40078339d04d9adf6dcb.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>从而将V1版本的单点服务器进化成了集群，提高了高可用（a节点挂了，b节点还能访问），从而避免了<strong>单点风险</strong>。</p><h1 id="V3：考虑流量大"><a href="#V3：考虑流量大" class="headerlink" title="V3：考虑流量大"></a>V3：考虑流量大</h1><p>对于一个百万级、千万级的抽奖系统，流量必然非常大，如何进行考虑呢？当然，最暴力的方式就是无限的去横向扩展服务器（增大节点数，增大到十几万太服务器节点），但是这也不是无限制的，完全不现实，如何可以尽可能的用较少的硬件成本去解决问题呢？</p><h2 id="流量大之限流"><a href="#流量大之限流" class="headerlink" title="流量大之限流"></a>流量大之限流</h2><p><img src="https://img-blog.csdnimg.cn/cd6f9f3676474b58b63c6d3778d52e6c.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p><h3 id="限流"><a href="#限流" class="headerlink" title="限流"></a>限流</h3><p>如果流量非常大，应该去<strong>考虑限流</strong>，可以通过网关层面（gateway/sentinel）做限流，比如集群能承受最大压力为10万QPS（每秒查询率，Queries-per-second），就需要限流到8万QPS，并且一些恶意用户会去刷脚本，攻击服务器，这时候不仅要限流操作。</p><h3 id="防攻击（ip限制）"><a href="#防攻击（ip限制）" class="headerlink" title="防攻击（ip限制）"></a>防攻击（ip限制）</h3><p>还需要<strong>防攻击操作</strong>（ip限制），比如某个恶意用户1秒钟发送了很多抽奖请求，认定他为恶意用户，从而拉黑ip（ip限制可以再网关层面或者负载均衡层面去处理）。</p><h3 id="拒绝无用流量"><a href="#拒绝无用流量" class="headerlink" title="拒绝无用流量"></a>拒绝无用流量</h3><p>还需要去拒绝没必要的流量，比如有总共50万人抢1万个红包，前面1万个红包已经抢完了，后面的流量就要直接拒绝，而不是任由他来请求我们的服务器，这里需要知道什么时候奖抽完了，对应的就是一个抽奖状态，可以用中间件来做（Redis或者Zookeeper）</p><p>在负载均衡层面去访问Redis，如果已经抽完了，那么就直接拒绝后面的流量，就不用分发给具体服务器，直接返回给用户了。</p><p>如果用zookeeper，可以创建一个节点，在负载均衡或者网关层面去监听zookeeper节点，一旦抽奖结束后，就会更新zookeeper节点状态，进而在网关或者负载均衡层面不再分发流量了，直接拒绝。<br><img src="https://img-blog.csdnimg.cn/6df91e8d47b84cf7a684b5a18c2200c2.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>前端优化：<br>也可以把后续用户的按钮置灰色，让用户不能抽奖了，告知已经抽完了。</p><h1 id="节点线程数优化之压测"><a href="#节点线程数优化之压测" class="headerlink" title="节点线程数优化之压测"></a>节点线程数优化之压测</h1><p>tomcat容器相当于是会启动一个线程去执行，那么线程数如何设置呢？如果设置的线程数太少，就无法利用好CPU资源，造成资源浪费，也处理不了请求，线程数太多，也会对服务器造成压力，极端情况下导致宕机，所以需要对tomcat容器进行压测（一般线程数在200-500之间，具体情况需要测试），看服务器的硬件配置，使得tomcat线程数怎么设置比较好</p><h1 id="V4：Mysql优化之读写分离"><a href="#V4：Mysql优化之读写分离" class="headerlink" title="V4：Mysql优化之读写分离"></a>V4：Mysql优化之读写分离</h1><p>前面的基础之上，服务器既要往MySQL写中奖记录，又要读中数据，压力是很大的，而且写的过程中又会加写锁，导致效率低下，所以就要用到读写分离，可以直接用Redis代替MySQL数据库，做抽奖逻辑的操作，因为Redis基于内存，速度非常快，如果怕Redis顶不住，还可以给Redis配置集群，那如果说非要用mysql持久化数据咋办呢？很简单，在抽奖完全结束后，将Redis中的数据同步到MySQL中去即可，从而避免了在流量高峰的时候去操作MySQL，这样会有效率问题<br><img src="https://img-blog.csdnimg.cn/8e39b535c6544a90a811510404946778.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p><h1 id="V5：抽奖通知异步化"><a href="#V5：抽奖通知异步化" class="headerlink" title="V5：抽奖通知异步化"></a>V5：抽奖通知异步化</h1><p>对于发送给用户的通知消息，并不追求实时性，而是可以等到抽奖结束之后再一起通知，所以可以将通知服务优化成异步，不用浪费整个系统资源。</p><p>解耦：<br>可以把中奖通知服务通过MQ解耦，就是把中奖信息同步到MQ中，在下图的MQ上方相当于生产消费模型中的<strong>生产者</strong>（计算出哪些用户抽到奖了），下半部分就是<strong>消费者</strong>，可以按照自定义的速度去消费MQ完成异步通知，同时也可以把中奖记录写到MySQL里面，完成了<strong>MQ的削峰填谷</strong>。<br><img src="https://img-blog.csdnimg.cn/f0074fc20a114846a801083eea4ea770.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p><h1 id="几个思想"><a href="#几个思想" class="headerlink" title="几个思想"></a>几个思想</h1><ul><li><p>微服务化，单一职责，防止服务雪崩<br>比如，有支付系统，订单系统，物流系统，客服系统，每个系统都微服务化，职责很单一，独立部署，订单系统崩了不会影响其他系统。</p></li><li><p>URL动态加密<br>对请求参数加密，防止刷脚本发url请求，以及参数的合法性验证，防止黑客做类似Redis缓存穿透之类的操作</p></li><li><p>利用CDN资源静态化<br>图片加载很浪费时间，可以把图谱放到离我们很近的服务器上静态化，缓存到CDN，可以对原服务器做到保护；如果不做的话，所有请求直接就打到了服务器上，服务器返回这些图片资源，网络io请求会很大，一直占用带宽，造成网络拥堵。</p></li><li><p>前端控制：抽奖按钮置灰</p></li><li><p>限流：前端限流，禁止一直点；后端限流，熔断</p></li><li><p>数据预热，提前缓存到Redis中</p></li><li><p>削峰填谷：MQ</p></li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> 深入 </category>
+          
+          <category> 系统设计 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Redis </tag>
+            
+            <tag> 负载均衡 </tag>
+            
+            <tag> 架构 </tag>
+            
+            <tag> MQ </tag>
+            
+            <tag> 单点风险 </tag>
+            
+            <tag> 读写分离 </tag>
+            
+            <tag> 流量控制 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>负载均衡算法之一致性哈希环</title>
       <link href="2022/02/14/deep21-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AE%97%E6%B3%95%E4%B9%8B%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%8E%AF/"/>
       <url>2022/02/14/deep21-%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E7%AE%97%E6%B3%95%E4%B9%8B%E4%B8%80%E8%87%B4%E6%80%A7%E5%93%88%E5%B8%8C%E7%8E%AF/</url>

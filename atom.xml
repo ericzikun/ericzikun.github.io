@@ -6,7 +6,7 @@
   <link href="https://ericzikun.github.io/atom.xml" rel="self"/>
   
   <link href="https://ericzikun.github.io/"/>
-  <updated>2022-02-14T05:41:36.651Z</updated>
+  <updated>2022-02-16T08:18:42.476Z</updated>
   <id>https://ericzikun.github.io/</id>
   
   <author>
@@ -15,6 +15,44 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>百万抽奖系统架构设计入门</title>
+    <link href="https://ericzikun.github.io/2022/02/16/deep22-%E7%99%BE%E4%B8%87%E6%8A%BD%E5%A5%96%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%85%A5%E9%97%A8/"/>
+    <id>https://ericzikun.github.io/2022/02/16/deep22-%E7%99%BE%E4%B8%87%E6%8A%BD%E5%A5%96%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1%E5%85%A5%E9%97%A8/</id>
+    <published>2022-02-16T08:15:44.000Z</published>
+    <updated>2022-02-16T08:18:42.476Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>从宏观架构层面去考虑一个抽奖系统的设计，在不涉及过多中间件的情况下，最朴素的想法其实就是一个抽奖服务器（tomcat 或者Springboot搭建）、一个通知服务器、MySQL数据库，可以完成用户抽奖到被通知是否抽到奖的过程。</p><h1 id="V1：Base设计"><a href="#V1：Base设计" class="headerlink" title="V1：Base设计"></a>V1：Base设计</h1><p><img src="https://img-blog.csdnimg.cn/add3658444884e3e9fa9ba5c1e06264e.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>那么这个最简单的demo系统涉及到的问题就比较明显了：</p><ul><li>单点问题：抽奖和通知服务器都是单点的，有单点风险，可以增加多个节点</li><li>负载均衡：如果增多节点，会涉及负载均衡问题（节点之间的访问规则，如果去降低服务器的访问压力），负载均衡可以用nginx，可以用轮询、一致性哈希、最近最少访问轮询算法</li></ul><p>下面增加多个节点，并使用nginx实现负载均衡。</p><h1 id="V2：考虑单点风险"><a href="#V2：考虑单点风险" class="headerlink" title="V2：考虑单点风险"></a>V2：考虑单点风险</h1><p><img src="https://img-blog.csdnimg.cn/bed8bb2fbbea40078339d04d9adf6dcb.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>从而将V1版本的单点服务器进化成了集群，提高了高可用（a节点挂了，b节点还能访问），从而避免了<strong>单点风险</strong>。</p><h1 id="V3：考虑流量大"><a href="#V3：考虑流量大" class="headerlink" title="V3：考虑流量大"></a>V3：考虑流量大</h1><p>对于一个百万级、千万级的抽奖系统，流量必然非常大，如何进行考虑呢？当然，最暴力的方式就是无限的去横向扩展服务器（增大节点数，增大到十几万太服务器节点），但是这也不是无限制的，完全不现实，如何可以尽可能的用较少的硬件成本去解决问题呢？</p><h2 id="流量大之限流"><a href="#流量大之限流" class="headerlink" title="流量大之限流"></a>流量大之限流</h2><p><img src="https://img-blog.csdnimg.cn/cd6f9f3676474b58b63c6d3778d52e6c.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p><h3 id="限流"><a href="#限流" class="headerlink" title="限流"></a>限流</h3><p>如果流量非常大，应该去<strong>考虑限流</strong>，可以通过网关层面（gateway/sentinel）做限流，比如集群能承受最大压力为10万QPS（每秒查询率，Queries-per-second），就需要限流到8万QPS，并且一些恶意用户会去刷脚本，攻击服务器，这时候不仅要限流操作。</p><h3 id="防攻击（ip限制）"><a href="#防攻击（ip限制）" class="headerlink" title="防攻击（ip限制）"></a>防攻击（ip限制）</h3><p>还需要<strong>防攻击操作</strong>（ip限制），比如某个恶意用户1秒钟发送了很多抽奖请求，认定他为恶意用户，从而拉黑ip（ip限制可以再网关层面或者负载均衡层面去处理）。</p><h3 id="拒绝无用流量"><a href="#拒绝无用流量" class="headerlink" title="拒绝无用流量"></a>拒绝无用流量</h3><p>还需要去拒绝没必要的流量，比如有总共50万人抢1万个红包，前面1万个红包已经抢完了，后面的流量就要直接拒绝，而不是任由他来请求我们的服务器，这里需要知道什么时候奖抽完了，对应的就是一个抽奖状态，可以用中间件来做（Redis或者Zookeeper）</p><p>在负载均衡层面去访问Redis，如果已经抽完了，那么就直接拒绝后面的流量，就不用分发给具体服务器，直接返回给用户了。</p><p>如果用zookeeper，可以创建一个节点，在负载均衡或者网关层面去监听zookeeper节点，一旦抽奖结束后，就会更新zookeeper节点状态，进而在网关或者负载均衡层面不再分发流量了，直接拒绝。<br><img src="https://img-blog.csdnimg.cn/6df91e8d47b84cf7a684b5a18c2200c2.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>前端优化：<br>也可以把后续用户的按钮置灰色，让用户不能抽奖了，告知已经抽完了。</p><h1 id="节点线程数优化之压测"><a href="#节点线程数优化之压测" class="headerlink" title="节点线程数优化之压测"></a>节点线程数优化之压测</h1><p>tomcat容器相当于是会启动一个线程去执行，那么线程数如何设置呢？如果设置的线程数太少，就无法利用好CPU资源，造成资源浪费，也处理不了请求，线程数太多，也会对服务器造成压力，极端情况下导致宕机，所以需要对tomcat容器进行压测（一般线程数在200-500之间，具体情况需要测试），看服务器的硬件配置，使得tomcat线程数怎么设置比较好</p><h1 id="V4：Mysql优化之读写分离"><a href="#V4：Mysql优化之读写分离" class="headerlink" title="V4：Mysql优化之读写分离"></a>V4：Mysql优化之读写分离</h1><p>前面的基础之上，服务器既要往MySQL写中奖记录，又要读中数据，压力是很大的，而且写的过程中又会加写锁，导致效率低下，所以就要用到读写分离，可以直接用Redis代替MySQL数据库，做抽奖逻辑的操作，因为Redis基于内存，速度非常快，如果怕Redis顶不住，还可以给Redis配置集群，那如果说非要用mysql持久化数据咋办呢？很简单，在抽奖完全结束后，将Redis中的数据同步到MySQL中去即可，从而避免了在流量高峰的时候去操作MySQL，这样会有效率问题<br><img src="https://img-blog.csdnimg.cn/8e39b535c6544a90a811510404946778.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p><h1 id="V5：抽奖通知异步化"><a href="#V5：抽奖通知异步化" class="headerlink" title="V5：抽奖通知异步化"></a>V5：抽奖通知异步化</h1><p>对于发送给用户的通知消息，并不追求实时性，而是可以等到抽奖结束之后再一起通知，所以可以将通知服务优化成异步，不用浪费整个系统资源。</p><p>解耦：<br>可以把中奖通知服务通过MQ解耦，就是把中奖信息同步到MQ中，在下图的MQ上方相当于生产消费模型中的<strong>生产者</strong>（计算出哪些用户抽到奖了），下半部分就是<strong>消费者</strong>，可以按照自定义的速度去消费MQ完成异步通知，同时也可以把中奖记录写到MySQL里面，完成了<strong>MQ的削峰填谷</strong>。<br><img src="https://img-blog.csdnimg.cn/f0074fc20a114846a801083eea4ea770.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAcG9wb2Z6aw==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p><h1 id="几个思想"><a href="#几个思想" class="headerlink" title="几个思想"></a>几个思想</h1><ul><li><p>微服务化，单一职责，防止服务雪崩<br>比如，有支付系统，订单系统，物流系统，客服系统，每个系统都微服务化，职责很单一，独立部署，订单系统崩了不会影响其他系统。</p></li><li><p>URL动态加密<br>对请求参数加密，防止刷脚本发url请求，以及参数的合法性验证，防止黑客做类似Redis缓存穿透之类的操作</p></li><li><p>利用CDN资源静态化<br>图片加载很浪费时间，可以把图谱放到离我们很近的服务器上静态化，缓存到CDN，可以对原服务器做到保护；如果不做的话，所有请求直接就打到了服务器上，服务器返回这些图片资源，网络io请求会很大，一直占用带宽，造成网络拥堵。</p></li><li><p>前端控制：抽奖按钮置灰</p></li><li><p>限流：前端限流，禁止一直点；后端限流，熔断</p></li><li><p>数据预热，提前缓存到Redis中</p></li><li><p>削峰填谷：MQ</p></li></ul>]]></content>
+    
+    
+      
+      
+    <summary type="html">&lt;h1 id=&quot;前言&quot;&gt;&lt;a href=&quot;#前言&quot; class=&quot;headerlink&quot; title=&quot;前言&quot;&gt;&lt;/a&gt;前言&lt;/h1&gt;&lt;p&gt;从宏观架构层面去考虑一个抽奖系统的设计，在不涉及过多中间件的情况下，最朴素的想法其实就是一个抽奖服务器（tomcat 或者Springboo</summary>
+      
+    
+    
+    
+    <category term="深入" scheme="https://ericzikun.github.io/categories/%E6%B7%B1%E5%85%A5/"/>
+    
+    <category term="系统设计" scheme="https://ericzikun.github.io/categories/%E6%B7%B1%E5%85%A5/%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1/"/>
+    
+    
+    <category term="Redis" scheme="https://ericzikun.github.io/tags/Redis/"/>
+    
+    <category term="负载均衡" scheme="https://ericzikun.github.io/tags/%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1/"/>
+    
+    <category term="架构" scheme="https://ericzikun.github.io/tags/%E6%9E%B6%E6%9E%84/"/>
+    
+    <category term="MQ" scheme="https://ericzikun.github.io/tags/MQ/"/>
+    
+    <category term="单点风险" scheme="https://ericzikun.github.io/tags/%E5%8D%95%E7%82%B9%E9%A3%8E%E9%99%A9/"/>
+    
+    <category term="读写分离" scheme="https://ericzikun.github.io/tags/%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB/"/>
+    
+    <category term="流量控制" scheme="https://ericzikun.github.io/tags/%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6/"/>
+    
+  </entry>
   
   <entry>
     <title>负载均衡算法之一致性哈希环</title>
@@ -613,36 +651,6 @@
     <category term="多线程" scheme="https://ericzikun.github.io/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
     
     <category term="并发" scheme="https://ericzikun.github.io/tags/%E5%B9%B6%E5%8F%91/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Springboot项目docker部署配置文件外挂载</title>
-    <link href="https://ericzikun.github.io/2021/06/26/Springboot%E9%A1%B9%E7%9B%AEdocker%E9%83%A8%E7%BD%B2%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%A4%96%E6%8C%82%E8%BD%BD/"/>
-    <id>https://ericzikun.github.io/2021/06/26/Springboot%E9%A1%B9%E7%9B%AEdocker%E9%83%A8%E7%BD%B2%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%A4%96%E6%8C%82%E8%BD%BD/</id>
-    <published>2021-06-26T13:49:57.000Z</published>
-    <updated>2021-06-26T13:53:27.106Z</updated>
-    
-    <content type="html"><![CDATA[<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 利用docker对一个Springboot打包时会遇到要及时更改相关数据库或者外部接口的ip及port，如果每次都进到容器内部修改，那一定非常麻烦，这里我想到了两种解决方案，并最终使用了后者。两种方法类似，无论哪种，都必须经过外挂载的步骤，也就是要把配置文件放到一个和宿主机映射的目录下：如图，这里采用的是docker-compose.yaml容器编排方式，不赘述：<br><img src="https://img-blog.csdnimg.cn/20210626214430420.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3BvcG9mems=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>将配置文件放在宿主机目录的config下，代码中写到“/usr/app_file/config/config/json”即可被容器访问到!</p><h2 id="方法一："><a href="#方法一：" class="headerlink" title="方法一："></a>方法一：</h2><p>容器内运行jar包的CMD采用指定外部application.yml的命令：<br>类似：</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nohup jdk1<span class="number">.8</span><span class="number">.0_131</span>/bin/java -jar -Dspring.config.location=tmp/springboottmp/xxx.yaml tmp/service.jar --spring.profiles.active=test &gt; logs/xxxlog.log <span class="number">2</span>&gt;&amp;<span class="number">1</span> &amp;</span><br></pre></td></tr></table></figure><h2 id="方法二："><a href="#方法二：" class="headerlink" title="方法二："></a>方法二：</h2><p>不使用application.yml，用最原始的方式读取一个json文件的键值对，并替换代码变量即可,在Springboot config下定义一个JsonConfig类即可，代码简单，关键是要把地址写到容器内的与宿主机映射的<strong>外挂载目录下</strong></p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">JsonConfig</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getProperty</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        String json_file = <span class="string">"/usr/app_file/config/es.json"</span>;</span><br><span class="line">        JSONObject configJ = <span class="keyword">this</span>.readJsonFile(json_file);</span><br><span class="line">        <span class="keyword">if</span>(configJ.containsKey(name))&#123;</span><br><span class="line">            <span class="keyword">return</span> configJ.getString(name);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> JSONObject <span class="title">readJsonFile</span><span class="params">(String filePath)</span></span>&#123;</span><br><span class="line">        BufferedReader reader = <span class="keyword">null</span>;</span><br><span class="line">        String readJson = <span class="string">""</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            FileInputStream fileInputStream = <span class="keyword">new</span> FileInputStream(filePath);</span><br><span class="line">            InputStreamReader inputStreamReader = <span class="keyword">new</span> InputStreamReader(fileInputStream, <span class="string">"UTF-8"</span>);</span><br><span class="line">            reader = <span class="keyword">new</span> BufferedReader(inputStreamReader);</span><br><span class="line">            String tempString = <span class="keyword">null</span>;</span><br><span class="line">            <span class="keyword">while</span> ((tempString = reader.readLine()) != <span class="keyword">null</span>)&#123;</span><br><span class="line">                readJson += tempString;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;<span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;<span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (reader != <span class="keyword">null</span>)&#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    reader.close();</span><br><span class="line">                &#125;<span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">                    e.printStackTrace();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        JSONObject jsonObject = <span class="keyword">new</span> JSONObject();</span><br><span class="line">        <span class="comment">// 获取json</span></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            jsonObject = JSONObject.parseObject(readJson);</span><br><span class="line">        &#125;<span class="keyword">catch</span> (JSONException e)&#123;</span><br><span class="line">            e.getMessage();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> jsonObject;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;p&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; 利用docker对一个Springboot打包时会遇到要及时更改相关数据库或者外部接口的ip及port，如果每次都进到容器内部修改，那一定非常麻烦，这里我想到了两种解决方案，并最终使用了后</summary>
-      
-    
-    
-    
-    <category term="技术栈" scheme="https://ericzikun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/"/>
-    
-    <category term="Springboot" scheme="https://ericzikun.github.io/categories/%E6%8A%80%E6%9C%AF%E6%A0%88/Springboot/"/>
-    
-    
-    <category term="Springboot" scheme="https://ericzikun.github.io/tags/Springboot/"/>
-    
-    <category term="Docker" scheme="https://ericzikun.github.io/tags/Docker/"/>
-    
-    <category term="JSON" scheme="https://ericzikun.github.io/tags/JSON/"/>
     
   </entry>
   
